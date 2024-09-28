@@ -4,6 +4,7 @@ import 'package:track_presence/db/databse_helper.dart';
 import 'package:track_presence/router/router_name.dart';
 import 'package:track_presence/screens/home.dart';
 import 'package:track_presence/screens/register.dart';
+import 'package:track_presence/screens/register_scan.dart';
 
 // GoRouter configuration
 final router = GoRouter(
@@ -17,12 +18,24 @@ final router = GoRouter(
       path: RouteNames.registerPath,
       name: RouteNames.register,
       builder: (_, __) => const Register(),
-    )
+    ),
+    GoRoute(
+      path: RouteNames.registerScanPath,
+      name: RouteNames.registerScan,
+      builder: (_, __) => const RegisterScan(),
+    ),
   ],
   redirect: (context, state) async {
     final DB db = DB.instance;
     final user = await db.queryAllUsers();
-    if (user.isEmpty) return RouteNames.registerPath;
+
+    final urlPath = state.uri.toString();
+
+    if (user.isEmpty) {
+      if (urlPath == RouteNames.registerScanPath ||
+          urlPath == RouteNames.registerPath) return null;
+      return RouteNames.registerPath;
+    }
     return null;
   },
 );

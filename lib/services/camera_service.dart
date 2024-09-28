@@ -75,6 +75,7 @@ class CameraService {
     assert(_cameraController != null, 'Camera controller not initialized');
     await _cameraController?.stopImageStream();
     XFile? file = await _cameraController?.takePicture();
+    _cameraController?.takePicture();
     _imagePath = file?.path;
     return file;
   }

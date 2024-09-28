@@ -3,19 +3,16 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:track_presence/models/user_model.dart';
+import 'package:track_presence/models/profile_model.dart';
 
-class DB {
-  static const _databaseName = "user.db";
+class ProfileDB {
+  static const _databaseName = "profile.db";
   static const _databaseVersion = 1;
 
-  static const table = 'users';
-  static const columnId = 'id';
-  static const columnUser = 'user_id';
-  static const columnModelData = 'model_data';
+  static const table = 'profile';
 
-  DB._privateConstructor();
-  static final DB instance = DB._privateConstructor();
+  ProfileDB._privateConstructor();
+  static final ProfileDB instance = ProfileDB._privateConstructor();
 
   static late Database _database;
   Future<Database> get database async {
@@ -33,22 +30,33 @@ class DB {
   Future _onCreate(Database db, int version) async {
     await db.execute('''
           CREATE TABLE $table (
-            $columnId INTEGER PRIMARY KEY,
-            $columnUser TEXT NOT NULL,
-            $columnModelData TEXT NOT NULL
+            id INTEGER PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            name TEXT NOT NULL,
+            deptartment TEXT NOT NULL,
+            designation TEXT NOT NULL,
+            email TEXT,
+            img_path TEXT
           )
           ''');
   }
 
-  Future<int> insert(User user) async {
+  Future<int> insert(Profile user) async {
     Database db = await instance.database;
     return await db.insert(table, user.toMap());
   }
 
-  Future<List<User>> queryAllUsers() async {
+  Future<List<Profile>> getById(String id) async {
     Database db = await instance.database;
-    List<Map<String, dynamic>> users = await db.query(table);
-    return users.map((u) => User.fromMap(u)).toList();
+    List<Map<String, dynamic>> prof =
+        await db.query(table, limit: 1, where: id);
+    return prof.map((u) => Profile.fromMap(u)).toList();
+  }
+
+  Future<List<Profile>> queryAllProfile() async {
+    Database db = await instance.database;
+    List<Map<String, dynamic>> prof = await db.query(table);
+    return prof.map((u) => Profile.fromMap(u)).toList();
   }
 
   Future<int> deleteAll() async {

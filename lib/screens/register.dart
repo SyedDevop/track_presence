@@ -1,8 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:track_presence/getit.dart';
 
-class Register extends StatelessWidget {
+import 'package:track_presence/router/router_name.dart';
+import 'package:track_presence/services/camera_service.dart';
+import 'package:track_presence/services/face_detector_service.dart';
+import 'package:track_presence/services/ml_service.dart';
+
+class Register extends StatefulWidget {
   const Register({super.key});
+
+  @override
+  State<Register> createState() => _RegisterState();
+}
+
+class _RegisterState extends State<Register> {
+  final MLService _mlSR = getIt<MLService>();
+  final CameraService _camSR = getIt<CameraService>();
+  final FaceDetectorService _faceSR = getIt<FaceDetectorService>();
+
+  @override
+  void initState() {
+    super.initState();
+    _mlSR.initialize();
+    _camSR.initialize();
+    _faceSR.initialize();
+  }
+
+  @override
+  void dispose() {
+    _camSR.dispose();
+    _mlSR.dispose();
+    _faceSR.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +86,7 @@ class Register extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 30),
                 child: FilledButton(
-                  onPressed: () {},
+                  onPressed: () => context.pushNamed(RouteNames.registerScan),
                   child: const Text("Register"),
                 ),
               ),

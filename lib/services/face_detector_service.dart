@@ -14,7 +14,7 @@ class FaceDetectorService {
   void initialize() {
     _faceDetector = FaceDetector(
       options: FaceDetectorOptions(
-        performanceMode: FaceDetectorMode.accurate,
+        performanceMode: FaceDetectorMode.fast,
         enableContours: true,
         enableClassification: false,
       ),
