@@ -3,14 +3,14 @@ class Profile {
   String name;
   String? email;
   String? imgPath;
-  String deptartment;
-  String designation;
+  String? department;
+  String? designation;
 
   Profile({
     required this.userId,
     required this.name,
-    required this.deptartment,
-    required this.designation,
+    this.department,
+    this.designation,
     this.email,
     this.imgPath,
   });
@@ -21,8 +21,20 @@ class Profile {
       name: data['name'],
       email: data['eamil'],
       imgPath: data['img_path'],
-      deptartment: data['deptartment'],
+      department: data['deptartment'],
       designation: data['designation'],
+    );
+  }
+
+  // TODO: make the api return not empty "department","designation"
+  static Profile fromApiJson(Map<String, dynamic> data) {
+    return Profile(
+      userId: data['employee_id'],
+      name: data['employee_name'],
+      email: data['eamil'],
+      imgPath: data['photo'],
+      department: data['department'] == "" ? null : data['department'],
+      designation: data['designation'] == "" ? null : data['designation'],
     );
   }
 
@@ -32,7 +44,7 @@ class Profile {
       'name': name,
       'email': email,
       'img_path': imgPath,
-      'deptartment': deptartment,
+      'deptartment': department,
       'designation': designation,
     };
   }

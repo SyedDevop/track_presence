@@ -33,7 +33,7 @@ class ProfileDB {
             id INTEGER PRIMARY KEY,
             user_id TEXT NOT NULL,
             name TEXT NOT NULL,
-            deptartment TEXT NOT NULL,
+            department TEXT NOT NULL,
             designation TEXT NOT NULL,
             email TEXT,
             img_path TEXT

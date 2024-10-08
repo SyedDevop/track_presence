@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
+import 'package:track_presence/api/api.dart';
 
 import 'package:track_presence/getit.dart';
 import 'package:track_presence/models/profile_model.dart';
@@ -268,8 +271,10 @@ class _RegisterScanState extends State<RegisterScan> {
             ProfileText(
                 "Email             : ${_profile?.email ?? "Not Found"}"),
             ProfileText("User Id           : ${_userIdController.text}"),
-            ProfileText("deptartment  : ${_profile?.deptartment}"),
-            ProfileText("designation   : ${_profile?.designation}"),
+            ProfileText(
+                "department   : ${_profile?.department ?? "Not Assigned"}"),
+            ProfileText(
+                "designation   : ${_profile?.designation ?? "Not Assigned"}"),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -319,7 +324,7 @@ class _RegisterScanState extends State<RegisterScan> {
             autofocus: true,
             autocorrect: false,
             keyboardType: TextInputType.name,
-            textCapitalization: TextCapitalization.characters,
+            // textCapitalization: TextCapitalization.characters,
             decoration: const InputDecoration(labelText: "User Id"),
           ),
           const SizedBox(height: 50),
@@ -331,28 +336,19 @@ class _RegisterScanState extends State<RegisterScan> {
                     setState(() {
                       _initializing = true;
                     });
-
+                    final newProfile =
+                        await Api.getProfile(_userIdController.text);
                     // DB db = DB.instance;
                     // ProfileDB profileDB = ProfileDB.instance;
                     //
-                    List predictedData = _mlSR.predictedData;
-                    print("Data => $predictedData");
+                    // List predictedData = _mlSR.predictedData;
+                    // print("Data => $predictedData");
                     // User userToSave = User(
                     //   userId: userId,
                     //   modelData: predictedData,
                     // );
-                    // TODO: this is where you call the database
-                    Profile profileToSave = Profile(
-                      userId: _userIdController.text,
-                      name: "Syed uzair ahmed",
-                      deptartment: "Med",
-                      designation: "All",
-                      email: "syeduzairahmed@gmain.com",
-                      imgPath: imagePath!,
-                    );
-                    _profile = profileToSave;
-                    setState(() => _initializing = false);
-                    if (0 == 1) {
+
+                    if (newProfile == null) {
                       showDialog(
                         context: context,
                         builder: (context) {
@@ -362,10 +358,17 @@ class _RegisterScanState extends State<RegisterScan> {
                         },
                       );
                     } else {
+                      _profile = newProfile;
+                      if (_profile?.imgPath == "" ||
+                          _profile?.imgPath == null) {
+                        _profile?.imgPath = imagePath!;
+                      }
                       Scaffold.of(context).showBottomSheet(
                         (context) => signConformSheet(context),
                       );
                     }
+
+                    setState(() => _initializing = false);
                     // await db.insert(userToSave);
                     // await profileDB.insert(profileToSave);
                     // _mlSR.setPredictedData([]);
