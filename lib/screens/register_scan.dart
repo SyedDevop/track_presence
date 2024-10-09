@@ -283,6 +283,7 @@ class _RegisterScanState extends State<RegisterScan> {
             print("Data => $predictedData");
             User userToSave = User(
               userId: _profile!.userId,
+              userName: _profile!.name,
               modelData: predictedData,
             );
             await db.insert(userToSave);

@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:track_presence/getit.dart';
-import 'package:track_presence/services/camera_service.dart';
-import 'package:track_presence/services/face_detector_service.dart';
-import 'package:track_presence/services/ml_service.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -12,21 +8,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final MLService _mlService = getIt<MLService>();
-  final FaceDetectorService _faceService = getIt<FaceDetectorService>();
-
-  bool loading = false;
   @override
   void initState() {
     super.initState();
-    _init();
-  }
-
-  _init() async {
-    setState(() => loading = true);
-    await _mlService.initialize();
-    _faceService.initialize();
-    setState(() => loading = false);
   }
 
   @override
@@ -49,10 +33,10 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
         onPressed: () => {},
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+        child: const Text("Hello"),
       ),
     );
   }

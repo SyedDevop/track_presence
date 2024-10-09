@@ -12,6 +12,7 @@ class DB {
   static const table = 'users';
   static const columnId = 'id';
   static const columnUser = 'user_id';
+  static const columnUserName = 'user_name';
   static const columnModelData = 'model_data';
 
   DB._privateConstructor();
@@ -35,6 +36,7 @@ class DB {
           CREATE TABLE $table (
             $columnId INTEGER PRIMARY KEY,
             $columnUser TEXT NOT NULL,
+            $columnUserName TEXT NOT NULL,
             $columnModelData TEXT NOT NULL
           )
           ''');
