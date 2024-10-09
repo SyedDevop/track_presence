@@ -5,17 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:path_provider/path_provider.dart';
+
 import 'package:track_presence/api/api.dart';
 import 'package:track_presence/db/databse_helper.dart';
-
 import 'package:track_presence/getit.dart';
 import 'package:track_presence/models/profile_model.dart';
 import 'package:track_presence/models/user_model.dart';
 import 'package:track_presence/services/camera_service.dart';
 import 'package:track_presence/services/face_detector_service.dart';
 import 'package:track_presence/services/ml_service.dart';
-import 'package:track_presence/widgets/FacePainter.dart';
 import 'package:track_presence/widgets/cam_header.dart';
+import 'package:track_presence/widgets/camra_preview_body.dart';
+import 'package:track_presence/widgets/image_view.dart';
 
 class RegisterScan extends StatefulWidget {
   const RegisterScan({super.key});
@@ -34,7 +35,6 @@ class _RegisterScanState extends State<RegisterScan> {
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   String? imagePath;
   Face? faceDetected;
-  Size? imageSize;
 
   bool _saving = false;
   bool pictureTaken = false;
@@ -62,8 +62,6 @@ class _RegisterScanState extends State<RegisterScan> {
   }
 
   _frameFaces() async {
-    imageSize = _camSR.getImageSize();
-
     _camSR.cameraController?.startImageStream((image) async {
       if (_camSR.cameraController != null) {
         if (_detectingFaces) return; // If image is in process return;
@@ -71,7 +69,7 @@ class _RegisterScanState extends State<RegisterScan> {
 
         try {
           await _faceSR.detectFacesFromCam(image, _camSR.cameraRotation!);
-          if (_faceSR.faces.isNotEmpty) {
+          if (_faceSR.faceDetected) {
             setState(() => faceDetected = _faceSR.faces[0]);
 
             if (_saving) {
@@ -93,7 +91,8 @@ class _RegisterScanState extends State<RegisterScan> {
   Future onCapture(BuildContext context) async {
     bool faceDetected = await onShot();
     if (faceDetected) {
-      Scaffold.of(context).showBottomSheet((context) => signSheet(context));
+      Scaffold.of(context).showBottomSheet((context) => addUserSheet(context))
+        ..closed.whenComplete(_reload);
     }
   }
 
@@ -158,64 +157,22 @@ class _RegisterScanState extends State<RegisterScan> {
         _profile?.imgPath = imagePath!;
       }
       Scaffold.of(context).showBottomSheet(
-        (context) => signConformSheet(context),
+        (context) => conformUserSheet(context),
       );
     }
     setState(() => _initializing = false);
   }
 
+  Widget getBodyWidget() {
+    if (_initializing) return const Center(child: CircularProgressIndicator());
+    if (pictureTaken) return ImageView(imagePath: imagePath);
+    return CameraPreviewBody();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
+    Widget body = getBodyWidget();
 
-    late Widget body;
-
-    if (_initializing) {
-      body = const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-
-    if (!_initializing && pictureTaken) {
-      body = SizedBox(
-        width: width,
-        height: height,
-        child: FittedBox(
-          fit: BoxFit.cover,
-          child: Image.file(File(imagePath!)),
-        ),
-      );
-    }
-
-    if (!_initializing && !pictureTaken) {
-      body = Transform.scale(
-        scale: 1.0,
-        child: AspectRatio(
-          aspectRatio: MediaQuery.of(context).size.aspectRatio,
-          child: OverflowBox(
-            alignment: Alignment.center,
-            child: FittedBox(
-              fit: BoxFit.fitHeight,
-              child: SizedBox(
-                width: width,
-                height: width * _camSR.cameraController!.value.aspectRatio,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: <Widget>[
-                    CameraPreview(_camSR.cameraController!),
-                    CustomPaint(
-                      painter: FacePainter(
-                          face: faceDetected, imageSize: imageSize!),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
     return Scaffold(
       body: Stack(
         children: [
@@ -268,13 +225,13 @@ class _RegisterScanState extends State<RegisterScan> {
     );
   }
 
-  signConformSheet(BuildContext content) {
+  conformUserSheet(BuildContext content) {
     return Builder(builder: (context) {
       return ConformUser(
           profile: _profile,
           handelBack: () {
             Scaffold.of(context)
-                .showBottomSheet((context) => signSheet(context));
+                .showBottomSheet((context) => addUserSheet(context));
             _userIdController.clear();
           },
           handelConform: () async {
@@ -293,7 +250,7 @@ class _RegisterScanState extends State<RegisterScan> {
     });
   }
 
-  signSheet(BuildContext context) {
+  addUserSheet(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
       child: Column(
