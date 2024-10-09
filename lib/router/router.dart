@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:track_presence/db/databse_helper.dart';
 
 import 'package:track_presence/router/router_name.dart';
+import 'package:track_presence/screens/clock.dart';
 import 'package:track_presence/screens/home.dart';
 import 'package:track_presence/screens/register.dart';
 import 'package:track_presence/screens/register_scan.dart';
@@ -13,6 +14,11 @@ final router = GoRouter(
       path: RouteNames.homePath,
       name: RouteNames.home,
       builder: (_, __) => const MyHomePage(),
+    ),
+    GoRoute(
+      path: RouteNames.clockPath,
+      name: RouteNames.clock,
+      builder: (_, __) => const ClockScreen(),
     ),
     GoRoute(
       path: RouteNames.registerPath,
