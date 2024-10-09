@@ -13,7 +13,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final MLService _mlService = getIt<MLService>();
-  final CameraService _cameraService = getIt<CameraService>();
   final FaceDetectorService _faceService = getIt<FaceDetectorService>();
 
   bool loading = false;
@@ -25,7 +24,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _init() async {
     setState(() => loading = true);
-    await _cameraService.initialize();
     await _mlService.initialize();
     _faceService.initialize();
     setState(() => loading = false);

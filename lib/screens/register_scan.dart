@@ -1,15 +1,16 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:track_presence/api/api.dart';
+import 'package:track_presence/db/databse_helper.dart';
 
 import 'package:track_presence/getit.dart';
 import 'package:track_presence/models/profile_model.dart';
+import 'package:track_presence/models/user_model.dart';
 import 'package:track_presence/services/camera_service.dart';
 import 'package:track_presence/services/face_detector_service.dart';
 import 'package:track_presence/services/ml_service.dart';
@@ -115,7 +116,6 @@ class _RegisterScanState extends State<RegisterScan> {
       final imageData = File(imagePath!);
       final toImage = File("${directory?.path}/dp.jpg");
       toImage.writeAsBytes(imageData.readAsBytesSync());
-      print("Image Path Saved Path:: ${directory?.path}/dp.jpg");
       setState(() {
         _bottomSheetVisible = true;
         pictureTaken = true;
@@ -134,6 +134,34 @@ class _RegisterScanState extends State<RegisterScan> {
       pictureTaken = false;
     });
     _start();
+  }
+
+  _addUser(BuildContext context) async {
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _initializing = true;
+    });
+    final newProfile = await Api.getProfile(_userIdController.text);
+
+    if (newProfile == null) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return const AlertDialog(
+            content: Text('User Not Found Try Again'),
+          );
+        },
+      );
+    } else {
+      _profile = newProfile;
+      if (_profile?.imgPath == "" || _profile?.imgPath == null) {
+        _profile?.imgPath = imagePath!;
+      }
+      Scaffold.of(context).showBottomSheet(
+        (context) => signConformSheet(context),
+      );
+    }
+    setState(() => _initializing = false);
   }
 
   @override
@@ -242,71 +270,25 @@ class _RegisterScanState extends State<RegisterScan> {
 
   signConformSheet(BuildContext content) {
     return Builder(builder: (context) {
-      return Container(
-        padding: const EdgeInsets.all(25),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: ClipRRect(
-                borderRadius:
-                    BorderRadius.circular(50), // Adjust the radius as needed
-                child: _profile?.imgPath == null
-                    ? const Icon(
-                        Icons.account_circle_rounded,
-                        size: 75,
-                      )
-                    : Image.file(
-                        File(_profile!.imgPath!),
-                        fit: BoxFit
-                            .fitWidth, // Adjust the fit to cover the entire area
-                        width: 100, // Adjust width
-                        height: 100, // Adjust height
-                      ),
-              ),
-            ),
-            ProfileText("Name            : ${_profile?.name}"),
-            ProfileText(
-                "Email             : ${_profile?.email ?? "Not Found"}"),
-            ProfileText("User Id           : ${_userIdController.text}"),
-            ProfileText(
-                "department   : ${_profile?.department ?? "Not Assigned"}"),
-            ProfileText(
-                "designation   : ${_profile?.designation ?? "Not Assigned"}"),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton.icon(
-                    onPressed: () {
-                      Scaffold.of(context)
-                          .showBottomSheet((context) => signSheet(context));
-                      _userIdController.clear();
-                    },
-                    icon: const Icon(
-                      Icons.close_rounded,
-                      color: Colors.redAccent,
-                    ),
-                    label: const Text(
-                      "Back",
-                      style: TextStyle(color: Colors.redAccent),
-                    )),
-                TextButton.icon(
-                    onPressed: () => {},
-                    icon: const Icon(
-                      Icons.check_rounded,
-                      color: Colors.tealAccent,
-                    ),
-                    label: const Text(
-                      "Conform",
-                      style: TextStyle(color: Colors.tealAccent),
-                    ))
-              ],
-            ),
-          ],
-        ),
-      );
+      return ConformUser(
+          profile: _profile,
+          handelBack: () {
+            Scaffold.of(context)
+                .showBottomSheet((context) => signSheet(context));
+            _userIdController.clear();
+          },
+          handelConform: () async {
+            DB db = DB.instance;
+            List predictedData = _mlSR.predictedData;
+            print("Data => $predictedData");
+            User userToSave = User(
+              userId: _profile!.userId,
+              modelData: predictedData,
+            );
+            await db.insert(userToSave);
+            _mlSR.setPredictedData([]);
+            context.go("/");
+          });
     });
   }
 
@@ -324,57 +306,11 @@ class _RegisterScanState extends State<RegisterScan> {
             autofocus: true,
             autocorrect: false,
             keyboardType: TextInputType.name,
-            // textCapitalization: TextCapitalization.characters,
             decoration: const InputDecoration(labelText: "User Id"),
           ),
           const SizedBox(height: 50),
           TextButton.icon(
-            onPressed: _initializing
-                ? null
-                : () async {
-                    FocusScope.of(context).unfocus();
-                    setState(() {
-                      _initializing = true;
-                    });
-                    final newProfile =
-                        await Api.getProfile(_userIdController.text);
-                    // DB db = DB.instance;
-                    // ProfileDB profileDB = ProfileDB.instance;
-                    //
-                    // List predictedData = _mlSR.predictedData;
-                    // print("Data => $predictedData");
-                    // User userToSave = User(
-                    //   userId: userId,
-                    //   modelData: predictedData,
-                    // );
-
-                    if (newProfile == null) {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return const AlertDialog(
-                            content: Text('User Not Found Try Again'),
-                          );
-                        },
-                      );
-                    } else {
-                      _profile = newProfile;
-                      if (_profile?.imgPath == "" ||
-                          _profile?.imgPath == null) {
-                        _profile?.imgPath = imagePath!;
-                      }
-                      Scaffold.of(context).showBottomSheet(
-                        (context) => signConformSheet(context),
-                      );
-                    }
-
-                    setState(() => _initializing = false);
-                    // await db.insert(userToSave);
-                    // await profileDB.insert(profileToSave);
-                    // _mlSR.setPredictedData([]);
-
-                    // context.go("/");
-                  },
+            onPressed: _initializing ? null : () => _addUser(context),
             icon: const Icon(Icons.person_add_rounded),
             label: const Text("Add"),
             style: TextButton.styleFrom(
@@ -409,6 +345,82 @@ class ProfileText extends StatelessWidget {
           fontSize: 17,
           fontWeight: FontWeight.w400,
         ),
+      ),
+    );
+  }
+}
+
+class ConformUser extends StatelessWidget {
+  const ConformUser(
+      {super.key,
+      this.profile,
+      required this.handelBack,
+      required this.handelConform});
+
+  final Profile? profile;
+  final void Function() handelBack;
+  final void Function() handelConform;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(25),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Center(
+            child: ClipRRect(
+              borderRadius:
+                  BorderRadius.circular(50), // Adjust the radius as needed
+              child: profile?.imgPath == null
+                  ? const Icon(
+                      Icons.account_circle_rounded,
+                      size: 75,
+                    )
+                  : Image.file(
+                      File(profile!.imgPath!),
+                      fit: BoxFit
+                          .fitWidth, // Adjust the fit to cover the entire area
+                      width: 100, // Adjust width
+                      height: 100, // Adjust height
+                    ),
+            ),
+          ),
+          ProfileText("Name            : ${profile?.name}"),
+          ProfileText("Email             : ${profile?.email ?? "Not Found"}"),
+          ProfileText("User Id           : ${profile?.userId}"),
+          ProfileText(
+              "department   : ${profile?.department ?? "Not Assigned"}"),
+          ProfileText(
+              "designation   : ${profile?.designation ?? "Not Assigned"}"),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              TextButton.icon(
+                  onPressed: handelBack,
+                  icon: const Icon(
+                    Icons.close_rounded,
+                    color: Colors.redAccent,
+                  ),
+                  label: const Text(
+                    "Back",
+                    style: TextStyle(color: Colors.redAccent),
+                  )),
+              TextButton.icon(
+                  onPressed: handelConform,
+                  icon: const Icon(
+                    Icons.check_rounded,
+                    color: Colors.tealAccent,
+                  ),
+                  label: const Text(
+                    "Conform",
+                    style: TextStyle(color: Colors.tealAccent),
+                  ))
+            ],
+          ),
+        ],
       ),
     );
   }
