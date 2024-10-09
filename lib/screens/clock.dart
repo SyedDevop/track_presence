@@ -61,10 +61,7 @@ class _ClockScreenState extends State<ClockScreen> {
       if (_camSR.cameraController != null) {
         if (_detectingFaces) return; // prevents unnecessary over processing.
         _detectingFaces = true;
-
-        await _faceSR.detectFacesFromCam(image, _camSR.cameraRotation!);
-        if (_faceSR.faceDetected) {}
-        // await _predictFacesFromImage(image);
+        await _predictFacesFromImage(image);
         _detectingFaces = false;
       }
     });
@@ -82,19 +79,18 @@ class _ClockScreenState extends State<ClockScreen> {
 
   Future<void> _predictFacesFromImage(CameraImage image) async {
     await _faceSR.detectFacesFromCam(image, _camSR.cameraRotation!);
-
-    // if (_faceSR.faceDetected) {
-    //   await Future.delayed(const Duration(milliseconds: 200));
-    //   _mlSR.setCurrentPrediction(image, _faceSR.faces[0]);
-    //   User? user = await _mlSR.predict();
-    //   if (user != null) {
-    //     await _savePic();
-    //     var attendSheetHandeler = scaffoldKey.currentState
-    //         ?.showBottomSheet((context) => attendSheet());
-    //     if (mounted) attendSheetHandeler?.closed.whenComplete(context.pop);
-    //   }
-    // }
-    // if (mounted) setState(() {});
+    if (_faceSR.faceDetected) {
+      await Future.delayed(const Duration(milliseconds: 200));
+      _mlSR.setCurrentPrediction(image, _faceSR.faces[0]);
+      User? user = await _mlSR.predict();
+      if (user != null) {
+        await _savePic();
+        var attendSheetHandeler = scaffoldKey.currentState!
+            .showBottomSheet((context) => attendSheet(user));
+        if (mounted) attendSheetHandeler.closed.whenComplete(context.pop);
+      }
+    }
+    if (mounted) setState(() {});
   }
 
   Widget getBodyWidget() {
@@ -112,6 +108,7 @@ class _ClockScreenState extends State<ClockScreen> {
     Widget body = getBodyWidget();
 
     return Scaffold(
+      key: scaffoldKey,
       body: Stack(
         children: [
           body,
@@ -124,5 +121,56 @@ class _ClockScreenState extends State<ClockScreen> {
     );
   }
 
-  attendSheet() {}
+  attendSheet(User user) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            user.userName,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 50),
+          TextButton.icon(
+            onPressed: () => {},
+            icon: const Icon(Icons.more_time_rounded),
+            label: const Text("Clock In"),
+            style: TextButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: const BorderRadius.all(Radius.circular(8)),
+                side: BorderSide(
+                  color: Theme.of(context).colorScheme.primary,
+                  width: 1,
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 15),
+            ),
+          ),
+          const SizedBox(height: 25),
+          TextButton.icon(
+            onPressed: () => {},
+            icon: const Icon(Icons.history_rounded),
+            label: const Text("Clock Out"),
+            style: TextButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: const BorderRadius.all(Radius.circular(8)),
+                side: BorderSide(
+                  color: Theme.of(context).colorScheme.primary,
+                  width: 1,
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 15),
+            ),
+          ),
+          const SizedBox(height: 50),
+        ],
+      ),
+    );
+  }
 }
