@@ -16,6 +16,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
+
   ShiftTime? shiftTime;
   ClockedTime? clockedTime;
   @override
@@ -24,7 +27,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _getShiftTime();
   }
 
-  _getShiftTime() async {
+  Future<void> _getShiftTime() async {
     DB dbHelper = DB.instance;
     List<User> users = await dbHelper.queryAllUsers();
     final gotsShiftTime = await Api.getShifttime(users[0].userId);
@@ -33,6 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
       shiftTime = gotsShiftTime;
       clockedTime = gotClockedTime;
     });
+    return;
   }
 
   @override
@@ -41,34 +45,41 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: const Text("Home"),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          children: <Widget>[
-            TimeView(
-              header: "Shift Time",
-              timer1title: "From",
-              timer1time: shiftTime?.fromTime ?? "----",
-              timer2title: "To",
-              timer2time: shiftTime?.toTime ?? "----",
+      body: RefreshIndicator(
+        key: _refreshIndicatorKey,
+        onRefresh: _getShiftTime,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              children: <Widget>[
+                TimeView(
+                  header: "Shift Time",
+                  timer1title: "From",
+                  timer1time: shiftTime?.fromTime ?? "----",
+                  timer2title: "To",
+                  timer2time: shiftTime?.toTime ?? "----",
+                ),
+                const SizedBox(height: gap),
+                TimeView(
+                  header: "Clocked Attendance",
+                  timer1title: "From",
+                  timer1time: clockedTime?.inTime ?? "----",
+                  timer2title: "To",
+                  timer2time: clockedTime?.outTime ?? "----",
+                ),
+                const SizedBox(height: gap),
+                StatBar(
+                  stat1key: "Loss of time : ",
+                  stat1value: clockedTime?.lossOfTime ?? "----",
+                  stat2key: "Over time : ",
+                  stat2value: clockedTime?.overTime ?? "----",
+                ),
+                const SizedBox(height: gap),
+              ],
             ),
-            const SizedBox(height: gap),
-            TimeView(
-              header: "Clocked Attendance",
-              timer1title: "From",
-              timer1time: clockedTime?.inTime ?? "----",
-              timer2title: "To",
-              timer2time: clockedTime?.outTime ?? "----",
-            ),
-            const SizedBox(height: gap),
-            StatBar(
-              stat1key: "Loss of time : ",
-              stat1value: clockedTime?.lossOfTime ?? "----",
-              stat2key: "Over time : ",
-              stat2value: clockedTime?.overTime ?? "----",
-            ),
-            const SizedBox(height: gap),
-          ],
+          ),
         ),
       ),
       floatingActionButton: FilledButton.icon(
