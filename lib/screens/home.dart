@@ -28,8 +28,7 @@ class _MyHomePageState extends State<MyHomePage> {
     DB dbHelper = DB.instance;
     List<User> users = await dbHelper.queryAllUsers();
     final gotsShiftTime = await Api.getShifttime(users[0].userId);
-    final gotClockedTime =
-        await Api.getColockedtime(users[0].userId, date: "09-10-2024");
+    final gotClockedTime = await Api.getColockedtime(users[0].userId);
     setState(() {
       shiftTime = gotsShiftTime;
       clockedTime = gotClockedTime;
