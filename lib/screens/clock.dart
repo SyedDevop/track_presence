@@ -4,6 +4,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:track_presence/api/api.dart';
 
 import 'package:track_presence/getit.dart';
 import 'package:track_presence/models/user_model.dart';
@@ -138,7 +139,25 @@ class _ClockScreenState extends State<ClockScreen> {
           ),
           const SizedBox(height: 50),
           TextButton.icon(
-            onPressed: () => {},
+            onPressed: () async {
+              setState(() => _initializing = true);
+              try {
+                await Api.postColock(user.userId, 'in');
+              } on ApiException catch (e) {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      content: Text(e.message),
+                    );
+                  },
+                );
+                return;
+              } finally {
+                setState(() => _initializing = false);
+              }
+              if (mounted) context.pop();
+            },
             icon: const Icon(Icons.more_time_rounded),
             label: const Text("Clock In"),
             style: TextButton.styleFrom(
@@ -154,7 +173,25 @@ class _ClockScreenState extends State<ClockScreen> {
           ),
           const SizedBox(height: 25),
           TextButton.icon(
-            onPressed: () => {},
+            onPressed: () async {
+              setState(() => _initializing = true);
+              try {
+                await Api.postColock(user.userId, 'out');
+              } on ApiException catch (e) {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      content: Text(e.message),
+                    );
+                  },
+                );
+                return;
+              } finally {
+                setState(() => _initializing = false);
+              }
+              if (mounted) context.pop();
+            },
             icon: const Icon(Icons.history_rounded),
             label: const Text("Clock Out"),
             style: TextButton.styleFrom(

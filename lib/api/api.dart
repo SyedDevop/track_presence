@@ -11,6 +11,13 @@ String toDay() {
   return "${t.day}-${t.month}-${t.year}";
 }
 
+class ApiException implements Exception {
+  final String message;
+  const ApiException(this.message);
+  @override
+  String toString() => message;
+}
+
 // get_attendance.php?id=VCH0170&date=09-10-2024
 class Api {
   static Future<Profile?> getProfile(String id) async {
@@ -36,6 +43,16 @@ class Api {
     } catch (e) {
       print("Error geting Profile data: $e");
       return null;
+    }
+  }
+
+  static Future<void> postColock(String id, String clockType) async {
+    final res = await http.post(
+      Uri.parse('$baseApi/clock_attendance.php?id=$id&clock=$clockType'),
+    );
+    print(res.body);
+    if (res.statusCode != 200) {
+      throw ApiException(jsonDecode(res.body)['message']);
     }
   }
 
