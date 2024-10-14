@@ -1,7 +1,7 @@
 import 'package:get_it/get_it.dart';
-import 'package:track_presence/services/camera_service.dart';
-import 'package:track_presence/services/face_detector_service.dart';
-import 'package:track_presence/services/ml_service.dart';
+import 'package:vcare_attendance/services/camera_service.dart';
+import 'package:vcare_attendance/services/face_detector_service.dart';
+import 'package:vcare_attendance/services/ml_service.dart';
 
 final getIt = GetIt.instance;
 

@@ -6,17 +6,17 @@ import 'package:go_router/go_router.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'package:track_presence/api/api.dart';
-import 'package:track_presence/db/databse_helper.dart';
-import 'package:track_presence/getit.dart';
-import 'package:track_presence/models/profile_model.dart';
-import 'package:track_presence/models/user_model.dart';
-import 'package:track_presence/services/camera_service.dart';
-import 'package:track_presence/services/face_detector_service.dart';
-import 'package:track_presence/services/ml_service.dart';
-import 'package:track_presence/widgets/cam_header.dart';
-import 'package:track_presence/widgets/camra_preview_body.dart';
-import 'package:track_presence/widgets/image_view.dart';
+import 'package:vcare_attendance/api/api.dart';
+import 'package:vcare_attendance/db/databse_helper.dart';
+import 'package:vcare_attendance/getit.dart';
+import 'package:vcare_attendance/models/profile_model.dart';
+import 'package:vcare_attendance/models/user_model.dart';
+import 'package:vcare_attendance/services/camera_service.dart';
+import 'package:vcare_attendance/services/face_detector_service.dart';
+import 'package:vcare_attendance/services/ml_service.dart';
+import 'package:vcare_attendance/widgets/cam_header.dart';
+import 'package:vcare_attendance/widgets/camra_preview_body.dart';
+import 'package:vcare_attendance/widgets/image_view.dart';
 
 class RegisterScan extends StatefulWidget {
   const RegisterScan({super.key});

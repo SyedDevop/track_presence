@@ -3,10 +3,10 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
-import 'package:track_presence/db/databse_helper.dart';
+import 'package:vcare_attendance/db/databse_helper.dart';
 
 // import 'package:face_attendance/db/databse_helper.dart';
-import 'package:track_presence/models/user_model.dart';
+import 'package:vcare_attendance/models/user_model.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 // ignore: implementation_imports
 import 'package:tflite_flutter/src/bindings/tensorflow_lite_bindings_generated.dart';

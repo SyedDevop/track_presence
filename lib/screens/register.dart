@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:track_presence/getit.dart';
+import 'package:vcare_attendance/getit.dart';
 
-import 'package:track_presence/router/router_name.dart';
-import 'package:track_presence/services/camera_service.dart';
-import 'package:track_presence/services/face_detector_service.dart';
-import 'package:track_presence/services/ml_service.dart';
+import 'package:vcare_attendance/router/router_name.dart';
+import 'package:vcare_attendance/services/camera_service.dart';
+import 'package:vcare_attendance/services/face_detector_service.dart';
+import 'package:vcare_attendance/services/ml_service.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});

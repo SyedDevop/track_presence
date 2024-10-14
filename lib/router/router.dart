@@ -1,11 +1,11 @@
 import 'package:go_router/go_router.dart';
-import 'package:track_presence/db/databse_helper.dart';
+import 'package:vcare_attendance/db/databse_helper.dart';
 
-import 'package:track_presence/router/router_name.dart';
-import 'package:track_presence/screens/clock.dart';
-import 'package:track_presence/screens/home.dart';
-import 'package:track_presence/screens/register.dart';
-import 'package:track_presence/screens/register_scan.dart';
+import 'package:vcare_attendance/router/router_name.dart';
+import 'package:vcare_attendance/screens/clock.dart';
+import 'package:vcare_attendance/screens/home.dart';
+import 'package:vcare_attendance/screens/register.dart';
+import 'package:vcare_attendance/screens/register_scan.dart';
 
 // GoRouter configuration
 final router = GoRouter(

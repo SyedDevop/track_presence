@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:track_presence/models/user_model.dart';
+import 'package:vcare_attendance/models/user_model.dart';
 
 class DB {
   static const _databaseName = "user.db";

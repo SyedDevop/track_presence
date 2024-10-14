@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:track_presence/getit.dart';
-import 'package:track_presence/router/router.dart';
-import 'package:track_presence/theme/theme.dart';
+import 'package:vcare_attendance/getit.dart';
+import 'package:vcare_attendance/router/router.dart';
+import 'package:vcare_attendance/theme/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       title: 'Track Presence',
       theme: FTTheme.light,
       darkTheme: FTTheme.dark,
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.dark,
       routerConfig: router,
     );
   }
