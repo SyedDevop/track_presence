@@ -77,7 +77,7 @@ class _RegisterState extends State<Register> {
                 ),
               ),
               const Text(
-                "Track Presence account",
+                "Vcare Attendance account",
                 style: TextStyle(
                   color: Color.fromRGBO(175, 175, 175, 1),
                 ),

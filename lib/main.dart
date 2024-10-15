@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Track Presence',
+      title: 'Vcare Attendance',
       theme: FTTheme.light,
       darkTheme: FTTheme.dark,
       themeMode: ThemeMode.dark,
