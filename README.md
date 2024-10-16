@@ -8,4 +8,10 @@ clock-out process for employees by identifying faces.
 - [ ] Screens
 - [ ] Futures
   - [ ] Make shore user is not already not registered.
+  - [ ] Add internet connection state.
+  - [ ] ***Add Tracking***
+    - [ ] get current location.
+    - [ ] get location even in backgroun.
+    - [ ] fetch allowed location.
+      1. Check if the user is in the allowed.
 - [ ] Refactors
