@@ -161,5 +161,8 @@ class MLService {
     _predictedData = value;
   }
 
-  dispose() {}
+  dispose() {
+    _interpreter?.close();
+    _predictedData = [];
+  }
 }

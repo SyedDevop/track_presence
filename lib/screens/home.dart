@@ -24,10 +24,10 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    _getShiftTime();
+    _getTimes();
   }
 
-  Future<void> _getShiftTime() async {
+  Future<void> _getTimes() async {
     DB dbHelper = DB.instance;
     List<User> users = await dbHelper.queryAllUsers();
     final gotsShiftTime = await Api.getShifttime(users[0].userId);
@@ -47,7 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: RefreshIndicator(
         key: _refreshIndicatorKey,
-        onRefresh: _getShiftTime,
+        onRefresh: _getTimes,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Padding(
@@ -83,7 +83,10 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FilledButton.icon(
-        onPressed: () => context.pushNamed(RouteNames.clock),
+        onPressed: () async {
+          await context.pushNamed(RouteNames.clock);
+          await _getTimes();
+        },
         label: const Text("Clock Attendance"),
         icon: const Icon(Icons.door_front_door_rounded),
       ),
