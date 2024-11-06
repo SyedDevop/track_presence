@@ -20,6 +20,8 @@ class _MyHomePageState extends State<MyHomePage> {
       GlobalKey<RefreshIndicatorState>();
 
   ShiftTime? shiftTime;
+  String strSiftTime = "---:--- / ---:---";
+  String strClockTime = "---:--- / ---:---";
   ClockedTime? clockedTime;
   @override
   void initState() {
@@ -32,9 +34,15 @@ class _MyHomePageState extends State<MyHomePage> {
     List<User> users = await dbHelper.queryAllUsers();
     final gotsShiftTime = await Api.getShifttime(users[0].userId);
     final gotClockedTime = await Api.getColockedtime(users[0].userId);
+
     setState(() {
       shiftTime = gotsShiftTime;
       clockedTime = gotClockedTime;
+      if (gotsShiftTime != null) {
+        strSiftTime = "${gotsShiftTime.fromTime} -/- ${gotsShiftTime.toTime}";
+      }
+      strClockTime =
+          "${gotClockedTime?.inTime ?? "---:---"} -/- ${gotClockedTime?.outTime ?? "---:---"}";
     });
     return;
   }
@@ -54,28 +62,38 @@ class _MyHomePageState extends State<MyHomePage> {
             padding: const EdgeInsets.all(10.0),
             child: Column(
               children: <Widget>[
-                TimeView(
-                  header: "Shift Time",
-                  timer1title: "From",
-                  timer1time: shiftTime?.fromTime ?? "----",
-                  timer2title: "To",
-                  timer2time: shiftTime?.toTime ?? "----",
+                TimeInfo(
+                  header: "Shift",
+                  childens: [
+                    TimePrimeryView(time: strSiftTime),
+                    const SizedBox(height: 10),
+                    TimeSecondaryView(
+                        time: shiftTime?.shiftHours ?? "-- hr -- min"),
+                  ],
                 ),
                 const SizedBox(height: gap),
-                TimeView(
-                  header: "Clocked Attendance",
-                  timer1title: "From",
-                  timer1time: clockedTime?.inTime ?? "----",
-                  timer2title: "To",
-                  timer2time: clockedTime?.outTime ?? "----",
-                ),
-                const SizedBox(height: gap),
-                StatBar(
-                  stat1key: "Loss of time : ",
-                  stat1value: clockedTime?.lossOfTime ?? "----",
-                  stat2key: "Over time : ",
-                  stat2value: clockedTime?.overTime ?? "----",
-                ),
+                TimeInfo(header: "Attendance", childens: [
+                  TimePrimeryView(time: strClockTime),
+                  const SizedBox(height: 10),
+                  TimeSecondaryView(
+                      time: clockedTime?.clockHours ?? "-- hr -- min"),
+                  const Divider(),
+                  TimeSecondaryView(
+                    icon: const Icon(
+                      Icons.hourglass_empty_rounded,
+                      color: Colors.redAccent,
+                    ),
+                    time: "Loss Of Time : ${clockedTime?.lossOfTime ?? "----"}",
+                  ),
+                  const SizedBox(height: 5),
+                  TimeSecondaryView(
+                    icon: const Icon(
+                      Icons.alarm_add,
+                      color: Colors.tealAccent,
+                    ),
+                    time: "Over Time : ${clockedTime?.overTime ?? "----"}",
+                  ),
+                ]),
                 const SizedBox(height: gap),
               ],
             ),
@@ -160,6 +178,107 @@ class StatBlock extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class TimeInfo extends StatelessWidget {
+  const TimeInfo({
+    super.key,
+    required this.header,
+    required this.childens,
+  });
+
+  final String header;
+  final List<Widget> childens;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 4,
+      child: Container(
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: Theme.of(context).dialogBackgroundColor,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              header,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).hintColor,
+              ),
+            ),
+            const Divider(),
+            ...childens,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class TimeSecondaryView extends StatelessWidget {
+  const TimeSecondaryView({
+    super.key,
+    required this.time,
+    this.icon,
+  });
+  final String time;
+  final Widget? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        icon ??
+            Icon(
+              Icons.timer_outlined,
+              color: Theme.of(context).primaryColorDark,
+            ),
+        const SizedBox(width: 8),
+        Text(
+          time,
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.white54,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class TimePrimeryView extends StatelessWidget {
+  const TimePrimeryView({
+    super.key,
+    required this.time,
+  });
+
+  final String time;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(
+          Icons.access_time_rounded,
+          color: Theme.of(context).primaryColorLight,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          time,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Colors.white70, // Slightly lighter than white
+          ),
+        ),
+      ],
     );
   }
 }

@@ -2,23 +2,16 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:vcare_attendance/api/error.dart';
 import 'package:vcare_attendance/models/profile_model.dart';
 import 'package:vcare_attendance/models/time.dart';
 
 const baseApi = "https://vcarehospital.in/hms/payroll/api";
 String toDay() {
-  final t = DateTime.now();
-  return "${t.day}-${t.month}-${t.year}";
+  return DateFormat('dd-MM-yyyy').format(DateTime.now());
 }
 
-class ApiException implements Exception {
-  final String message;
-  const ApiException(this.message);
-  @override
-  String toString() => message;
-}
-
-// get_attendance.php?id=VCH0170&date=09-10-2024
 class Api {
   static Future<Profile?> getProfile(String id) async {
     try {
@@ -46,18 +39,26 @@ class Api {
     }
   }
 
-  static Future<void> postColock(String id, String clockType) async {
+  static Future<void> postColock(
+    String id,
+    String clockType,
+    String reason,
+  ) async {
+    final reas = reason.isEmpty ? null : reason;
     final res = await http.post(
       Uri.parse('$baseApi/clock_attendance.php?id=$id&clock=$clockType'),
+      body: reas == null ? null : json.encode({"reason": reason}),
+      headers: {"Content-Type": "application/json"},
     );
-    print(res.body);
-    if (res.statusCode != 200) {
-      throw ApiException(jsonDecode(res.body)['message']);
+    // print(res.body);
+    if (res.statusCode >= 400 && res.statusCode < 500) {
+      throw ApiException(ApiError.fromJson(jsonDecode(res.body)));
     }
   }
 
   static Future<ClockedTime?> getColockedtime(String id, {String? date}) async {
     final getDate = date ?? toDay();
+    print({"toDay": getDate});
     try {
       final res = await http.get(
         Uri.parse('$baseApi/get_attendance.php?id=$id&date=$getDate'),

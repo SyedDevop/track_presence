@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:vcare_attendance/api/api.dart';
+import 'package:vcare_attendance/api/error.dart';
 
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/user_model.dart';
@@ -28,6 +29,9 @@ class _ClockScreenState extends State<ClockScreen> {
   final FaceDetectorService _faceSR = getIt<FaceDetectorService>();
 
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
+  final _reasonController = TextEditingController();
+  bool isReasonRequared = false;
 
   bool _isUser = false;
   bool _initializing = false;
@@ -138,23 +142,33 @@ class _ClockScreenState extends State<ClockScreen> {
             ),
           ),
           const SizedBox(height: 50),
+          TextField(
+            controller: _reasonController,
+            autofocus: true,
+            autocorrect: false,
+            keyboardType: TextInputType.name,
+            decoration: const InputDecoration(labelText: "User Id"),
+          ),
+          const SizedBox(height: 50),
           TextButton.icon(
             onPressed: () async {
               setState(() => _initializing = true);
               try {
-                await Api.postColock(user.userId, 'in');
+                await Api.postColock(user.userId, 'in', _reasonController.text);
               } on ApiException catch (e) {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      content: Text(e.message),
-                    );
-                  },
-                );
+                if (mounted) {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        content: Text(e.message),
+                      );
+                    },
+                  );
+                }
                 return;
               } finally {
-                setState(() => _initializing = false);
+                if (mounted) setState(() => _initializing = false);
               }
               if (mounted) context.pop();
             },
@@ -176,7 +190,8 @@ class _ClockScreenState extends State<ClockScreen> {
             onPressed: () async {
               setState(() => _initializing = true);
               try {
-                await Api.postColock(user.userId, 'out');
+                await Api.postColock(
+                    user.userId, 'out', _reasonController.text);
               } on ApiException catch (e) {
                 showDialog(
                   context: context,
