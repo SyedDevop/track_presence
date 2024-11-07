@@ -105,7 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 const SizedBox(height: gap),
                 if (overTime != null)
                   TimeInfo(
-                    header: "Extra Hour's",
+                    header: "Extra Hours",
                     childens: overTime!.map((ot) => ExtraHourInfo(ot)).toList(),
                   )
               ],
@@ -216,9 +216,13 @@ class ExtraHourInfo extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TimePrimeryView(time: _fmtTime()),
-        const SizedBox(height: 8),
-        const Text("Reason: ", style: TextStyle(color: Colors.white60)),
-        const SizedBox(height: 8),
+        const SizedBox(height: 16),
+        const Text("Reason: ",
+            style: TextStyle(
+              color: Colors.white60,
+              fontWeight: FontWeight.bold,
+            )),
+        const SizedBox(height: 4),
         Text(
           data.reason,
           style: const TextStyle(
