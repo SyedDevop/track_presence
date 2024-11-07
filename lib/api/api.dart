@@ -12,6 +12,10 @@ String toDay() {
   return DateFormat('dd-MM-yyyy').format(DateTime.now());
 }
 
+String toDay2() {
+  return DateFormat('yyyy-MM-dd').format(DateTime.now());
+}
+
 class Api {
   static Future<Profile?> getProfile(String id) async {
     try {
@@ -58,7 +62,7 @@ class Api {
 
   static Future<ClockedTime?> getColockedtime(String id, {String? date}) async {
     final getDate = date ?? toDay();
-    print({"toDay": getDate});
+    print({"From ": "ClockedTime", "toDay": getDate});
     try {
       final res = await http.get(
         Uri.parse('$baseApi/get_attendance.php?id=$id&date=$getDate'),
@@ -69,6 +73,22 @@ class Api {
     } catch (e) {
       print("Error geting Profile data: $e");
       return null;
+    }
+  }
+
+  static Future<List<OverTime>> getOvertime(String id, {String? date}) async {
+    final getDate = date ?? toDay2();
+    print({"From ": "Over Time", "toDay": getDate});
+    try {
+      final res = await http.get(
+        Uri.parse('$baseApi/get_attendance_ot.php?id=$id&date=$getDate'),
+      );
+      print(res.body);
+      if (res.statusCode != 200) return [];
+      return OverTime.fromArrayMap(jsonDecode(res.body));
+    } catch (e) {
+      print("Error geting Profile data: $e");
+      return [];
     }
   }
 }

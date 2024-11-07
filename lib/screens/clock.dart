@@ -147,7 +147,7 @@ class _ClockScreenState extends State<ClockScreen> {
             autofocus: true,
             autocorrect: false,
             keyboardType: TextInputType.name,
-            decoration: const InputDecoration(labelText: "User Id"),
+            decoration: const InputDecoration(labelText: "Reason "),
           ),
           const SizedBox(height: 50),
           TextButton.icon(

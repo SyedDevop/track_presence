@@ -23,6 +23,8 @@ class _MyHomePageState extends State<MyHomePage> {
   String strSiftTime = "---:--- / ---:---";
   String strClockTime = "---:--- / ---:---";
   ClockedTime? clockedTime;
+  List<OverTime>? overTime;
+
   @override
   void initState() {
     super.initState();
@@ -34,6 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
     List<User> users = await dbHelper.queryAllUsers();
     final gotsShiftTime = await Api.getShifttime(users[0].userId);
     final gotClockedTime = await Api.getColockedtime(users[0].userId);
+    final gotOt = await Api.getOvertime(users[0].userId);
 
     setState(() {
       shiftTime = gotsShiftTime;
@@ -43,6 +46,11 @@ class _MyHomePageState extends State<MyHomePage> {
       }
       strClockTime =
           "${gotClockedTime?.inTime ?? "---:---"} -/- ${gotClockedTime?.outTime ?? "---:---"}";
+      if (gotOt.isNotEmpty) {
+        overTime = gotOt;
+      } else {
+        overTime = null;
+      }
     });
     return;
   }
@@ -95,6 +103,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ]),
                 const SizedBox(height: gap),
+                if (overTime != null)
+                  TimeInfo(
+                    header: "Extra Hour's",
+                    childens: overTime!.map((ot) => ExtraHourInfo(ot)).toList(),
+                  )
               ],
             ),
           ),
@@ -178,6 +191,43 @@ class StatBlock extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class ExtraHourInfo extends StatelessWidget {
+  const ExtraHourInfo(
+    this.data, {
+    super.key,
+  });
+
+  final OverTime data;
+
+  String _fmtTime() {
+    if (data.outTime == null) {
+      return "${data.inTime} -/- ---:---";
+    }
+    return "${data.inTime} -/- ${data.outTime}";
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TimePrimeryView(time: _fmtTime()),
+        const SizedBox(height: 8),
+        const Text("Reason: ", style: TextStyle(color: Colors.white60)),
+        const SizedBox(height: 8),
+        Text(
+          data.reason,
+          style: const TextStyle(
+            fontSize: 12,
+            color: Colors.white54,
+          ),
+        ),
+        const Divider(),
+      ],
     );
   }
 }

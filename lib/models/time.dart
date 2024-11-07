@@ -21,6 +21,51 @@ class ShiftTime {
   }
 }
 
+class OverTime {
+  final String id;
+  final String date;
+  final String inTime;
+  final String reason;
+  final String createdAt;
+  final String? outTime;
+
+  const OverTime({
+    required this.id,
+    required this.date,
+    required this.inTime,
+    required this.reason,
+    required this.createdAt,
+    this.outTime,
+  });
+
+  static List<OverTime> fromArrayMap(List<dynamic> dataList) {
+    final result = dataList
+        .map(
+          (data) => OverTime(
+            id: data['id'],
+            date: data['date'],
+            inTime: data['in_time'],
+            outTime: data['out_time'],
+            reason: data['reason'],
+            createdAt: data['created_at'],
+          ),
+        )
+        .toList();
+    return result;
+  }
+
+  static OverTime fromMap(Map<String, dynamic> data) {
+    return OverTime(
+      id: data['id'],
+      date: data['date1'],
+      inTime: data['in_time'],
+      outTime: data['out_time'],
+      reason: data['reason'],
+      createdAt: data['created_at'],
+    );
+  }
+}
+
 class ClockedTime {
   final String date;
   final String inTime;
