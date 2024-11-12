@@ -21,6 +21,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   ShiftTime? shiftTime;
   String strSiftTime = "---:--- / ---:---";
+  String strSiftdate = "--:--:---- / --:--:----";
   String strClockTime = "---:--- / ---:---";
   ClockedTime? clockedTime;
   List<OverTime>? overTime;
@@ -43,6 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
       clockedTime = gotClockedTime;
       if (gotsShiftTime != null) {
         strSiftTime = "${gotsShiftTime.fromTime} -/- ${gotsShiftTime.toTime}";
+        strSiftdate = "${gotsShiftTime.fromDate} -/- ${gotsShiftTime.toDate}";
       }
       strClockTime =
           "${gotClockedTime?.inTime ?? "---:---"} -/- ${gotClockedTime?.outTime ?? "---:---"}";
@@ -77,6 +79,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     const SizedBox(height: 10),
                     TimeSecondaryView(
                         time: shiftTime?.shiftHours ?? "-- hr -- min"),
+                    const Divider(),
+                    TimeSecondaryView(time: strSiftdate),
                   ],
                 ),
                 const SizedBox(height: gap),

@@ -2,11 +2,15 @@ class ShiftTime {
   final String name;
   final String fromTime;
   final String toTime;
+  final String fromDate;
+  final String toDate;
   final String shiftHours;
   const ShiftTime({
     required this.name,
     required this.fromTime,
     required this.toTime,
+    required this.fromDate,
+    required this.toDate,
     required this.shiftHours,
   });
   static ShiftTime fromMap(Map<String, dynamic> data) {
@@ -15,6 +19,8 @@ class ShiftTime {
     return ShiftTime(
       name: data["emp_name"],
       fromTime: data["from_time"],
+      fromDate: data["from_date"],
+      toDate: data["to_date"],
       toTime: data["to_time"],
       shiftHours: shH,
     );
