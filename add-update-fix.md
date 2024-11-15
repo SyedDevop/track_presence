@@ -5,7 +5,9 @@
 - V1.2.1
 
   - [ ] make loss of time and over time hr and min formate ex "1 hr 30 min "
-  - [ ] :server: add out_date in attendance_ot and make changes in api.
+  - [ ] :server: add out_date in attendance_ot,attendance_copy and make changes
+        in api.
+    - [ ] :server: if in data and out data is not equal (error || add time).
 
 - V1.3.0
   - [ ] :app: add otp verification on register
