@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/db/databse_helper.dart';
+import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/time.dart';
 import 'package:vcare_attendance/models/user_model.dart';
 import 'package:vcare_attendance/router/router_name.dart';
+import 'package:vcare_attendance/services/state.dart';
 
 const gap = 15.0;
 
@@ -18,6 +20,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
+  final AppState _asSr = getIt<AppState>();
 
   ShiftTime? shiftTime;
   String strSiftTime = "---:--- / ---:---";
@@ -35,9 +38,11 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _getTimes() async {
     DB dbHelper = DB.instance;
     List<User> users = await dbHelper.queryAllUsers();
-    final gotsShiftTime = await Api.getShifttime(users[0].userId);
-    final gotClockedTime = await Api.getColockedtime(users[0].userId);
-    final gotOt = await Api.getOvertime(users[0].userId);
+    final userId = users[0].userId;
+    final gotsShiftTime = await Api.getShifttime(userId);
+    final gotClockedTime = await Api.getColockedtime(userId);
+    final gotOt = await Api.getOvertime(userId);
+    await _asSr.initProfile(userId);
 
     setState(() {
       shiftTime = gotsShiftTime;
