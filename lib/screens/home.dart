@@ -23,7 +23,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String strSiftTime = "---:--- / ---:---";
   String strSiftdate = "--:--:---- / --:--:----";
   String strClockTime = "---:--- / ---:---";
-  ClockedTime? clockedTime;
+  Attendance? clockedTime;
   List<ExtraHours>? overTime;
 
   @override

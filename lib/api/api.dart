@@ -60,7 +60,7 @@ class Api {
     }
   }
 
-  static Future<ClockedTime?> getColockedtime(String id, {String? date}) async {
+  static Future<Attendance?> getColockedtime(String id, {String? date}) async {
     final getDate = date ?? toDay();
     print({"From ": "ClockedTime", "toDay": getDate});
     try {
@@ -69,7 +69,7 @@ class Api {
       );
       print(res.body);
       if (res.statusCode != 200) return null;
-      return ClockedTime.fromMap(jsonDecode(res.body));
+      return Attendance.fromMap(jsonDecode(res.body));
     } catch (e) {
       print("Error geting Profile data: $e");
       return null;

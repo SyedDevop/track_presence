@@ -29,7 +29,11 @@ class ShiftTime {
 
 class ExtraHours {
   final String id;
+
+  /// [date] Date fmt in Year-month-day ex: (2024-11-06)
   final String date;
+
+  /// [date1] Date fmt in Month and Year ex: (November, 2024)
   final String date1;
   final String inTime;
   final String reason;
@@ -76,18 +80,33 @@ class ExtraHours {
   }
 }
 
-class ClockedTime {
-  final String date;
-  final String inTime;
+class Attendance {
   final String id;
+  final String inTime;
+  final String? outTime;
   final String shiftTime;
   final String? lossOfTime;
   final String? overTime;
-  final String? outTime;
   final String? clockHours;
 
-  const ClockedTime({
+  /// [date] Date fmt in Year-month-day ex: (11-16-2024)
+  final String date;
+
+  /// [date1] Date fmt in day-Month-Year ex: (16-11-2024)
+  final String date1;
+
+  /// [date2] Date fmt in Month and Year ex: (November, 2024)
+  final String date2;
+
+  final String? clockInEarly;
+  final String? clockInLate;
+  final String? clockOutEarly;
+  final String? clockOutLate;
+
+  const Attendance({
     required this.date,
+    required this.date1,
+    required this.date2,
     required this.inTime,
     required this.id,
     required this.shiftTime,
@@ -95,20 +114,30 @@ class ClockedTime {
     this.overTime,
     this.outTime,
     this.clockHours,
+    this.clockInEarly,
+    this.clockInLate,
+    this.clockOutEarly,
+    this.clockOutLate,
   });
-  static ClockedTime fromMap(Map<String, dynamic> data) {
+  static Attendance fromMap(Map<String, dynamic> data) {
     final chH = data["work_time"] != null
         ? "${data["work_time"]["hour"]} hr ${data["work_time"]["minutes"]} min"
         : null;
-    return ClockedTime(
+    return Attendance(
       id: data['id'],
-      date: data['date1'],
       inTime: data['in_time'],
       outTime: data['out_time'],
       shiftTime: data['shift_time'],
       lossOfTime: data['loss_of_hours'],
       overTime: data['maintainance'],
+      date: data['date'],
+      date1: data['date1'],
+      date2: data['date2'],
       clockHours: chH,
+      clockInEarly: data['clock_in_early'],
+      clockInLate: data['clock_in_late'],
+      clockOutEarly: data['clock_out_early'],
+      clockOutLate: data['clock_out_late'],
     );
   }
 }
