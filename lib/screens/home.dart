@@ -24,7 +24,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String strSiftdate = "--:--:---- / --:--:----";
   String strClockTime = "---:--- / ---:---";
   ClockedTime? clockedTime;
-  List<OverTime>? overTime;
+  List<ExtraHours>? overTime;
 
   @override
   void initState() {
@@ -205,7 +205,7 @@ class ExtraHourInfo extends StatelessWidget {
     super.key,
   });
 
-  final OverTime data;
+  final ExtraHours data;
 
   String _fmtTime() {
     if (data.outTime == null) {

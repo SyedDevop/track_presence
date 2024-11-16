@@ -27,29 +27,32 @@ class ShiftTime {
   }
 }
 
-class OverTime {
+class ExtraHours {
   final String id;
   final String date;
+  final String date1;
   final String inTime;
   final String reason;
   final String createdAt;
   final String? outTime;
 
-  const OverTime({
+  const ExtraHours({
     required this.id,
     required this.date,
+    required this.date1,
     required this.inTime,
     required this.reason,
     required this.createdAt,
     this.outTime,
   });
 
-  static List<OverTime> fromArrayMap(List<dynamic> dataList) {
+  static List<ExtraHours> fromArrayMap(List<dynamic> dataList) {
     final result = dataList
         .map(
-          (data) => OverTime(
+          (data) => ExtraHours(
             id: data['id'],
             date: data['date'],
+            date1: data['date1'],
             inTime: data['in_time'],
             outTime: data['out_time'],
             reason: data['reason'],
@@ -60,10 +63,11 @@ class OverTime {
     return result;
   }
 
-  static OverTime fromMap(Map<String, dynamic> data) {
-    return OverTime(
+  static ExtraHours fromMap(Map<String, dynamic> data) {
+    return ExtraHours(
       id: data['id'],
-      date: data['date1'],
+      date: data['date'],
+      date1: data['date1'],
       inTime: data['in_time'],
       outTime: data['out_time'],
       reason: data['reason'],

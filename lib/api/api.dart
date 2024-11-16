@@ -76,7 +76,7 @@ class Api {
     }
   }
 
-  static Future<List<OverTime>> getOvertime(String id, {String? date}) async {
+  static Future<List<ExtraHours>> getOvertime(String id, {String? date}) async {
     final getDate = date ?? toDay2();
     print({"From ": "Over Time", "toDay": getDate});
     try {
@@ -85,7 +85,7 @@ class Api {
       );
       print(res.body);
       if (res.statusCode != 200) return [];
-      return OverTime.fromArrayMap(jsonDecode(res.body));
+      return ExtraHours.fromArrayMap(jsonDecode(res.body));
     } catch (e) {
       print("Error geting Profile data: $e");
       return [];
