@@ -17,6 +17,18 @@ String toDay2() {
 }
 
 class Api {
+  static Future<Profile?> login(String id, String password) async {
+    final res = await http.post(
+      Uri.parse('$baseApi/login.php'),
+      body: json.encode({"id": id, "password": password}),
+      headers: {"Content-Type": "application/json"},
+    );
+    if (res.statusCode >= 400 && res.statusCode < 500) {
+      throw ApiException(ApiError.fromJson(jsonDecode(res.body)));
+    }
+    return Profile.fromApiJson(jsonDecode(res.body));
+  }
+
   static Future<Profile?> getProfile(String id) async {
     try {
       final res = await http.get(
