@@ -14,4 +14,8 @@ class RouteNames {
   /// Registration Scan Screen path name no {Params || queryParams} required [registerScan]
   static String registerScan = "register-scan";
   static String registerScanPath = "/$registerScan";
+
+  /// Login Screen path name no {Params || queryParams} required [login]
+  static String login = "login";
+  static String loginPath = "/$login";
 }

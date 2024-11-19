@@ -34,7 +34,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  flex_color_scheme: ^7.3.1
+  flex_color_scheme: ^8.0.1
   go_router: ^14.2.7
   camera: ^0.11.0+2
   path_provider: ^2.1.4
@@ -72,6 +72,7 @@ flutter:
   assets:
     - assets/mobilefacenet.tflite
     - assets/svg/
+    - assets/icons/vc-logo-bg.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

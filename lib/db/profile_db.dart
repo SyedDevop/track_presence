@@ -7,7 +7,7 @@ import 'package:vcare_attendance/models/profile_model.dart';
 
 class ProfileDB {
   static const _databaseName = "profile.db";
-  static const _databaseVersion = 1;
+  static const _databaseVersion = 4;
 
   static const table = 'profile';
 
@@ -36,7 +36,10 @@ class ProfileDB {
             department TEXT NOT NULL,
             designation TEXT NOT NULL,
             email TEXT,
-            img_path TEXT
+            img_path TEXT,
+            img_url TEXT,
+            date_of_join TEXT,
+            cloud_id TEXT
           )
           ''');
   }
@@ -46,10 +49,10 @@ class ProfileDB {
     return await db.insert(table, user.toMap());
   }
 
-  Future<List<Profile>> getById(String id) async {
+  Future<List<Profile>> getById(String userId) async {
     Database db = await instance.database;
     List<Map<String, dynamic>> prof =
-        await db.query(table, limit: 1, where: id);
+        await db.query(table, limit: 1, where: "user_id = $userId");
     return prof.map((u) => Profile.fromMap(u)).toList();
   }
 

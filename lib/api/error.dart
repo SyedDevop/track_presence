@@ -11,10 +11,16 @@ class ApiError {
       );
 }
 
+const knotValidMethod = "not-valid-method";
+
 const kAlreadyClocked = "already-clocked ";
 const kReasonRequired = "reason-required";
 const kAttendanceNotFound = "attendance-not-found";
 const kReacchedOvertimeLimit = "reached-overtime-limit";
+
+const kuserNotFound = "user-not-found";
+const kuserNotRegisterd = "user-not-registerd";
+const kuserInvalid = "user-invalid";
 
 class ApiException implements Exception {
   final int status;

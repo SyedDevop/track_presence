@@ -1,35 +1,37 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class FTTheme {
   static get light => FlexThemeData.light(
         scheme: FlexScheme.flutterDash,
-        surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
-        blendLevel: 7,
         subThemesData: const FlexSubThemesData(
-          blendOnLevel: 10,
-          blendOnColors: false,
-          useTextTheme: true,
+          interactionEffects: true,
+          tintedDisabledControls: true,
           useM2StyleDividerInM3: true,
+          inputDecoratorIsFilled: false,
+          inputDecoratorBorderType: FlexInputBorderType.underline,
           alignedDropdown: true,
-          useInputDecoratorThemeInDialogs: true,
+          navigationRailUseIndicator: true,
+          navigationRailLabelType: NavigationRailLabelType.all,
         ),
         visualDensity: FlexColorScheme.comfortablePlatformDensity,
-        useMaterial3: true,
-        swapLegacyOnMaterial3: true,
+        cupertinoOverrideTheme: const CupertinoThemeData(applyThemeToAll: true),
       );
   static get dark => FlexThemeData.dark(
         scheme: FlexScheme.flutterDash,
-        surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
-        blendLevel: 13,
         subThemesData: const FlexSubThemesData(
-          blendOnLevel: 20,
-          useTextTheme: true,
+          interactionEffects: true,
+          tintedDisabledControls: true,
+          blendOnColors: true,
           useM2StyleDividerInM3: true,
+          inputDecoratorIsFilled: false,
+          inputDecoratorBorderType: FlexInputBorderType.underline,
           alignedDropdown: true,
-          useInputDecoratorThemeInDialogs: true,
+          navigationRailUseIndicator: true,
+          navigationRailLabelType: NavigationRailLabelType.all,
         ),
         visualDensity: FlexColorScheme.comfortablePlatformDensity,
-        useMaterial3: true,
-        swapLegacyOnMaterial3: true,
+        cupertinoOverrideTheme: const CupertinoThemeData(applyThemeToAll: true),
       );
 }
