@@ -49,7 +49,7 @@ final router = GoRouter(
       if (urlPath == RouteNames.loginPath || urlPath == RouteNames.loginPath) {
         return null;
       }
-      return RouteNames.login;
+      return RouteNames.loginPath;
     }
     if (user.isEmpty) {
       if (urlPath == RouteNames.registerScanPath ||

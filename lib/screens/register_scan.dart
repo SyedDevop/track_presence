@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/db/databse_helper.dart';
+import 'package:vcare_attendance/db/profile_db.dart';
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/profile_model.dart';
 import 'package:vcare_attendance/models/user_model.dart';
@@ -32,6 +33,9 @@ class _RegisterScanState extends State<RegisterScan> {
   final CameraService _camSR = getIt<CameraService>();
   final FaceDetectorService _faceSR = getIt<FaceDetectorService>();
 
+  int captureCount = 0;
+  final captureLimit = 4;
+
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   String? imagePath;
   Face? faceDetected;
@@ -40,12 +44,21 @@ class _RegisterScanState extends State<RegisterScan> {
   bool pictureTaken = false;
   bool _initializing = false;
   bool _detectingFaces = false;
-  bool _bottomSheetVisible = false;
 
   @override
   void initState() {
     super.initState();
     _start();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Text('Capture $captureLimit Face for more accuracies'),
+          );
+        },
+      );
+    });
   }
 
   @override
@@ -74,6 +87,7 @@ class _RegisterScanState extends State<RegisterScan> {
 
             if (_saving) {
               _mlSR.setCurrentPrediction(image, faceDetected);
+              captureCount = _mlSR.predictedDataList.length;
               setState(() => _saving = false); // NOTE : Is this require
             }
           } else {
@@ -88,12 +102,52 @@ class _RegisterScanState extends State<RegisterScan> {
     });
   }
 
-  Future onCapture(BuildContext context) async {
-    bool faceDetected = await onShot();
-    if (faceDetected) {
-      Scaffold.of(context).showBottomSheet((context) => addUserSheet(context))
-        ..closed.whenComplete(_reload);
+  Future<bool> saveData() async {
+    if ((captureCount >= captureLimit - 1)) {
+      bool isFace = await onShot();
+      if (isFace) {
+        // Scaffold.of(context).showBottomSheet((context) => addUserSheet(context))
+        //   ..closed.whenComplete(_reload);
+
+        DB db = DB.instance;
+        ProfileDB pdb = ProfileDB.instance;
+        final pro = await pdb.queryAllProfile();
+        if (pro.isEmpty) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return const AlertDialog(
+                content: Text('User Profile not found'),
+              );
+            },
+          );
+          return false;
+        }
+        for (var data in _mlSR.predictedDataList) {
+          User userToSave = User(
+            userId: pro[0].userId,
+            userName: pro[0].name,
+            modelData: data,
+          );
+          await db.insert(userToSave);
+        }
+        // _mlSR.setPredictedData([]);
+        _mlSR.resetPredicted();
+
+        return true;
+      }
     }
+    return false;
+  }
+
+  Future onCapture(BuildContext context) async {
+    _saving = true;
+    final isDataSaved = await saveData();
+    if (isDataSaved) {
+      if (mounted) context.go("/");
+    }
+
+    return false;
   }
 
   Future<bool> onShot() async {
@@ -108,7 +162,7 @@ class _RegisterScanState extends State<RegisterScan> {
       );
       return false;
     } else {
-      _saving = true;
+      // _saving = true;
       XFile? file = await _camSR.takePicture();
       imagePath = file?.path;
       final directory = await getExternalStorageDirectory();
@@ -116,7 +170,6 @@ class _RegisterScanState extends State<RegisterScan> {
       final toImage = File("${directory?.path}/dp.jpg");
       toImage.writeAsBytes(imageData.readAsBytesSync());
       setState(() {
-        _bottomSheetVisible = true;
         pictureTaken = true;
       });
       return true;
@@ -129,7 +182,6 @@ class _RegisterScanState extends State<RegisterScan> {
 
   _reload() {
     setState(() {
-      _bottomSheetVisible = false;
       pictureTaken = false;
     });
     _start();
@@ -180,48 +232,46 @@ class _RegisterScanState extends State<RegisterScan> {
           CameraHeader(
             "Register User",
             onBackPressed: _onBackPressed,
-          )
+            captureCount: "$captureCount",
+          ),
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: !_bottomSheetVisible
-          ? Builder(builder: (context) {
-              return InkWell(
-                onTap: () => onCapture(context),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.blue[200],
-                    boxShadow: <BoxShadow>[
-                      BoxShadow(
-                        color: Colors.blue.withOpacity(0.1),
-                        blurRadius: 1,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  alignment: Alignment.center,
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  height: 60,
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'CAPTURE',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Icon(Icons.camera_alt, color: Colors.white)
-                    ],
-                  ),
+      floatingActionButton: Builder(builder: (context) {
+        return InkWell(
+          onTap: () => onCapture(context),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.blue[200],
+              boxShadow: <BoxShadow>[
+                BoxShadow(
+                  color: Colors.blue.withOpacity(0.1),
+                  blurRadius: 1,
+                  offset: const Offset(0, 2),
                 ),
-              );
-            })
-          : Container(),
+              ],
+            ),
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+            width: MediaQuery.of(context).size.width * 0.8,
+            height: 60,
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'CAPTURE',
+                  style: TextStyle(color: Colors.white),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Icon(Icons.camera_alt, color: Colors.white)
+              ],
+            ),
+          ),
+        );
+      }),
     );
   }
 
@@ -244,10 +294,41 @@ class _RegisterScanState extends State<RegisterScan> {
               modelData: predictedData,
             );
             await db.insert(userToSave);
-            _mlSR.setPredictedData([]);
+            // _mlSR.setPredictedData([]);
+            _mlSR.resetPredicted();
             context.go("/");
           });
     });
+  }
+
+  goHomeSheet(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: 50),
+          TextButton.icon(
+            onPressed: () => context.go("/"),
+            icon: const Icon(Icons.person_add_rounded),
+            label: const Text("Home"),
+            style: TextButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: const BorderRadius.all(Radius.circular(8)),
+                side: BorderSide(
+                  color: Theme.of(context).colorScheme.primary,
+                  width: 1,
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 15),
+            ),
+          ),
+          const SizedBox(height: 50),
+        ],
+      ),
+    );
   }
 
   addUserSheet(BuildContext context) {

@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 
 class CameraHeader extends StatelessWidget {
-  const CameraHeader(this.title, {super.key, this.onBackPressed});
+  const CameraHeader(
+    this.title, {
+    super.key,
+    this.captureCount,
+    this.onBackPressed,
+  });
   final String title;
+  final String? captureCount;
   final void Function()? onBackPressed;
 
   @override
@@ -43,9 +49,18 @@ class CameraHeader extends StatelessWidget {
                 color: Colors.white, fontWeight: FontWeight.w600, fontSize: 20),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(
-            width: 90,
-          )
+          if (captureCount != null)
+            Text(
+              captureCount!,
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 20),
+              textAlign: TextAlign.center,
+            ),
+          // const SizedBox(
+          //   width: 90,
+          // )
         ],
       ),
     );

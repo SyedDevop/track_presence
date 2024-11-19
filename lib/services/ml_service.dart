@@ -24,6 +24,8 @@ class MLService {
   List<int> inputShapList = [1, 112, 112, 3];
   int inputShapSize = 1 * 112 * 112 * 3;
 
+  List<List> _predictedDataList = [];
+  List<List> get predictedDataList => _predictedDataList;
   List _predictedData = [];
   List get predictedData => _predictedData;
 
@@ -75,6 +77,16 @@ class MLService {
     output = output.reshape([192]);
 
     _predictedData = List.from(output);
+    _predictedDataList.add(_predictedData);
+  }
+
+  void addCaptures() {
+    _predictedDataList.add(_predictedData);
+  }
+
+  void resetPredicted() {
+    _predictedData = [];
+    _predictedDataList = [];
   }
 
   Future<User?> predict() async {
