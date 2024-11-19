@@ -11,7 +11,6 @@ import 'package:vcare_attendance/screens/register_scan.dart';
 
 // GoRouter configuration
 final router = GoRouter(
-  initialLocation: "/login",
   routes: [
     GoRoute(
       path: RouteNames.homePath,
@@ -44,11 +43,12 @@ final router = GoRouter(
     final ProfileDB pdb = ProfileDB.instance;
     final user = await db.queryAllUsers();
     final profile = await pdb.queryAllProfile();
-
     final urlPath = state.uri.toString();
 
     if (profile.isEmpty) {
-      if (urlPath == RouteNames.loginPath) return null;
+      if (urlPath == RouteNames.loginPath || urlPath == RouteNames.loginPath) {
+        return null;
+      }
       return RouteNames.login;
     }
     if (user.isEmpty) {
