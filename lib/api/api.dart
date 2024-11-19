@@ -7,7 +7,7 @@ import 'package:vcare_attendance/api/error.dart';
 import 'package:vcare_attendance/models/profile_model.dart';
 import 'package:vcare_attendance/models/time.dart';
 
-const baseApi = "https://vcarehospital.in/hms/payroll/api";
+const baseApi = "https://vcarehospital.in/hms1/payroll/api";
 String toDay() {
   return DateFormat('dd-MM-yyyy').format(DateTime.now());
 }
@@ -26,7 +26,10 @@ class Api {
     if (res.statusCode >= 400 && res.statusCode < 500) {
       throw ApiException(ApiError.fromJson(jsonDecode(res.body)));
     }
-    return Profile.fromApiJson(jsonDecode(res.body));
+
+    final jsBody = jsonDecode(res.body);
+    print(jsBody);
+    return Profile.fromApiJson(jsBody["profile"]);
   }
 
   static Future<Profile?> getProfile(String id) async {

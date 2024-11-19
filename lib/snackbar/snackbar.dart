@@ -12,7 +12,7 @@ void snackbarError(BuildContext context, {required String message}) {
             fontSize: 14.0,
           ),
         ),
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 4),
         backgroundColor: const Color.fromRGBO(255, 51, 51, 1),
         showCloseIcon: true,
         behavior: SnackBarBehavior.floating,

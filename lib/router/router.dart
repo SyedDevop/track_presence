@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:vcare_attendance/db/databse_helper.dart';
+import 'package:vcare_attendance/db/profile_db.dart';
 
 import 'package:vcare_attendance/router/router_name.dart';
 import 'package:vcare_attendance/screens/clock.dart';
@@ -40,14 +41,19 @@ final router = GoRouter(
   ],
   redirect: (context, state) async {
     final DB db = DB.instance;
+    final ProfileDB pdb = ProfileDB.instance;
     final user = await db.queryAllUsers();
+    final profile = await pdb.queryAllProfile();
 
     final urlPath = state.uri.toString();
 
+    if (profile.isEmpty) {
+      if (urlPath == RouteNames.loginPath) return null;
+      return RouteNames.login;
+    }
     if (user.isEmpty) {
       if (urlPath == RouteNames.registerScanPath ||
-          urlPath == RouteNames.registerPath ||
-          urlPath == RouteNames.loginPath) return null;
+          urlPath == RouteNames.registerPath) return null;
       return RouteNames.registerPath;
     }
     return null;

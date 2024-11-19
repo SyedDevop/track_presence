@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vcare_attendance/api/api.dart';
+import 'package:vcare_attendance/api/error.dart';
+import 'package:vcare_attendance/db/profile_db.dart';
+import 'package:vcare_attendance/router/router_name.dart';
+import 'package:vcare_attendance/screens/register_scan.dart';
+import 'package:vcare_attendance/snackbar/snackbar.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,7 +21,24 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _subbmit() async {
     if (_formKey.currentState!.validate()) {
-      Api.login(_userCT.text, _passwordCT.text);
+      snackbarNotefy(context, message: 'Login in progress..🔥🔥🔥..');
+      try {
+        final profile = await Api.login(_userCT.text, _passwordCT.text);
+        if (profile == null) {
+          snackbarNotefy(context,
+              message: 'Unable to login try after some time.');
+          return;
+        }
+        ProfileDB pdb = ProfileDB.instance;
+        await pdb.insert(profile);
+        if (!context.mounted) return;
+        context.goNamed(RouteNames.home);
+        snackbarSuccess(context, message: "Login successful..🎉🎉🎉..");
+      } on ApiException catch (e) {
+        snackbarError(context, message: "${e.message}  😭");
+      } catch (e) {
+        print("[Error]: Api login error :: $e");
+      }
     }
   }
 
