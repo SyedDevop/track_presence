@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vcare_attendance/getit.dart';
+import 'package:vcare_attendance/router/router_name.dart';
 import 'package:vcare_attendance/services/state.dart';
 
 class AppDrawer extends StatefulWidget {
@@ -53,7 +54,7 @@ class _AppDrawerState extends State<AppDrawer> {
           ListTile(
             leading: const Icon(Icons.summarize_rounded),
             title: const Text('Report'),
-            onTap: () => {},
+            onTap: () => context.pushNamed(RouteNames.report),
           ),
           ListTile(
             leading: const Icon(Icons.person_2_rounded),

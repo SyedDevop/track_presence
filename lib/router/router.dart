@@ -8,15 +8,21 @@ import 'package:vcare_attendance/screens/home.dart';
 import 'package:vcare_attendance/screens/login.dart';
 import 'package:vcare_attendance/screens/register.dart';
 import 'package:vcare_attendance/screens/register_scan.dart';
+import 'package:vcare_attendance/screens/report.dart';
 
 // GoRouter configuration
 final router = GoRouter(
- // initialLocation: RouteNames.registerPath,
+  // initialLocation: RouteNames.registerPath,
   routes: [
     GoRoute(
       path: RouteNames.homePath,
       name: RouteNames.home,
       builder: (_, __) => const MyHomePage(),
+    ),
+    GoRoute(
+      path: RouteNames.reportPath,
+      name: RouteNames.report,
+      builder: (_, __) => const ReportScreen(),
     ),
     GoRoute(
       path: RouteNames.clockPath,
