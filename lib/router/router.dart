@@ -11,6 +11,7 @@ import 'package:vcare_attendance/screens/register_scan.dart';
 
 // GoRouter configuration
 final router = GoRouter(
+ // initialLocation: RouteNames.registerPath,
   routes: [
     GoRoute(
       path: RouteNames.homePath,

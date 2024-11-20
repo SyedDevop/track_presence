@@ -33,7 +33,7 @@ void snackbarSuccess(BuildContext context, {required String message}) {
           fontSize: 14.0,
         ),
       ),
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 5),
       backgroundColor: Colors.tealAccent,
       showCloseIcon: true,
       behavior: SnackBarBehavior.floating,
