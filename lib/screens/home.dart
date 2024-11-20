@@ -7,6 +7,7 @@ import 'package:vcare_attendance/models/time.dart';
 import 'package:vcare_attendance/models/user_model.dart';
 import 'package:vcare_attendance/router/router_name.dart';
 import 'package:vcare_attendance/services/state.dart';
+import 'package:vcare_attendance/widgets/app_drawer.dart';
 
 const gap = 15.0;
 
@@ -68,6 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: const Text("Home"),
       ),
+      drawer: const AppDrawer(),
       body: RefreshIndicator(
         key: _refreshIndicatorKey,
         onRefresh: _getTimes,

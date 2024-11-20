@@ -36,6 +36,7 @@ class _RegisterScanState extends State<RegisterScan> {
 
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   String? imagePath;
+  String? imgSavedPath;
   Face? faceDetected;
 
   bool _saving = false;
@@ -61,8 +62,8 @@ class _RegisterScanState extends State<RegisterScan> {
 
   @override
   void dispose() {
-    _camSR.dispose();
     super.dispose();
+    _camSR.dispose();
   }
 
   Future _start() async {
@@ -123,8 +124,10 @@ class _RegisterScanState extends State<RegisterScan> {
     }
     final pro = pros[0];
     final Database db = await pdb.database;
+    print("Image Path => :: $imagePath");
+    print("Image Saved Path => :: $imgSavedPath");
     db.rawUpdate(
-      'UPDATE ${ProfileDB.table} SET img_path = ${imagePath ?? ""} WHERE user_id =  ${pro.userId}',
+      'UPDATE ${ProfileDB.table} SET img_path = "${imgSavedPath ?? ""}" WHERE user_id = "${pro.userId}"',
     );
     for (var data in _mlSR.predictedDataList) {
       User userToSave = User(
@@ -161,7 +164,8 @@ class _RegisterScanState extends State<RegisterScan> {
     imagePath = file?.path;
     final directory = await getExternalStorageDirectory();
     final imageData = File(imagePath!);
-    final toImage = File("${directory?.path}/dp.jpg");
+    imgSavedPath = "${directory?.path}/dp.jpg";
+    final toImage = File(imgSavedPath!);
     toImage.writeAsBytes(imageData.readAsBytesSync());
     setState(() {
       pictureTaken = true;
