@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:vcare_attendance/api/error.dart';
 import 'package:vcare_attendance/models/profile_model.dart';
+import 'package:vcare_attendance/models/report_model.dart';
 import 'package:vcare_attendance/models/time.dart';
 
 const baseApi = "https://vcarehospital.in/hms1/payroll/api";
@@ -30,6 +31,65 @@ class Api {
     final jsBody = jsonDecode(res.body);
     print(jsBody);
     return Profile.fromApiJson(jsBody["profile"]);
+  }
+
+  static Future<List<String>> getDepartments() async {
+    try {
+      final res = await http.get(
+        Uri.parse('$baseApi/get_departments.php'),
+      );
+      if (res.statusCode != 200) return [];
+      final data = jsonDecode(res.body)["data"];
+      return (data as List<dynamic>).map((e) => e.toString()).toList();
+    } catch (e) {
+      print("Error geting Profile data: $e");
+      return [];
+    }
+  }
+
+  static Future<List<(String, String)>> getEmployes(String department) async {
+    try {
+      final res = await http.get(
+        Uri.parse('$baseApi/get_employees.php?department=$department'),
+      );
+      if (res.statusCode != 200) return [];
+      Map<String, dynamic> jsonData = jsonDecode(res.body);
+      final result = (jsonData['data'] as Map<String, dynamic>)
+          .entries
+          .map((entry) => (entry.key, entry.value as String))
+          .toList();
+      return result;
+    } catch (e) {
+      print("Error geting Profile data: $e");
+      return [];
+    }
+  }
+
+  static Future<Report?> getReport(
+    /// [employee] in employee name and id in this formate ex:"name-id"  separated to dash
+    String employee,
+
+    /// [month] name of the month ex:"November"
+    String month,
+
+    /// [year] the in full formate yyyy ex:"2014"
+    int year,
+  ) async {
+    try {
+      final res = await http.post(
+        Uri.parse('$baseApi/get_report.php'),
+        body: json.encode(
+          {"employee_id": employee, "month": month, "year": year},
+        ),
+        headers: {"Content-Type": "application/json"},
+      );
+      if (res.statusCode != 200) return null;
+      final result = Report.fromRawJson(res.body);
+      return result;
+    } catch (e) {
+      print("Error geting Profile data: $e");
+      return null;
+    }
   }
 
   static Future<Profile?> getProfile(String id) async {

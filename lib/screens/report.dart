@@ -1,4 +1,11 @@
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:vcare_attendance/api/api.dart';
+import 'package:vcare_attendance/getit.dart';
+import 'package:vcare_attendance/models/profile_model.dart';
+import 'package:vcare_attendance/models/report_model.dart';
+import 'package:vcare_attendance/services/state.dart';
+import 'package:vcare_attendance/widgets/dropdown/dropdown.dart';
 
 const List<String> months = [
   "January",
@@ -22,231 +29,99 @@ class ReportScreen extends StatefulWidget {
   State<ReportScreen> createState() => _ReportScreenState();
 }
 
-class _ReportScreenState extends State<ReportScreen> {
-  final attendance = [
-    {
-      "date": "2024-11-06",
-      "employee_name": "UZAIR AHMED",
-      "in_time": "11:02 PM",
-      "out_time": "11:10 PM",
-      "status": "Present",
-    },
-    {
-      "date": "2024-11-07",
-      "employee_name": "UZAIR AHMED",
-      "in_time": "11:00 AM",
-      "out_time": "06:30 PM",
-      "status": "Present",
-    },
-    {
-      "date": "2024-11-08",
-      "employee_name": "UZAIR AHMED",
-      "in_time": "04:30 AM",
-      "out_time": "08:30 AM",
-      "status": "Abbesnt",
-    },
-  ];
-// ----------------------------------------------------
+typedef Empolye = (String, String);
 
-  // int currYear = DateTime.now().year;
-  // int yearLinit = 10;
-  //
-  // final _dropDownCustomBGKey = GlobalKey<DropdownSearchState<String>>();
-  //
-  // MenuProps menuPropsStyle = const MenuProps(
-  //   shape: RoundedRectangleBorder(
-  //     borderRadius: BorderRadius.only(
-  //       bottomLeft: Radius.circular(20),
-  //       bottomRight: Radius.circular(20),
-  //       topLeft: Radius.zero,
-  //       topRight: Radius.zero,
-  //     ),
-  //   ),
-  // );
+class _ReportScreenState extends State<ReportScreen> {
+// ----------------------------------------------------
+  int currYear = DateTime.now().year;
+  int yearLinit = 10;
+  final _stateSR = getIt<AppState>();
+  Profile? _profile;
+
+  int year = DateTime.now().year;
+  String month = months[DateTime.now().month - 1];
+
+  Report? report;
+
+  @override
+  void initState() {
+    super.initState();
+    _start();
+  }
+
+  Future<void> _start() async {
+    await _stateSR.initProfile("vch0000");
+    _profile = _stateSR.profile;
+  }
+
+  final _monthDP = GlobalKey<DropdownSearchState<String>>();
+  final _yearDP = GlobalKey<DropdownSearchState<int>>();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Report')),
-      body: ListView.builder(
-        itemCount: attendance.length,
-        padding: const EdgeInsets.all(16.0),
-        itemBuilder: (context, index) {
-          final item = attendance[index];
-          final statusColor = item['status'] == "Present"
-              ? Colors.greenAccent
-              : Colors.redAccent;
-          final statusIcon =
-              item['status'] == "Present" ? Icons.check_circle : Icons.cancel;
-
-          return Card(
-            color: Color(0xFF1E1E1E), // Dark card background
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            margin: const EdgeInsets.symmetric(vertical: 8.0),
-            elevation: 4,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+      body: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Column(
+          children: [
+            Form(
+              key: _formKey,
+              child: Column(
                 children: [
-                  CircleAvatar(
-                    backgroundColor: statusColor.withOpacity(0.2),
-                    child: Icon(statusIcon, color: statusColor),
+                  AtDropdown<String>(
+                    dropdownKey: _monthDP,
+                    selectedItem: month,
+                    labelText: "Select Month",
+                    hintText: "select a month.",
+                    validationErrorText: "month is required.",
+                    items: (f, cs) => months,
+                    onChanged: (p0) {
+                      if (p0 != null) {
+                        month = p0;
+                      }
+                    },
                   ),
-                  SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "${item['employee_name']}",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Icon(Icons.calendar_today,
-                                size: 16, color: Colors.grey),
-                            SizedBox(width: 4),
-                            Text(
-                              "${item['date']}",
-                              style: TextStyle(color: Colors.grey[400]),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Icon(Icons.access_time,
-                                size: 16, color: Colors.grey),
-                            SizedBox(width: 4),
-                            Text(
-                              "In: ${item['in_time']} | Out: ${item['out_time']}",
-                              style: TextStyle(color: Colors.grey[400]),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                  const SizedBox(height: 20),
+                  AtDropdown<int>(
+                    dropdownKey: _yearDP,
+                    selectedItem: year,
+                    labelText: "Select Year",
+                    hintText: "select a year.",
+                    validationErrorText: "year is required.",
+                    items: (f, cs) =>
+                        List.generate(yearLinit, (i) => currYear - i),
+                    onChanged: (p0) {
+                      if (p0 != null) {
+                        year = p0;
+                      }
+                    },
                   ),
-                  Text(
-                    "${item['status']}",
-                    style: TextStyle(
-                      color: statusColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
+                  const SizedBox(height: 20),
+                  TextButton.icon(
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        final emp =
+                            "${_profile?.name ?? " "}-${_profile?.userId ?? " "}";
+                        final rep = await Api.getReport(emp, month, year);
+                        setState(() {
+                          report = rep;
+                        });
+                      }
+                    },
+                    icon: const Icon(Icons.search_rounded),
+                    label: const Text("Fetch Attendance"),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.greenAccent,
                     ),
                   ),
                 ],
               ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildSummaryCard(String title, String value, Color color) {
-    return Card(
-      color: color.withOpacity(0.1),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Text(
-              title,
-              style: TextStyle(color: color, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Text(
-              value,
-              style: TextStyle(
-                  color: color, fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ],
         ),
       ),
     );
   }
-  // var newVariable = <DropdownSearch<Object>>[
-  //   DropdownSearch<String>(
-  //     items: (f, cs) =>
-  //         ['Facebook', 'Twitter', 'Instagram', 'SnapChat', 'Other'],
-  //     decoratorProps: const DropDownDecoratorProps(
-  //       decoration: InputDecoration(
-  //         labelText: "Select  Department",
-  //         hintText: "Select an department name",
-  //       ),
-  //     ),
-  //     popupProps: PopupProps.menu(
-  //       showSearchBox: true,
-  //       showSelectedItems: true,
-  //       menuProps: menuPropsStyle,
-  //     ),
-  //   ),
-  //   DropdownSearch<String>(
-  //       items: (f, cs) =>
-  //           ['Facebook', 'Twitter', 'Instagram', 'SnapChat', 'Other'],
-  //       decoratorProps: const DropDownDecoratorProps(
-  //         decoration: InputDecoration(
-  //           labelText: "Select Employee",
-  //           hintText: "Select an employee name",
-  //         ),
-  //       ),
-  //       popupProps: const PopupProps.menu(
-  //         showSearchBox: true,
-  //         menuProps: menuPropsStyle,
-  //       )),
-  //   DropdownSearch<String>(
-  //     items: (f, cs) => months,
-  //     decoratorProps: const DropDownDecoratorProps(
-  //       decoration: InputDecoration(
-  //         labelText: "Select Year",
-  //       ),
-  //     ),
-  //     popupProps: const PopupProps.menu(
-  //       menuProps: menuPropsStyle,
-  //     ),
-  //   ),
-  //   DropdownSearch<int>(
-  //     items: (f, cs) => List.generate(yearLinit, (i) => currYear - i),
-  //     decoratorProps: const DropDownDecoratorProps(
-  //       decoration: InputDecoration(
-  //         labelText: "Select Year",
-  //       ),
-  //     ),
-  //     popupProps: menuPropsStyle,
-  //   ),
-  // ];
 }
-
-// class FormSelect extends StatelessWidget {
-//   const FormSelect({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return DropdownSearch(
-//       items: (f, cs) => [1],
-//       decoratorProps: const DropDownDecoratorProps(
-//         decoration: InputDecoration(
-//           labelText: "Select Year",
-//         ),
-//       ),
-//       popupProps: const MenuProps(
-//         shape: RoundedRectangleBorder(
-//           borderRadius: BorderRadius.only(
-//             bottomLeft: Radius.circular(20),
-//             bottomRight: Radius.circular(20),
-//             topLeft: Radius.zero,
-//             topRight: Radius.zero,
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }

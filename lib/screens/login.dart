@@ -118,6 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         decoration: const InputDecoration(
                             prefixIcon: Icon(Icons.lock_open_outlined),
                             labelText: "user password"),
+                        onFieldSubmitted: (_) => _subbmit,
                       ),
                       const SizedBox(height: 15),
                       Row(
