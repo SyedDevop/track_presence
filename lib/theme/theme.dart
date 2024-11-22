@@ -15,6 +15,11 @@ class FTTheme {
           navigationRailUseIndicator: true,
           navigationRailLabelType: NavigationRailLabelType.all,
         ),
+        keyColors: const FlexKeyColors(
+          useSecondary: true,
+          useTertiary: true,
+          useError: true,
+        ),
         visualDensity: FlexColorScheme.comfortablePlatformDensity,
         cupertinoOverrideTheme: const CupertinoThemeData(applyThemeToAll: true),
       );
@@ -31,6 +36,11 @@ class FTTheme {
           navigationRailUseIndicator: true,
           navigationRailLabelType: NavigationRailLabelType.all,
         ),
+        // keyColors: const FlexKeyColors(
+        //   useSecondary: true,
+        //   useTertiary: true,
+        //   useError: true,
+        // ),
         visualDensity: FlexColorScheme.comfortablePlatformDensity,
         cupertinoOverrideTheme: const CupertinoThemeData(applyThemeToAll: true),
       );

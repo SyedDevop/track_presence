@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -49,12 +48,18 @@ class _AppDrawerState extends State<AppDrawer> {
           ListTile(
             leading: const Icon(Icons.home_rounded),
             title: const Text('Home'),
-            onTap: () => context.go("/"),
+            onTap: () {
+              Navigator.pop(context);
+              context.go("/");
+            },
           ),
           ListTile(
             leading: const Icon(Icons.summarize_rounded),
             title: const Text('Report'),
-            onTap: () => context.pushNamed(RouteNames.report),
+            onTap: () {
+              context.pop();
+              context.pushNamed(RouteNames.report);
+            },
           ),
           ListTile(
             leading: const Icon(Icons.person_2_rounded),
