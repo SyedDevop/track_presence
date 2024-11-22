@@ -12,7 +12,7 @@ import 'package:vcare_attendance/screens/report.dart';
 
 // GoRouter configuration
 final router = GoRouter(
-  initialLocation: RouteNames.reportPath,
+  // initialLocation: RouteNames.reportPath,
   routes: [
     GoRoute(
       path: RouteNames.homePath,
