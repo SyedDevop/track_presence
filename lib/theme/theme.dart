@@ -40,6 +40,7 @@ class FTTheme {
         //   useSecondary: true,
         //   useTertiary: true,
         //   useError: true,
+        //   contrastLevel: 1,
         // ),
         visualDensity: FlexColorScheme.comfortablePlatformDensity,
         cupertinoOverrideTheme: const CupertinoThemeData(applyThemeToAll: true),

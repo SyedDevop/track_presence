@@ -1,27 +1,12 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/profile_model.dart';
 import 'package:vcare_attendance/models/report_model.dart';
 import 'package:vcare_attendance/services/state.dart';
 import 'package:vcare_attendance/widgets/dropdown/dropdown.dart';
-
-const List<String> months = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December"
-];
+import 'package:vcare_attendance/widgets/report/report_widget.dart';
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({super.key});
@@ -36,7 +21,6 @@ class _ReportScreenState extends State<ReportScreen> {
   final _stateSR = getIt<AppState>();
   Profile? _profile;
 
-  DateFormat dateFormat = DateFormat("yyyy-MM-dd h:mm a");
   int currYear = DateTime.now().year;
   int yearLinit = 10;
   int year = DateTime.now().year;
@@ -68,6 +52,12 @@ class _ReportScreenState extends State<ReportScreen> {
   final _monthDP = GlobalKey<DropdownSearchState<String>>();
   final _yearDP = GlobalKey<DropdownSearchState<int>>();
   final _formKey = GlobalKey<FormState>();
+
+  final AnimationStyle _animationStyle = AnimationStyle(
+    duration: const Duration(seconds: 1),
+    reverseDuration: const Duration(seconds: 1),
+    curve: Curves.fastLinearToSlowEaseIn,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -133,11 +123,12 @@ class _ReportScreenState extends State<ReportScreen> {
                                 ? Colors.greenAccent
                                 : Colors.redAccent;
                             return AttendanceCard(
-                              item.date,
+                              item.date1,
                               statusColor: statusColor,
                               inTime: item.inTime,
                               outTime: item.outTime ?? "--:--:--",
                               extraHourCount: item.extraHours.length,
+                              onTap: () => _showAtFullReport(context, item),
                             );
                           },
                         ),
@@ -150,12 +141,14 @@ class _ReportScreenState extends State<ReportScreen> {
                               return null;
                             }
                             final atKey = extraHoursKeys![index];
-                            final atten = report!.extraHours[atKey];
+                            final atten = report!.extraHours[atKey]!;
                             const statusColor = Colors.greenAccent;
                             return ExtraHourCard(
                               statusColor: statusColor,
                               title: atKey,
-                              count: atten?.length ?? 0,
+                              count: atten.length,
+                              onTap: () =>
+                                  _showExFullReport(context, atKey, atten),
                             );
                           },
                         )
@@ -191,33 +184,56 @@ class _ReportScreenState extends State<ReportScreen> {
       setState(() {
         _loading = true;
       });
-      toExtraTime = Duration.zero;
-      toShiftTime = Duration.zero;
-      toWorkTime = Duration.zero;
-      final emp = "${_profile?.name ?? " "}-${_profile?.userId ?? " "}";
-      final rep = await Api.getReport(emp, month, year);
-      setState(() {
-        report = rep;
-        extraHoursKeys = rep?.extraHours.keys.toList();
-      });
-      calculateTimes(rep);
-      toWorkTime = toExtraTime + toShiftTime;
-      setState(() {
-        _loading = false;
-      });
+      try {
+        toExtraTime = Duration.zero;
+        toShiftTime = Duration.zero;
+        toWorkTime = Duration.zero;
+        final emp = "${_profile?.name ?? " "}-${_profile?.userId ?? " "}";
+        final rep = await Api.getReport(emp, month, year);
+        setState(() {
+          report = rep;
+          extraHoursKeys = rep?.extraHours.keys.toList();
+        });
+        calculateTimes(rep);
+        toWorkTime = toExtraTime + toShiftTime;
+      } catch (e) {
+        print("[Error] in _fetchReport :: $e");
+      } finally {
+        setState(() {
+          _loading = false;
+        });
+      }
     }
+  }
+
+  void _showAtFullReport(
+    BuildContext context,
+    AttendanceReport attendance,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      sheetAnimationStyle: _animationStyle,
+      elevation: 4,
+      builder: (BuildContext context) =>
+          FullAttendancesReport(item: attendance),
+    );
+  }
+
+  void _showExFullReport(BuildContext context, String extraHourDate,
+      List<ExtraHourReport> extraHour) {
+    showModalBottomSheet(
+      context: context,
+      sheetAnimationStyle: _animationStyle,
+      elevation: 4,
+      builder: (BuildContext context) => FullExtraHoursReport(
+        extraHourDate: extraHourDate,
+        extraHour: extraHour,
+      ),
+    );
   }
 
   void calculateTimes(Report? rep) {
     if (rep == null) return;
-
-    Duration calDiff(String date, String inTime, String? outTime) {
-      if (outTime == null) return Duration.zero;
-      final inT = dateFormat.parse("$date $inTime".toUpperCase());
-      final outT = dateFormat.parse("$date $outTime".toUpperCase());
-      return outT.difference(inT);
-    }
-
     for (var at in rep.attendance) {
       for (var e in at.extraHours) {
         toExtraTime += calDiff(e.date, e.inTime, e.outTime);
@@ -235,139 +251,16 @@ class _ReportScreenState extends State<ReportScreen> {
 
   List<Widget> _summeryRow() {
     return [
-      _numberBlock(
+      numberBlock(
           "Present", report?.info.presentCount ?? "0", Colors.greenAccent),
-      _numberBlock("Absent", report?.info.absentCount ?? "0", Colors.redAccent),
-      _numberBlock("Total Entry", "$toEntry", Colors.yellowAccent),
-      _timeBlock(
-          "Total Shift Hour",
-          "${toShiftTime.inHours}hr ${toShiftTime.inMinutes % 60}min",
-          Colors.tealAccent),
-      _timeBlock(
-          "Total Extra Hour",
-          "${toExtraTime.inHours}hr ${toExtraTime.inMinutes % 60}min",
-          Colors.blueAccent),
-      _timeBlock(
-          "Total Worked Hour",
-          "${toWorkTime.inHours}hr ${(toWorkTime.inMinutes % 60)}min",
-          Colors.cyanAccent),
+      numberBlock("Absent", report?.info.absentCount ?? "0", Colors.redAccent),
+      numberBlock("Total Entry", "$toEntry", Colors.yellowAccent),
+      timeBlock(
+          "Total Shift Hour", durationToHrMin(toShiftTime), Colors.tealAccent),
+      timeBlock(
+          "Total Extra Hour", durationToHrMin(toExtraTime), Colors.blueAccent),
+      timeBlock(
+          "Total Worked Hour", durationToHrMin(toWorkTime), Colors.cyanAccent),
     ];
-  }
-
-  Widget _numberBlock(String title, String value, Color color) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text(value,
-                style: TextStyle(
-                    fontSize: 24, fontWeight: FontWeight.bold, color: color)),
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w200)),
-          ],
-        ),
-      );
-  Widget _timeBlock(String title, String value, Color color) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text(value, style: TextStyle(fontSize: 18, color: color)),
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w200)),
-          ],
-        ),
-      );
-}
-
-class AttendanceCard extends StatelessWidget {
-  const AttendanceCard(
-    this.title, {
-    super.key,
-    required this.statusColor,
-    required this.inTime,
-    required this.outTime,
-    required this.extraHourCount,
-    this.onTap,
-  });
-
-  final Color statusColor;
-  final String title;
-  final String inTime;
-  final String outTime;
-  final int extraHourCount;
-  final void Function()? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2.5,
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: statusColor.withOpacity(0.2),
-          child: Icon(Icons.calendar_today_rounded, color: statusColor),
-        ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(
-          "In: $inTime -/- Out: $outTime\nExtra Hour Count: $extraHourCount",
-          maxLines: 2,
-        ),
-        isThreeLine: true,
-        trailing: const Icon(Icons.read_more_rounded),
-        onTap: onTap,
-      ),
-    );
-  }
-}
-
-class ExtraHourCard extends StatelessWidget {
-  const ExtraHourCard({
-    super.key,
-    required this.statusColor,
-    required this.title,
-    required this.count,
-    this.onTap,
-  });
-
-  final Color statusColor;
-  final String title;
-  final int count;
-  final void Function()? onTap;
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2.5,
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: statusColor.withOpacity(0.2),
-          child: Icon(Icons.calendar_today_rounded, color: statusColor),
-        ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text("Extra Hour Count: $count"),
-        trailing: const Icon(Icons.read_more_rounded),
-        onTap: onTap,
-      ),
-    );
-  }
-}
-
-class RpoerHeader extends StatelessWidget {
-  const RpoerHeader(
-    this.title, {
-    super.key,
-  });
-  final String title;
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: [
-          Text(
-            title,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const Divider(),
-        ],
-      ),
-    );
   }
 }
