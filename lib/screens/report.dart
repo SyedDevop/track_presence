@@ -113,127 +113,101 @@ class _ReportScreenState extends State<ReportScreen> {
                 ],
               ),
             ),
-            Card(
-              elevation: 4,
-              surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Summary",
-                      style: TextStyle(
-                        fontSize: 16,
+            const SizedBox(height: 15),
+            Expanded(
+              child: CustomScrollView(
+                slivers: [
+                  SliverToBoxAdapter(child: _summeryCard(context)),
+                  if (report != null)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            Text(
+                              "Attendance",
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const Divider(),
+                          ],
+                        ),
                       ),
                     ),
-                    const Divider(),
-                    const SizedBox(height: 15),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _numberBlock(
-                            "Present",
-                            report?.info.presentCount ?? "0",
-                            Colors.greenAccent),
-                        _numberBlock("Absent", report?.info.absentCount ?? "0",
-                            Colors.redAccent),
-                        _numberBlock(
-                            "Total Entry", "$toEntry", Colors.yellowAccent),
-                      ],
+                  if (report != null)
+                    SliverList.builder(
+                      itemCount: report?.attendance.length,
+                      itemBuilder: (context, index) {
+                        final atten = report!.attendance;
+                        final item = atten[index];
+                        final statusColor = item.status == "1"
+                            ? Colors.greenAccent
+                            : Colors.redAccent;
+                        return Card(
+                          elevation: 2.5,
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: statusColor.withOpacity(0.2),
+                              child: Icon(Icons.calendar_today_rounded,
+                                  color: statusColor),
+                            ),
+                            title: Text(item.date,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold)),
+                            subtitle: Text(
+                              "In: ${item.inTime} -/- Out: ${item.outTime ?? "--:--:--"}\nExtra Hour Count: ${item.extraHours.length}",
+                              maxLines: 2,
+                            ),
+                            isThreeLine: true,
+                            trailing: const Icon(Icons.read_more_rounded),
+                            onTap: () {},
+                          ),
+                        );
+                      },
                     ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      child: Wrap(
-                        direction: Axis.horizontal,
-                        alignment: WrapAlignment.spaceAround,
-                        spacing: 15,
-                        children: [
-                          _timeBlock(
-                              "Total Shift Hour",
-                              "${toShiftTime.inHours}hr ${toShiftTime.inMinutes % 60}min",
-                              Colors.tealAccent),
-                          _timeBlock(
-                              "Total Extra Hour",
-                              "${toExtraTime.inHours}hr ${toExtraTime.inMinutes % 60}min",
-                              Colors.blueAccent),
-                          _timeBlock(
-                              "Total Worked Hour",
-                              "${toWorkTime.inHours}hr ${(toWorkTime.inMinutes % 60)}min",
-                              Colors.cyanAccent),
-                        ],
+                  if (report != null && extraHoursKeys != null)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            Text(
+                              "Extra Hours",
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const Divider(),
+                          ],
+                        ),
                       ),
+                    ),
+                  if (report != null && extraHoursKeys != null)
+                    SliverList.builder(
+                      itemCount: extraHoursKeys!.length,
+                      itemBuilder: (context, index) {
+                        final atKey = extraHoursKeys![index];
+                        final atten = report!.extraHours[atKey];
+                        const statusColor = Colors.greenAccent;
+                        return Card(
+                          elevation: 2.5,
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: statusColor.withOpacity(0.2),
+                              child: const Icon(Icons.calendar_today_rounded,
+                                  color: statusColor),
+                            ),
+                            title: Text(atKey,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold)),
+                            subtitle:
+                                Text("Extra Hour Count: ${atten?.length ?? 0}"),
+                            trailing: const Icon(Icons.read_more_rounded),
+                            onTap: () {},
+                          ),
+                        );
+                      },
                     )
-                  ],
-                ),
+                ],
               ),
             ),
-            const SizedBox(height: 15),
-            const Text(
-              "Attendance",
-              style: TextStyle(
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 5),
-            const Divider(),
-            const SizedBox(height: 15),
-            if (report != null)
-              Expanded(
-                child: ListView.builder(
-                  itemCount: report?.attendance.length,
-                  itemBuilder: (context, index) {
-                    final atten = report!.attendance;
-                    final item = atten[index];
-                    final statusColor = item.status == "1"
-                        ? Colors.greenAccent
-                        : Colors.redAccent;
-                    return Card(
-                      elevation: 2.5,
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: statusColor.withOpacity(0.2),
-                          child: Icon(Icons.calendar_today_rounded,
-                              color: statusColor),
-                        ),
-                        title: Text(item.date),
-                        subtitle: Text(
-                            "In: ${item.inTime} -/- Out: ${item.outTime ?? "--:--:--"}"),
-                        trailing: const Icon(Icons.read_more_rounded),
-                        onTap: () {},
-                      ),
-                    );
-                  },
-                ),
-              ),
-            const Divider(),
-            if (report != null && extraHoursKeys != null)
-              Expanded(
-                child: ListView.builder(
-                  itemCount: extraHoursKeys!.length,
-                  itemBuilder: (context, index) {
-                    final atKey = extraHoursKeys![index];
-                    final atten = report!.extraHours[atKey];
-                    const statusColor = Colors.greenAccent;
-                    return Card(
-                      elevation: 2.5,
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: statusColor.withOpacity(0.2),
-                          child: const Icon(Icons.calendar_today_rounded,
-                              color: statusColor),
-                        ),
-                        title: Text(atKey),
-                        subtitle:
-                            Text("Extra Hour Count: ${atten?.length ?? 0}"),
-                        trailing: const Icon(Icons.read_more_rounded),
-                        onTap: () {},
-                      ),
-                    );
-                  },
-                ),
-              ),
           ],
         ),
       ),
@@ -249,38 +223,8 @@ class _ReportScreenState extends State<ReportScreen> {
               report = rep;
               extraHoursKeys = rep?.extraHours.keys.toList();
             });
-            //   rep?.attendance.forEach((e) {
-            //     for (var ee in e.extraHours) {
-            //       if (ee.outTime == null) return;
-            //       final inT =
-            //           dateFormat.parse("${ee.date} ${ee.inTime}".toUpperCase());
-            //       final outT =
-            //           dateFormat.parse("${ee.date} ${ee.outTime}".toUpperCase());
-            //       final t = outT.difference(inT);
-            //       toExtraTime += t;
-            //     }
-            //
-            //     if (e.outTime == null || e.status == "0") return;
-            //     print(e.status);
-            //     final inT =
-            //         dateFormat.parse("${e.date} ${e.inTime}".toUpperCase());
-            //     final outT =
-            //         dateFormat.parse("${e.date} ${e.outTime}".toUpperCase());
-            //     final t = outT.difference(inT);
-            //     toShiftTime += t;
-            //   });
-            //   rep?.extraHours.forEach((_, v) {
-            //     for (var ee in v) {
-            //       if (ee.outTime == null) continue;
-            //       final inT =
-            //           dateFormat.parse("${ee.date} ${ee.inTime}".toUpperCase());
-            //       final outT =
-            //           dateFormat.parse("${ee.date} ${ee.outTime}".toUpperCase());
-            //       final t = outT.difference(inT);
-            //       toExtraTime += t;
-            //     }
-            //   });
-            //   toWorkTime = toExtraTime + toShiftTime;
+            calculateTimes(rep);
+            toWorkTime = toExtraTime + toShiftTime;
           }
         },
         icon: const Icon(Icons.manage_search_rounded),
@@ -288,6 +232,82 @@ class _ReportScreenState extends State<ReportScreen> {
         style: IconButton.styleFrom(
             foregroundColor: Colors.greenAccent,
             padding: const EdgeInsets.all(15)),
+      ),
+    );
+  }
+
+  void calculateTimes(Report? rep) {
+    if (rep == null) return;
+
+    Duration calDiff(String date, String inTime, String? outTime) {
+      if (outTime == null) return Duration.zero;
+      final inT = dateFormat.parse("$date $inTime".toUpperCase());
+      final outT = dateFormat.parse("$date $outTime".toUpperCase());
+      return outT.difference(inT);
+    }
+
+    for (var at in rep.attendance) {
+      for (var e in at.extraHours) {
+        toExtraTime += calDiff(e.date, e.inTime, e.outTime);
+      }
+
+      if (at.outTime == null || at.status == "0") continue;
+      toShiftTime += calDiff(at.date, at.inTime, at.outTime);
+    }
+    rep.extraHours.forEach((_, v) {
+      for (var e in v) {
+        toExtraTime += calDiff(e.date, e.inTime, e.outTime);
+      }
+    });
+  }
+
+  Card _summeryCard(BuildContext context) {
+    return Card(
+      elevation: 4,
+      surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text("Summary", style: TextStyle(fontSize: 16)),
+            const Divider(),
+            const SizedBox(height: 15),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _numberBlock("Present", report?.info.presentCount ?? "0",
+                    Colors.greenAccent),
+                _numberBlock("Absent", report?.info.absentCount ?? "0",
+                    Colors.redAccent),
+                _numberBlock("Total Entry", "$toEntry", Colors.yellowAccent),
+              ],
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: Wrap(
+                direction: Axis.horizontal,
+                alignment: WrapAlignment.spaceAround,
+                spacing: 15,
+                children: [
+                  _timeBlock(
+                      "Total Shift Hour",
+                      "${toShiftTime.inHours}hr ${toShiftTime.inMinutes % 60}min",
+                      Colors.tealAccent),
+                  _timeBlock(
+                      "Total Extra Hour",
+                      "${toExtraTime.inHours}hr ${toExtraTime.inMinutes % 60}min",
+                      Colors.blueAccent),
+                  _timeBlock(
+                      "Total Worked Hour",
+                      "${toWorkTime.inHours}hr ${(toWorkTime.inMinutes % 60)}min",
+                      Colors.cyanAccent),
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
