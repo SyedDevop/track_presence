@@ -33,13 +33,12 @@ class ReportScreen extends StatefulWidget {
 typedef Empolye = (String, String);
 
 class _ReportScreenState extends State<ReportScreen> {
-  DateFormat dateFormat = DateFormat("yyyy-MM-dd h:mm a");
-// ----------------------------------------------------
-  int currYear = DateTime.now().year;
-  int yearLinit = 10;
   final _stateSR = getIt<AppState>();
   Profile? _profile;
 
+  DateFormat dateFormat = DateFormat("yyyy-MM-dd h:mm a");
+  int currYear = DateTime.now().year;
+  int yearLinit = 10;
   int year = DateTime.now().year;
   String month = months[DateTime.now().month - 1];
 
@@ -52,6 +51,8 @@ class _ReportScreenState extends State<ReportScreen> {
   Duration toShiftTime = Duration.zero;
   Duration toExtraTime = Duration.zero;
   Duration toWorkTime = Duration.zero;
+
+  bool _loading = false;
 
   @override
   void initState() {
@@ -72,148 +73,158 @@ class _ReportScreenState extends State<ReportScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Attendance Summary')),
-      body: Padding(
-        padding: const EdgeInsets.all(15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Form(
-              key: _formKey,
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(15),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AtDropdown<String>(
-                    dropdownKey: _monthDP,
-                    selectedItem: month,
-                    labelText: "Select Month",
-                    hintText: "select a month.",
-                    validationErrorText: "month is required.",
-                    items: (f, cs) => months,
-                    onChanged: (p0) {
-                      if (p0 != null) {
-                        month = p0;
-                      }
-                    },
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        AtDropdown<String>(
+                          dropdownKey: _monthDP,
+                          selectedItem: month,
+                          labelText: "Select Month",
+                          hintText: "select a month.",
+                          validationErrorText: "month is required.",
+                          items: (f, cs) => months,
+                          onChanged: (p0) {
+                            if (p0 != null) {
+                              month = p0;
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        AtDropdown<int>(
+                          dropdownKey: _yearDP,
+                          selectedItem: year,
+                          labelText: "Select Year",
+                          hintText: "select a year.",
+                          validationErrorText: "year is required.",
+                          items: (f, cs) =>
+                              List.generate(yearLinit, (i) => currYear - i),
+                          onChanged: (p0) {
+                            if (p0 != null) {
+                              year = p0;
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 20),
-                  AtDropdown<int>(
-                    dropdownKey: _yearDP,
-                    selectedItem: year,
-                    labelText: "Select Year",
-                    hintText: "select a year.",
-                    validationErrorText: "year is required.",
-                    items: (f, cs) =>
-                        List.generate(yearLinit, (i) => currYear - i),
-                    onChanged: (p0) {
-                      if (p0 != null) {
-                        year = p0;
-                      }
-                    },
+                  const SizedBox(height: 15),
+                  Expanded(
+                    child: CustomScrollView(
+                      slivers: [
+                        SliverToBoxAdapter(child: _summeryCard(context)),
+                        if (report != null)
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    "Attendance",
+                                    style:
+                                        Theme.of(context).textTheme.titleMedium,
+                                  ),
+                                  const Divider(),
+                                ],
+                              ),
+                            ),
+                          ),
+                        if (report != null)
+                          SliverList.builder(
+                            itemCount: report?.attendance.length,
+                            itemBuilder: (context, index) {
+                              final atten = report!.attendance;
+                              final item = atten[index];
+                              final statusColor = item.status == "1"
+                                  ? Colors.greenAccent
+                                  : Colors.redAccent;
+                              return Card(
+                                elevation: 2.5,
+                                child: ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundColor:
+                                        statusColor.withOpacity(0.2),
+                                    child: Icon(Icons.calendar_today_rounded,
+                                        color: statusColor),
+                                  ),
+                                  title: Text(item.date,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                  subtitle: Text(
+                                    "In: ${item.inTime} -/- Out: ${item.outTime ?? "--:--:--"}\nExtra Hour Count: ${item.extraHours.length}",
+                                    maxLines: 2,
+                                  ),
+                                  isThreeLine: true,
+                                  trailing: const Icon(Icons.read_more_rounded),
+                                  onTap: () {},
+                                ),
+                              );
+                            },
+                          ),
+                        if (report != null && extraHoursKeys != null)
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    "Extra Hours",
+                                    style:
+                                        Theme.of(context).textTheme.titleMedium,
+                                  ),
+                                  const Divider(),
+                                ],
+                              ),
+                            ),
+                          ),
+                        if (report != null && extraHoursKeys != null)
+                          SliverList.builder(
+                            itemCount: extraHoursKeys!.length,
+                            itemBuilder: (context, index) {
+                              final atKey = extraHoursKeys![index];
+                              final atten = report!.extraHours[atKey];
+                              const statusColor = Colors.greenAccent;
+                              return Card(
+                                elevation: 2.5,
+                                child: ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundColor:
+                                        statusColor.withOpacity(0.2),
+                                    child: const Icon(
+                                        Icons.calendar_today_rounded,
+                                        color: statusColor),
+                                  ),
+                                  title: Text(atKey,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                  subtitle: Text(
+                                      "Extra Hour Count: ${atten?.length ?? 0}"),
+                                  trailing: const Icon(Icons.read_more_rounded),
+                                  onTap: () {},
+                                ),
+                              );
+                            },
+                          )
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 20),
                 ],
               ),
             ),
-            const SizedBox(height: 15),
-            Expanded(
-              child: CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(child: _summeryCard(context)),
-                  if (report != null)
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          children: [
-                            Text(
-                              "Attendance",
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            const Divider(),
-                          ],
-                        ),
-                      ),
-                    ),
-                  if (report != null)
-                    SliverList.builder(
-                      itemCount: report?.attendance.length,
-                      itemBuilder: (context, index) {
-                        final atten = report!.attendance;
-                        final item = atten[index];
-                        final statusColor = item.status == "1"
-                            ? Colors.greenAccent
-                            : Colors.redAccent;
-                        return Card(
-                          elevation: 2.5,
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: statusColor.withOpacity(0.2),
-                              child: Icon(Icons.calendar_today_rounded,
-                                  color: statusColor),
-                            ),
-                            title: Text(item.date,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold)),
-                            subtitle: Text(
-                              "In: ${item.inTime} -/- Out: ${item.outTime ?? "--:--:--"}\nExtra Hour Count: ${item.extraHours.length}",
-                              maxLines: 2,
-                            ),
-                            isThreeLine: true,
-                            trailing: const Icon(Icons.read_more_rounded),
-                            onTap: () {},
-                          ),
-                        );
-                      },
-                    ),
-                  if (report != null && extraHoursKeys != null)
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          children: [
-                            Text(
-                              "Extra Hours",
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            const Divider(),
-                          ],
-                        ),
-                      ),
-                    ),
-                  if (report != null && extraHoursKeys != null)
-                    SliverList.builder(
-                      itemCount: extraHoursKeys!.length,
-                      itemBuilder: (context, index) {
-                        final atKey = extraHoursKeys![index];
-                        final atten = report!.extraHours[atKey];
-                        const statusColor = Colors.greenAccent;
-                        return Card(
-                          elevation: 2.5,
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: statusColor.withOpacity(0.2),
-                              child: const Icon(Icons.calendar_today_rounded,
-                                  color: statusColor),
-                            ),
-                            title: Text(atKey,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold)),
-                            subtitle:
-                                Text("Extra Hour Count: ${atten?.length ?? 0}"),
-                            trailing: const Icon(Icons.read_more_rounded),
-                            onTap: () {},
-                          ),
-                        );
-                      },
-                    )
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: IconButton.outlined(
+      floatingActionButton: IconButton.filled(
         onPressed: () async {
           if (_formKey.currentState!.validate()) {
+            setState(() {
+              _loading = true;
+            });
             toExtraTime = Duration.zero;
             toShiftTime = Duration.zero;
             toWorkTime = Duration.zero;
@@ -225,13 +236,17 @@ class _ReportScreenState extends State<ReportScreen> {
             });
             calculateTimes(rep);
             toWorkTime = toExtraTime + toShiftTime;
+            setState(() {
+              _loading = false;
+            });
           }
         },
         icon: const Icon(Icons.manage_search_rounded),
         iconSize: 32,
         style: IconButton.styleFrom(
-            foregroundColor: Colors.greenAccent,
-            padding: const EdgeInsets.all(15)),
+          foregroundColor: Colors.black,
+          padding: const EdgeInsets.all(15),
+        ),
       ),
     );
   }
