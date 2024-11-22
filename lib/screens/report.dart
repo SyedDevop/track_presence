@@ -120,83 +120,45 @@ class _ReportScreenState extends State<ReportScreen> {
                     child: CustomScrollView(
                       slivers: [
                         const SliverToBoxAdapter(child: RpoerHeader("Summery")),
-                        SliverToBoxAdapter(
-                          child: Container(
-                            height: 75,
-                            color: Theme.of(context)
-                                .primaryColorDark
-                                .withAlpha(30),
-                            child: ListView(
-                                scrollDirection: Axis.horizontal,
-                                children: _summeryRow()),
-                          ),
+                        SliverToBoxAdapter(child: _reportSummery(context)),
+                        const SliverToBoxAdapter(
+                            child: RpoerHeader("Attendance")),
+                        SliverList.builder(
+                          itemCount: report?.attendance.length,
+                          itemBuilder: (context, index) {
+                            if (report == null) return null;
+                            final atten = report!.attendance;
+                            final item = atten[index];
+                            final statusColor = item.status == "1"
+                                ? Colors.greenAccent
+                                : Colors.redAccent;
+                            return AttendanceCard(
+                              item.date,
+                              statusColor: statusColor,
+                              inTime: item.inTime,
+                              outTime: item.outTime ?? "--:--:--",
+                              extraHourCount: item.extraHours.length,
+                            );
+                          },
                         ),
-                        if (report != null)
-                          const SliverToBoxAdapter(
-                              child: RpoerHeader("Attendance")),
-                        if (report != null)
-                          SliverList.builder(
-                            itemCount: report?.attendance.length,
-                            itemBuilder: (context, index) {
-                              final atten = report!.attendance;
-                              final item = atten[index];
-                              final statusColor = item.status == "1"
-                                  ? Colors.greenAccent
-                                  : Colors.redAccent;
-                              return Card(
-                                elevation: 2.5,
-                                child: ListTile(
-                                  leading: CircleAvatar(
-                                    backgroundColor:
-                                        statusColor.withOpacity(0.2),
-                                    child: Icon(Icons.calendar_today_rounded,
-                                        color: statusColor),
-                                  ),
-                                  title: Text(item.date,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  subtitle: Text(
-                                    "In: ${item.inTime} -/- Out: ${item.outTime ?? "--:--:--"}\nExtra Hour Count: ${item.extraHours.length}",
-                                    maxLines: 2,
-                                  ),
-                                  isThreeLine: true,
-                                  trailing: const Icon(Icons.read_more_rounded),
-                                  onTap: () {},
-                                ),
-                              );
-                            },
-                          ),
-                        if (report != null && extraHoursKeys != null)
-                          const SliverToBoxAdapter(
-                              child: RpoerHeader("Extra Hours")),
-                        if (report != null && extraHoursKeys != null)
-                          SliverList.builder(
-                            itemCount: extraHoursKeys!.length,
-                            itemBuilder: (context, index) {
-                              final atKey = extraHoursKeys![index];
-                              final atten = report!.extraHours[atKey];
-                              const statusColor = Colors.greenAccent;
-                              return Card(
-                                elevation: 2.5,
-                                child: ListTile(
-                                  leading: CircleAvatar(
-                                    backgroundColor:
-                                        statusColor.withOpacity(0.2),
-                                    child: const Icon(
-                                        Icons.calendar_today_rounded,
-                                        color: statusColor),
-                                  ),
-                                  title: Text(atKey,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  subtitle: Text(
-                                      "Extra Hour Count: ${atten?.length ?? 0}"),
-                                  trailing: const Icon(Icons.read_more_rounded),
-                                  onTap: () {},
-                                ),
-                              );
-                            },
-                          )
+                        const SliverToBoxAdapter(
+                            child: RpoerHeader("Extra Hours")),
+                        SliverList.builder(
+                          itemCount: extraHoursKeys?.length,
+                          itemBuilder: (context, index) {
+                            if (report == null && extraHoursKeys == null) {
+                              return null;
+                            }
+                            final atKey = extraHoursKeys![index];
+                            final atten = report!.extraHours[atKey];
+                            const statusColor = Colors.greenAccent;
+                            return ExtraHourCard(
+                              statusColor: statusColor,
+                              title: atKey,
+                              count: atten?.length ?? 0,
+                            );
+                          },
+                        )
                       ],
                     ),
                   ),
@@ -204,27 +166,7 @@ class _ReportScreenState extends State<ReportScreen> {
               ),
             ),
       floatingActionButton: IconButton.filled(
-        onPressed: () async {
-          if (_formKey.currentState!.validate()) {
-            setState(() {
-              _loading = true;
-            });
-            toExtraTime = Duration.zero;
-            toShiftTime = Duration.zero;
-            toWorkTime = Duration.zero;
-            final emp = "${_profile?.name ?? " "}-${_profile?.userId ?? " "}";
-            final rep = await Api.getReport(emp, month, year);
-            setState(() {
-              report = rep;
-              extraHoursKeys = rep?.extraHours.keys.toList();
-            });
-            calculateTimes(rep);
-            toWorkTime = toExtraTime + toShiftTime;
-            setState(() {
-              _loading = false;
-            });
-          }
-        },
+        onPressed: _fetchReport,
         icon: const Icon(Icons.manage_search_rounded),
         iconSize: 32,
         style: IconButton.styleFrom(
@@ -233,6 +175,37 @@ class _ReportScreenState extends State<ReportScreen> {
         ),
       ),
     );
+  }
+
+  Container _reportSummery(BuildContext context) => Container(
+        height: 75,
+        color: Theme.of(context).primaryColorDark.withAlpha(30),
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          children: _summeryRow(),
+        ),
+      );
+
+  void _fetchReport() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _loading = true;
+      });
+      toExtraTime = Duration.zero;
+      toShiftTime = Duration.zero;
+      toWorkTime = Duration.zero;
+      final emp = "${_profile?.name ?? " "}-${_profile?.userId ?? " "}";
+      final rep = await Api.getReport(emp, month, year);
+      setState(() {
+        report = rep;
+        extraHoursKeys = rep?.extraHours.keys.toList();
+      });
+      calculateTimes(rep);
+      toWorkTime = toExtraTime + toShiftTime;
+      setState(() {
+        _loading = false;
+      });
+    }
   }
 
   void calculateTimes(Report? rep) {
@@ -303,6 +276,77 @@ class _ReportScreenState extends State<ReportScreen> {
           ],
         ),
       );
+}
+
+class AttendanceCard extends StatelessWidget {
+  const AttendanceCard(
+    this.title, {
+    super.key,
+    required this.statusColor,
+    required this.inTime,
+    required this.outTime,
+    required this.extraHourCount,
+    this.onTap,
+  });
+
+  final Color statusColor;
+  final String title;
+  final String inTime;
+  final String outTime;
+  final int extraHourCount;
+  final void Function()? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2.5,
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: statusColor.withOpacity(0.2),
+          child: Icon(Icons.calendar_today_rounded, color: statusColor),
+        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(
+          "In: $inTime -/- Out: $outTime\nExtra Hour Count: $extraHourCount",
+          maxLines: 2,
+        ),
+        isThreeLine: true,
+        trailing: const Icon(Icons.read_more_rounded),
+        onTap: onTap,
+      ),
+    );
+  }
+}
+
+class ExtraHourCard extends StatelessWidget {
+  const ExtraHourCard({
+    super.key,
+    required this.statusColor,
+    required this.title,
+    required this.count,
+    this.onTap,
+  });
+
+  final Color statusColor;
+  final String title;
+  final int count;
+  final void Function()? onTap;
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2.5,
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: statusColor.withOpacity(0.2),
+          child: Icon(Icons.calendar_today_rounded, color: statusColor),
+        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text("Extra Hour Count: $count"),
+        trailing: const Icon(Icons.read_more_rounded),
+        onTap: onTap,
+      ),
+    );
+  }
 }
 
 class RpoerHeader extends StatelessWidget {
