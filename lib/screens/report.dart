@@ -116,27 +116,24 @@ class _ReportScreenState extends State<ReportScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 15),
                   Expanded(
                     child: CustomScrollView(
                       slivers: [
-                        SliverToBoxAdapter(child: _summeryCard(context)),
-                        if (report != null)
-                          SliverToBoxAdapter(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    "Attendance",
-                                    style:
-                                        Theme.of(context).textTheme.titleMedium,
-                                  ),
-                                  const Divider(),
-                                ],
-                              ),
-                            ),
+                        const SliverToBoxAdapter(child: RpoerHeader("Summery")),
+                        SliverToBoxAdapter(
+                          child: Container(
+                            height: 75,
+                            color: Theme.of(context)
+                                .primaryColorDark
+                                .withAlpha(30),
+                            child: ListView(
+                                scrollDirection: Axis.horizontal,
+                                children: _summeryRow()),
                           ),
+                        ),
+                        if (report != null)
+                          const SliverToBoxAdapter(
+                              child: RpoerHeader("Attendance")),
                         if (report != null)
                           SliverList.builder(
                             itemCount: report?.attendance.length,
@@ -170,21 +167,8 @@ class _ReportScreenState extends State<ReportScreen> {
                             },
                           ),
                         if (report != null && extraHoursKeys != null)
-                          SliverToBoxAdapter(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    "Extra Hours",
-                                    style:
-                                        Theme.of(context).textTheme.titleMedium,
-                                  ),
-                                  const Divider(),
-                                ],
-                              ),
-                            ),
-                          ),
+                          const SliverToBoxAdapter(
+                              child: RpoerHeader("Extra Hours")),
                         if (report != null && extraHoursKeys != null)
                           SliverList.builder(
                             itemCount: extraHoursKeys!.length,
@@ -276,69 +260,70 @@ class _ReportScreenState extends State<ReportScreen> {
     });
   }
 
-  Card _summeryCard(BuildContext context) {
-    return Card(
-      elevation: 4,
-      surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
-      child: Padding(
-        padding: const EdgeInsets.all(10),
+  List<Widget> _summeryRow() {
+    return [
+      _numberBlock(
+          "Present", report?.info.presentCount ?? "0", Colors.greenAccent),
+      _numberBlock("Absent", report?.info.absentCount ?? "0", Colors.redAccent),
+      _numberBlock("Total Entry", "$toEntry", Colors.yellowAccent),
+      _timeBlock(
+          "Total Shift Hour",
+          "${toShiftTime.inHours}hr ${toShiftTime.inMinutes % 60}min",
+          Colors.tealAccent),
+      _timeBlock(
+          "Total Extra Hour",
+          "${toExtraTime.inHours}hr ${toExtraTime.inMinutes % 60}min",
+          Colors.blueAccent),
+      _timeBlock(
+          "Total Worked Hour",
+          "${toWorkTime.inHours}hr ${(toWorkTime.inMinutes % 60)}min",
+          Colors.cyanAccent),
+    ];
+  }
+
+  Widget _numberBlock(String title, String value, Color color) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            const Text("Summary", style: TextStyle(fontSize: 16)),
-            const Divider(),
-            const SizedBox(height: 15),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _numberBlock("Present", report?.info.presentCount ?? "0",
-                    Colors.greenAccent),
-                _numberBlock("Absent", report?.info.absentCount ?? "0",
-                    Colors.redAccent),
-                _numberBlock("Total Entry", "$toEntry", Colors.yellowAccent),
-              ],
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: Wrap(
-                direction: Axis.horizontal,
-                alignment: WrapAlignment.spaceAround,
-                spacing: 15,
-                children: [
-                  _timeBlock(
-                      "Total Shift Hour",
-                      "${toShiftTime.inHours}hr ${toShiftTime.inMinutes % 60}min",
-                      Colors.tealAccent),
-                  _timeBlock(
-                      "Total Extra Hour",
-                      "${toExtraTime.inHours}hr ${toExtraTime.inMinutes % 60}min",
-                      Colors.blueAccent),
-                  _timeBlock(
-                      "Total Worked Hour",
-                      "${toWorkTime.inHours}hr ${(toWorkTime.inMinutes % 60)}min",
-                      Colors.cyanAccent),
-                ],
-              ),
-            )
+            Text(value,
+                style: TextStyle(
+                    fontSize: 24, fontWeight: FontWeight.bold, color: color)),
+            Text(title, style: const TextStyle(fontWeight: FontWeight.w200)),
           ],
         ),
+      );
+  Widget _timeBlock(String title, String value, Color color) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Text(value, style: TextStyle(fontSize: 18, color: color)),
+            Text(title, style: const TextStyle(fontWeight: FontWeight.w200)),
+          ],
+        ),
+      );
+}
+
+class RpoerHeader extends StatelessWidget {
+  const RpoerHeader(
+    this.title, {
+    super.key,
+  });
+  final String title;
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: [
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const Divider(),
+        ],
       ),
     );
   }
-
-  Widget _numberBlock(String title, String value, Color color) => Column(
-        children: [
-          Text(value,
-              style: TextStyle(
-                  fontSize: 24, fontWeight: FontWeight.bold, color: color)),
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w200)),
-        ],
-      );
-  Widget _timeBlock(String title, String value, Color color) => Column(
-        children: [
-          Text(value, style: TextStyle(fontSize: 18, color: color)),
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w200)),
-        ],
-      );
 }
