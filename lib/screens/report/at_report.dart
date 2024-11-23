@@ -8,16 +8,17 @@ import 'package:vcare_attendance/services/state.dart';
 import 'package:vcare_attendance/widgets/dropdown/dropdown.dart';
 import 'package:vcare_attendance/widgets/report/report_widget.dart';
 
-class ReportScreen extends StatefulWidget {
-  const ReportScreen({super.key});
+/// [AtReportScreen] Attendance Report Screen.
+class AtReportScreen extends StatefulWidget {
+  const AtReportScreen({super.key});
 
   @override
-  State<ReportScreen> createState() => _ReportScreenState();
+  State<AtReportScreen> createState() => _AtReportScreenState();
 }
 
 typedef Empolye = (String, String);
 
-class _ReportScreenState extends State<ReportScreen> {
+class _AtReportScreenState extends State<AtReportScreen> {
   final _stateSR = getIt<AppState>();
   Profile? _profile;
 
@@ -45,7 +46,6 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 
   Future<void> _start() async {
-    await _stateSR.initProfile("vch0000");
     _profile = _stateSR.profile;
   }
 

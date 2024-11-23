@@ -3,9 +3,13 @@ class RouteNames {
   static String home = "home";
   static String homePath = "/";
 
-  /// Home Screen path name no {Params || queryParams} required [report]
-  static String report = "report";
-  static String reportPath = "/report";
+  /// Home Screen path name no {Params || queryParams} required [atReport]
+  static String atReport = "at-report";
+  static String atTeportPath = "/at-report";
+
+  /// Home Screen path name no {Params || queryParams} required [stReport]
+  static String stReport = "st-report";
+  static String stTeportPath = "/st-report";
 
   /// Registration Screen path name no {Params || queryParams} required [clock]
   static String clock = "clock";

@@ -23,28 +23,7 @@ class _AppDrawerState extends State<AppDrawer> {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          UserAccountsDrawerHeader(
-            currentAccountPicture: imgPath != null && imgPath.isNotEmpty
-                ? CircleAvatar(backgroundImage: FileImage(File(imgPath)))
-                : const CircleAvatar(
-                    child: ClipOval(
-                      child: Icon(
-                        Icons.account_circle_sharp,
-                        size: 70,
-                      ),
-                    ),
-                  ),
-            accountName: Text(_asSr.profile?.name ?? "Name"),
-            accountEmail: Text(_asSr.profile?.userId ?? "Id"),
-            decoration: const BoxDecoration(
-              color: Color.fromARGB(
-                  220, 255, 255, 255), // Sets the background to white
-              image: DecorationImage(
-                image: AssetImage("assets/icons/vc-logo.png"),
-                alignment: Alignment.centerRight,
-              ),
-            ),
-          ),
+          _avater(imgPath),
           ListTile(
             leading: const Icon(Icons.home_rounded),
             title: const Text('Home'),
@@ -55,10 +34,18 @@ class _AppDrawerState extends State<AppDrawer> {
           ),
           ListTile(
             leading: const Icon(Icons.summarize_rounded),
-            title: const Text('Report'),
+            title: const Text('Attendance Report'),
             onTap: () {
               context.pop();
-              context.pushNamed(RouteNames.report);
+              context.pushNamed(RouteNames.atReport);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.report),
+            title: const Text('Shifts Report'),
+            onTap: () {
+              context.pop();
+              context.pushNamed(RouteNames.stReport);
             },
           ),
           ListTile(
@@ -67,6 +54,30 @@ class _AppDrawerState extends State<AppDrawer> {
             onTap: () => {},
           ),
         ],
+      ),
+    );
+  }
+
+  UserAccountsDrawerHeader _avater(String? imgPath) {
+    return UserAccountsDrawerHeader(
+      currentAccountPicture: imgPath != null && imgPath.isNotEmpty
+          ? CircleAvatar(backgroundImage: FileImage(File(imgPath)))
+          : const CircleAvatar(
+              child: ClipOval(
+                child: Icon(
+                  Icons.account_circle_sharp,
+                  size: 70,
+                ),
+              ),
+            ),
+      accountName: Text(_asSr.profile?.name ?? "Name"),
+      accountEmail: Text(_asSr.profile?.userId ?? "Id"),
+      decoration: const BoxDecoration(
+        color: Color(0xFFF8F8F8), // Sets the background to white
+        image: DecorationImage(
+          image: AssetImage("assets/icons/vc-logo.png"),
+          alignment: Alignment.centerRight,
+        ),
       ),
     );
   }

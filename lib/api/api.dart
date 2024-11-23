@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:vcare_attendance/api/error.dart';
 import 'package:vcare_attendance/models/profile_model.dart';
 import 'package:vcare_attendance/models/report_model.dart';
+import 'package:vcare_attendance/models/shift_report_modeal.dart';
 import 'package:vcare_attendance/models/time.dart';
 
 const baseApi = "https://vcarehospital.in/hms1/payroll/api";
@@ -31,6 +32,24 @@ class Api {
     final jsBody = jsonDecode(res.body);
     print(jsBody);
     return Profile.fromApiJson(jsBody["profile"]);
+  }
+
+  static Future<ShiftReport?> getShifts(
+      String id, String fromDate, String toDate) async {
+    try {
+      final res = await http.post(
+        Uri.parse('$baseApi/get_shifts.php'),
+        body: json.encode(
+          {"id": id, "from-date": fromDate, "to-date": toDate},
+        ),
+        headers: {"Content-Type": "application/json"},
+      );
+      if (res.statusCode != 200) return null;
+      return ShiftReport.fromRawJson(res.body);
+    } catch (e) {
+      print("Error geting Shifts data: $e");
+      return null;
+    }
   }
 
   static Future<List<String>> getDepartments() async {
