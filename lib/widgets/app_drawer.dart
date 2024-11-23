@@ -25,14 +25,6 @@ class _AppDrawerState extends State<AppDrawer> {
         children: [
           _avater(imgPath),
           ListTile(
-            leading: const Icon(Icons.home_rounded),
-            title: const Text('Home'),
-            onTap: () {
-              Navigator.pop(context);
-              context.go("/");
-            },
-          ),
-          ListTile(
             leading: const Icon(Icons.summarize_rounded),
             title: const Text('Attendance Report'),
             onTap: () {
@@ -51,7 +43,14 @@ class _AppDrawerState extends State<AppDrawer> {
           ListTile(
             leading: const Icon(Icons.person_2_rounded),
             title: const Text('Profile'),
-            onTap: () => {},
+            onTap: () {
+              context.pop();
+              context.pushNamed(
+                RouteNames.profile,
+                pathParameters: {"id": _asSr.profile?.userId ?? " "},
+                queryParameters: {"img-path": imgPath},
+              );
+            },
           ),
         ],
       ),

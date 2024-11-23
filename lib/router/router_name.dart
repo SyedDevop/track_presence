@@ -3,15 +3,19 @@ class RouteNames {
   static String home = "home";
   static String homePath = "/";
 
-  /// Home Screen path name no {Params || queryParams} required [atReport]
+  /// Profile Screen path name "Params = {'id':"vch1111"} required " required [profile]
+  static String profile = "profile";
+  static String profilePath = "/profile/:id";
+
+  /// Attendance Report Screen path name no {Params || queryParams} required [atReport]
   static String atReport = "at-report";
-  static String atTeportPath = "/at-report";
+  static String atReportPath = "/at-report";
 
-  /// Home Screen path name no {Params || queryParams} required [stReport]
+  /// Shifts Report Screen path name no {Params || queryParams} required [stReport]
   static String stReport = "st-report";
-  static String stTeportPath = "/st-report";
+  static String stReportPath = "/st-report";
 
-  /// Registration Screen path name no {Params || queryParams} required [clock]
+  /// Clock Attendance Screen path name no {Params || queryParams} required [clock]
   static String clock = "clock";
   static String clockPath = "/$clock";
 

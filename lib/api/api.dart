@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:vcare_attendance/api/error.dart';
+import 'package:vcare_attendance/models/empolyee_modeal.dart';
 import 'package:vcare_attendance/models/profile_model.dart';
 import 'package:vcare_attendance/models/report_model.dart';
 import 'package:vcare_attendance/models/shift_report_modeal.dart';
@@ -50,6 +51,15 @@ class Api {
       print("Error geting Shifts data: $e");
       return null;
     }
+  }
+
+  static Future<Employee?> getEmployee(String id) async {
+    final res = await http.get(
+      Uri.parse('$baseApi/get_employees_details.php?id=$id'),
+    );
+    if (res.statusCode != 200) return null;
+    final data = jsonDecode(res.body)["data"];
+    return Employee.fromJson(data);
   }
 
   static Future<List<String>> getDepartments() async {

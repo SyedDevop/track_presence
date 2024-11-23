@@ -3,12 +3,7 @@ import 'package:vcare_attendance/db/databse_helper.dart';
 import 'package:vcare_attendance/db/profile_db.dart';
 
 import 'package:vcare_attendance/router/router_name.dart';
-import 'package:vcare_attendance/screens/clock.dart';
-import 'package:vcare_attendance/screens/home.dart';
-import 'package:vcare_attendance/screens/login.dart';
-import 'package:vcare_attendance/screens/register.dart';
-import 'package:vcare_attendance/screens/register_scan.dart';
-import 'package:vcare_attendance/screens/report/report.dart';
+import 'package:vcare_attendance/screens/screen.dart';
 
 // GoRouter configuration
 final router = GoRouter(
@@ -20,12 +15,21 @@ final router = GoRouter(
       builder: (_, __) => const MyHomePage(),
     ),
     GoRoute(
-      path: RouteNames.atTeportPath,
+        path: RouteNames.profilePath,
+        name: RouteNames.profile,
+        builder: (_, state) {
+          return ProfileScreen(
+            id: state.pathParameters['id']!,
+            imgPath: state.uri.queryParameters['img-path'],
+          );
+        }),
+    GoRoute(
+      path: RouteNames.atReportPath,
       name: RouteNames.atReport,
       builder: (_, __) => const AtReportScreen(),
     ),
     GoRoute(
-      path: RouteNames.stTeportPath,
+      path: RouteNames.stReportPath,
       name: RouteNames.stReport,
       builder: (_, __) => const StReportScreen(),
     ),
