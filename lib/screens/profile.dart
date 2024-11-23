@@ -70,8 +70,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     slivers: [
                       SliverAppBar(
                         title: const Text("Profile"),
-                        stretchTriggerOffset: 300.0,
-                        expandedHeight: 200.0,
+                        stretchTriggerOffset: 400.0,
+                        expandedHeight: 400.0,
                         flexibleSpace: FlexibleSpaceBar(
                           background: widget.imgPath != null &&
                                   widget.imgPath!.isNotEmpty
