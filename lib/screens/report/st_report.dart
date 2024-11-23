@@ -165,8 +165,6 @@ class _StReportScreenState extends State<StReportScreen> {
     final sh = await Api.getShifts(_profile!.userId, fdStr, tdStr);
     if (sh != null) {
       setState(() => shiftReport = sh);
-      print({fdStr, tdStr});
-      print({"id": _profile!.userId, "report": sh.toRawJson()});
     }
 
     setState(() => _loading = false);
