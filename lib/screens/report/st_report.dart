@@ -76,39 +76,34 @@ class _StReportScreenState extends State<StReportScreen> {
                       itemBuilder: (context, index) {
                         if (shiftReport == null) return null;
                         final item = shiftReport!.data[index];
-                        return Card(
-                          elevation: 5,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: Column(
-                              children: [
-                                Padding(
+                        if (item.id == shiftReport?.active) {
+                          return Stack(children: [
+                            ShiftCard(item: item),
+                            Positioned(
+                              top: 9,
+                              left: -29,
+                              child: Transform.rotate(
+                                angle: -0.785398, // -45 degrees in radians
+                                child: Container(
+                                  width: 100,
+                                  color: Colors.tealAccent,
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 4),
-                                  child: Text(
-                                    "From: ${item.fromDate} -/- To: ${item.toDate}",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .primaryFixed),
+                                  child: const Center(
+                                    child: Text(
+                                      "ACTIVE",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                                const Divider(),
-                                ReportSheetRow(
-                                    leadingIcon: Icons.work_rounded,
-                                    leadingText: "Shift:",
-                                    trailingText: item.shiftTime),
-                                ReportSheetRow(
-                                    leadingIcon: Icons.help_rounded,
-                                    leadingText: "reason:",
-                                    trailingText: item.reason),
-                              ],
+                              ),
                             ),
-                          ),
-                        );
+                          ]);
+                        }
+                        return ShiftCard(item: item);
                       },
                     ),
             ),
@@ -168,5 +163,45 @@ class _StReportScreenState extends State<StReportScreen> {
     }
 
     setState(() => _loading = false);
+  }
+}
+
+class ShiftCard extends StatelessWidget {
+  const ShiftCard({
+    super.key,
+    required this.item,
+  });
+
+  final ShiftTable item;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 5,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Text(
+                "From: ${item.fromDate} -/- To: ${item.toDate}",
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.primaryFixed),
+              ),
+            ),
+            const Divider(),
+            ReportSheetRow(
+                leadingIcon: Icons.work_rounded,
+                leadingText: "Shift:",
+                trailingText: item.shiftTime),
+            ReportSheetRow(
+                leadingIcon: Icons.help_rounded,
+                leadingText: "reason:",
+                trailingText: item.reason),
+          ],
+        ),
+      ),
+    );
   }
 }

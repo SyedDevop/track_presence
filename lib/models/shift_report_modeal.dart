@@ -2,9 +2,10 @@ import 'dart:convert';
 
 class ShiftReport {
   final List<ShiftTable> data;
-
+  final String? active;
   ShiftReport({
     required this.data,
+    this.active,
   });
 
   factory ShiftReport.fromRawJson(String str) =>
@@ -13,6 +14,7 @@ class ShiftReport {
   String toRawJson() => json.encode(toJson());
 
   factory ShiftReport.fromJson(Map<String, dynamic> json) => ShiftReport(
+        active: json["active"],
         data: List<ShiftTable>.from(
             json["data"].map((x) => ShiftTable.fromJson(x))),
       );
