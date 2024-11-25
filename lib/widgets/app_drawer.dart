@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vcare_attendance/db/databse_helper.dart';
+import 'package:vcare_attendance/db/profile_db.dart';
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/router/router_name.dart';
 import 'package:vcare_attendance/services/state.dart';
@@ -20,36 +22,57 @@ class _AppDrawerState extends State<AppDrawer> {
   Widget build(BuildContext context) {
     String? imgPath = _asSr.localProfile?.imgPath;
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
+      child: Column(
         children: [
-          _avater(imgPath),
-          ListTile(
-            leading: const Icon(Icons.summarize_rounded),
-            title: const Text('Attendance Report'),
-            onTap: () {
-              context.pop();
-              context.pushNamed(RouteNames.atReport);
-            },
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                _avater(imgPath),
+                ListTile(
+                  leading: const Icon(Icons.summarize_rounded),
+                  title: const Text('Attendance Report'),
+                  onTap: () {
+                    context.pop();
+                    context.pushNamed(RouteNames.atReport);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.report),
+                  title: const Text('Shifts Report'),
+                  onTap: () {
+                    context.pop();
+                    context.pushNamed(RouteNames.stReport);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.person_2_rounded),
+                  title: const Text('Profile'),
+                  onTap: () {
+                    context.pop();
+                    context.pushNamed(
+                      RouteNames.profile,
+                      pathParameters: {"id": _asSr.profile?.userId ?? " "},
+                      queryParameters: {"img-path": imgPath},
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
+          // ------------ End
+
           ListTile(
-            leading: const Icon(Icons.report),
-            title: const Text('Shifts Report'),
-            onTap: () {
-              context.pop();
-              context.pushNamed(RouteNames.stReport);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.person_2_rounded),
-            title: const Text('Profile'),
-            onTap: () {
-              context.pop();
-              context.pushNamed(
-                RouteNames.profile,
-                pathParameters: {"id": _asSr.profile?.userId ?? " "},
-                queryParameters: {"img-path": imgPath},
-              );
+            leading: const Icon(Icons.logout_rounded),
+            title: const Text('Log Out'),
+            onTap: () async {
+              final pdb = ProfileDB.instance;
+              final udb = DB.instance;
+
+              await pdb.deleteAll();
+              await udb.deleteAll();
+
+              if (mounted) context.pushNamed(RouteNames.login);
             },
           ),
         ],
