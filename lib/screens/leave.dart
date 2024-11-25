@@ -8,6 +8,7 @@ import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/leave_model.dart';
 import 'package:vcare_attendance/services/state.dart';
 import 'package:vcare_attendance/snackbar/snackbar.dart';
+import 'package:vcare_attendance/utils/utils.dart';
 
 import 'package:vcare_attendance/widgets/widget.dart';
 
@@ -36,7 +37,6 @@ class _LeaveScreenState extends State<LeaveScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _start();
   }
@@ -94,18 +94,20 @@ class _LeaveScreenState extends State<LeaveScreen> {
       return;
     }
 
-    if (range == null) {
+    if (range == null || range?.startDate == null || range?.endDate == null) {
       snackbarError(context, message: "Dates not selected for leave 😭");
       return;
     }
     if (_formKey.currentState!.validate()) {
       snackbarNotefy(context, message: 'Applying for leave..🔥🔥🔥..');
       try {
+        final fDate = dateFmt.format(range!.startDate!);
+        final tDate = dateFmt.format(range!.endDate!);
         await apiL.postLeaves(
           userId: profile!.userId,
           name: profile!.name,
-          fromDate: range!.startDate.toString(),
-          toDate: range!.endDate.toString(),
+          fromDate: fDate,
+          toDate: tDate,
           reason: _reasonCT.text,
           department: profile!.department ?? " None ",
         );

@@ -1,3 +1,11 @@
+import 'package:intl/intl.dart';
+
+/// [dateFmtDMY] Date formate in "24/12/2024"
+final DateFormat dateFmtDMY = DateFormat('dd/MM/yyyy');
+
+/// [dateFmt] Date formate in "2024-12-24"
+final DateFormat dateFmt = DateFormat('yyyy-MM-dd');
+
 String minToHrMin(dynamic min) {
   if (min == null) {
     return durationToHrMin(Duration.zero);

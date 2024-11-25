@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/profile_model.dart';
 import 'package:vcare_attendance/models/shift_report_modeal.dart';
 import 'package:vcare_attendance/services/state.dart';
+import 'package:vcare_attendance/utils/utils.dart';
 import 'package:vcare_attendance/widgets/report/report_widget.dart';
 
 /// [StReportScreen] is Shifts Report screen
@@ -16,8 +17,6 @@ class StReportScreen extends StatefulWidget {
   @override
   State<StReportScreen> createState() => _StReportScreenState();
 }
-
-final DateFormat dateFmt = DateFormat('dd/MM/yyyy');
 
 class _StReportScreenState extends State<StReportScreen> {
   final _stateSR = getIt<AppState>();
@@ -155,8 +154,8 @@ class _StReportScreenState extends State<StReportScreen> {
     final toDate = range!.endDate;
 
     if (fromDate == null || toDate == null) return;
-    final fdStr = dateFmt.format(fromDate);
-    final tdStr = dateFmt.format(toDate);
+    final fdStr = dateFmtDMY.format(fromDate);
+    final tdStr = dateFmtDMY.format(toDate);
     final sh = await Api.getShifts(_profile!.userId, fdStr, tdStr);
     if (sh != null) {
       setState(() => shiftReport = sh);
