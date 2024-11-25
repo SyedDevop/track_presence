@@ -17,7 +17,7 @@
 
 - V1.3.0
 
-  - [ ] make loss of time and over time hr and min formate ex "1 hr 30 min "
+  - [x] make loss of time and over time hr and min formate ex "1 hr 30 min "
   - [ ] :server: try bug in 11:00 Am out 08:00 AM
   - [ ] :server: add out_date in attendance_ot,attendance_copy and make changes
         in api.
