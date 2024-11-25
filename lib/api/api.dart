@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:vcare_attendance/api/error.dart';
+import 'package:vcare_attendance/api/leave_api.dart';
 import 'package:vcare_attendance/models/empolyee_modeal.dart';
 import 'package:vcare_attendance/models/profile_model.dart';
 import 'package:vcare_attendance/models/report_model.dart';
@@ -20,6 +21,8 @@ String toDay2() {
 }
 
 class Api {
+  static LeaveApi leave = LeaveApi(baseUrl: baseApi);
+
   static Future<Profile?> login(String id, String password) async {
     final res = await http.post(
       Uri.parse('$baseApi/login.php'),

@@ -57,6 +57,14 @@ class _AppDrawerState extends State<AppDrawer> {
                     );
                   },
                 ),
+                ListTile(
+                  leading: const Icon(Icons.flight_rounded),
+                  title: const Text('Leaves'),
+                  onTap: () {
+                    context.pop();
+                    context.pushNamed(RouteNames.leave);
+                  },
+                ),
               ],
             ),
           ),

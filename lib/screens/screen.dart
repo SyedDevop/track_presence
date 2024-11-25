@@ -5,3 +5,4 @@ export './profile.dart';
 export './register.dart';
 export './register_scan.dart';
 export './report/report.dart';
+export './leave.dart';

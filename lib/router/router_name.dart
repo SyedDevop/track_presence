@@ -7,6 +7,10 @@ class RouteNames {
   static String profile = "profile";
   static String profilePath = "/profile/:id";
 
+  /// Leaves  Screen path name no {Params || queryParams} required [leave]
+  static String leave = "leave";
+  static String leavePath = "/leave";
+
   /// Attendance Report Screen path name no {Params || queryParams} required [atReport]
   static String atReport = "at-report";
   static String atReportPath = "/at-report";

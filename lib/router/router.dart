@@ -15,6 +15,11 @@ final router = GoRouter(
       builder: (_, __) => const MyHomePage(),
     ),
     GoRoute(
+      path: RouteNames.leavePath,
+      name: RouteNames.leave,
+      builder: (_, __) => const LeaveScreen(),
+    ),
+    GoRoute(
         path: RouteNames.profilePath,
         name: RouteNames.profile,
         builder: (_, state) {

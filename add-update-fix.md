@@ -2,7 +2,6 @@
 
 ## IDEA
 
-- multi photo option.
 - calculate the face distances
 
 ## Screens
@@ -15,8 +14,9 @@
 
 ## Next Release
 
-- V1.3.0
+- V1.4.0
 
+  - [ ] Make proper login section based from server.
   - [x] make loss of time and over time hr and min formate ex "1 hr 30 min "
   - [ ] :server: try bug in 11:00 Am out 08:00 AM
   - [ ] :server: add out_date in attendance_ot,attendance_copy and make changes

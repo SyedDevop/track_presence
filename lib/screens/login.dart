@@ -19,7 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordCT = TextEditingController(text: '');
   final _formKey = GlobalKey<FormState>();
 
-  void _subbmit() async {
+  void _submit() async {
     if (_formKey.currentState!.validate()) {
       snackbarNotefy(context, message: 'Login in progress..🔥🔥🔥..');
       try {
@@ -118,14 +118,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         decoration: const InputDecoration(
                             prefixIcon: Icon(Icons.lock_open_outlined),
                             labelText: "user password"),
-                        onFieldSubmitted: (_) => _subbmit,
+                        onFieldSubmitted: (_) => _submit,
                       ),
                       const SizedBox(height: 15),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           ElevatedButton(
-                            onPressed: _subbmit,
+                            onPressed: _submit,
                             child: const Padding(
                               padding: EdgeInsets.symmetric(
                                 vertical: 10,
