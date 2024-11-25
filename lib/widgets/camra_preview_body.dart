@@ -1,9 +1,10 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/services/camera_service.dart';
 import 'package:vcare_attendance/services/face_detector_service.dart';
-import 'package:vcare_attendance/widgets/FacePainter.dart';
+import 'package:vcare_attendance/widgets/face_painter.dart';
 
 class CameraPreviewBody extends StatelessWidget {
   CameraPreviewBody({super.key});

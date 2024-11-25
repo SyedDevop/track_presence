@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/api/error.dart';
 import 'package:vcare_attendance/db/profile_db.dart';
 import 'package:vcare_attendance/router/router_name.dart';
-import 'package:vcare_attendance/screens/register_scan.dart';
 import 'package:vcare_attendance/snackbar/snackbar.dart';
 
 class LoginScreen extends StatefulWidget {

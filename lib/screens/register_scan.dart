@@ -15,9 +15,8 @@ import 'package:vcare_attendance/services/camera_service.dart';
 import 'package:vcare_attendance/services/face_detector_service.dart';
 import 'package:vcare_attendance/services/ml_service.dart';
 import 'package:vcare_attendance/snackbar/snackbar.dart';
-import 'package:vcare_attendance/widgets/cam_header.dart';
-import 'package:vcare_attendance/widgets/camra_preview_body.dart';
-import 'package:vcare_attendance/widgets/image_view.dart';
+
+import 'package:vcare_attendance/widgets/widget.dart';
 
 class RegisterScan extends StatefulWidget {
   const RegisterScan({super.key});

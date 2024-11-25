@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
+
 import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/api/error.dart';
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/leave_model.dart';
 import 'package:vcare_attendance/services/state.dart';
 import 'package:vcare_attendance/snackbar/snackbar.dart';
-import 'package:vcare_attendance/widgets/report/report_widget.dart';
+
+import 'package:vcare_attendance/widgets/widget.dart';
 
 class LeaveScreen extends StatefulWidget {
   const LeaveScreen({super.key});
@@ -248,34 +250,6 @@ class LeaveCard extends StatelessWidget {
           trailingText: leave.reason,
         ),
       ],
-    );
-  }
-}
-
-class AtCard1 extends StatelessWidget {
-  const AtCard1({
-    super.key,
-    required this.title,
-    this.children = const <Widget>[],
-  });
-
-  final Widget title;
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 5,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: Column(
-          children: [
-            title,
-            const Divider(),
-            ...children,
-          ],
-        ),
-      ),
     );
   }
 }

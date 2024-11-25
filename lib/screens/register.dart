@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:vcare_attendance/getit.dart';
 
+import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/router/router_name.dart';
 import 'package:vcare_attendance/services/camera_service.dart';
 import 'package:vcare_attendance/services/face_detector_service.dart';

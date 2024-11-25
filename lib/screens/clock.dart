@@ -12,9 +12,8 @@ import 'package:vcare_attendance/models/user_model.dart';
 import 'package:vcare_attendance/services/camera_service.dart';
 import 'package:vcare_attendance/services/face_detector_service.dart';
 import 'package:vcare_attendance/services/ml_service.dart';
-import 'package:vcare_attendance/widgets/cam_header.dart';
-import 'package:vcare_attendance/widgets/camra_preview_body.dart';
-import 'package:vcare_attendance/widgets/image_view.dart';
+
+import 'package:vcare_attendance/widgets/widget.dart';
 
 class ClockScreen extends StatefulWidget {
   const ClockScreen({super.key});
