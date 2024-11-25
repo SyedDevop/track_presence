@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:readmore/readmore.dart';
 import 'package:vcare_attendance/models/report_model.dart';
+import 'package:vcare_attendance/utils/utils.dart';
 
 enum ReportType { attendance, extraHour }
 
@@ -25,10 +26,6 @@ Duration calDiff(String date, String inTime, String? outTime) {
   final inT = dateFormat.parse("$date $inTime".toUpperCase());
   final outT = dateFormat.parse("$date $outTime".toUpperCase());
   return outT.difference(inT);
-}
-
-String durationToHrMin(Duration d) {
-  return "${d.inHours} Hr  ${d.inMinutes % 60} Min";
 }
 
 class FullExtraHoursReport extends StatelessWidget {
@@ -121,6 +118,16 @@ class FullAttendancesReport extends StatelessWidget {
                 leadingIcon: Icons.work_history,
                 leadingText: "Working Hours:",
                 trailingText: shiftHoursStr,
+              ),
+              ReportSheetRow(
+                leadingIcon: Icons.hourglass_bottom_rounded,
+                leadingText: "Loss Of Hours:",
+                trailingText: minToHrMin(item.lossOfHours),
+              ),
+              ReportSheetRow(
+                leadingIcon: Icons.alarm_add_rounded,
+                leadingText: "Over time:",
+                trailingText: minToHrMin(item.maintainance),
               ),
               const Divider(),
               ReportSheetRow(

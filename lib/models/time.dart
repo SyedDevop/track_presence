@@ -15,7 +15,7 @@ class ShiftTime {
   });
   static ShiftTime fromMap(Map<String, dynamic> data) {
     final shH =
-        "${data["work_time"]["hour"]} hr ${data["work_time"]["minutes"]} min";
+        "${data["work_time"]["hour"]} Hr ${data["work_time"]["minutes"]} Min";
     return ShiftTime(
       name: data["emp_name"],
       fromTime: data["from_time"],

@@ -7,6 +7,7 @@ import 'package:vcare_attendance/models/time.dart';
 import 'package:vcare_attendance/models/user_model.dart';
 import 'package:vcare_attendance/router/router_name.dart';
 import 'package:vcare_attendance/services/state.dart';
+import 'package:vcare_attendance/utils/utils.dart';
 import 'package:vcare_attendance/widgets/app_drawer.dart';
 
 const gap = 15.0;
@@ -102,7 +103,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       Icons.hourglass_empty_rounded,
                       color: Colors.redAccent,
                     ),
-                    time: "Loss Of Time : ${clockedTime?.lossOfTime ?? "----"}",
+                    time:
+                        "Loss Of Time : ${minToHrMin(clockedTime?.lossOfTime)}",
                   ),
                   const SizedBox(height: 5),
                   TimeSecondaryView(
@@ -110,7 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       Icons.alarm_add,
                       color: Colors.tealAccent,
                     ),
-                    time: "Over Time : ${clockedTime?.overTime ?? "----"}",
+                    time: "Over Time : ${minToHrMin(clockedTime?.overTime)}",
                   ),
                 ]),
                 const SizedBox(height: gap),

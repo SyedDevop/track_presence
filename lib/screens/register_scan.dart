@@ -32,7 +32,7 @@ class _RegisterScanState extends State<RegisterScan> {
   final FaceDetectorService _faceSR = getIt<FaceDetectorService>();
 
   int captureCount = 0;
-  final captureLimit = 4;
+  final captureLimit = 6;
 
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   String? imagePath;
