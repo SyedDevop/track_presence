@@ -29,6 +29,10 @@ final router = GoRouter(
           );
         }),
     GoRoute(
+        path: RouteNames.accountPath,
+        name: RouteNames.account,
+        builder: (_, state) => const AccountScreen()),
+    GoRoute(
       path: RouteNames.atReportPath,
       name: RouteNames.atReport,
       builder: (_, __) => const AtReportScreen(),

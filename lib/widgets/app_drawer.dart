@@ -46,6 +46,14 @@ class _AppDrawerState extends State<AppDrawer> {
                   },
                 ),
                 ListTile(
+                  leading: const Icon(Icons.flight_rounded),
+                  title: const Text('Leaves'),
+                  onTap: () {
+                    context.pop();
+                    context.pushNamed(RouteNames.leave);
+                  },
+                ),
+                ListTile(
                   leading: const Icon(Icons.person_2_rounded),
                   title: const Text('Profile'),
                   onTap: () {
@@ -58,11 +66,15 @@ class _AppDrawerState extends State<AppDrawer> {
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.flight_rounded),
-                  title: const Text('Leaves'),
+                  leading: const Icon(Icons.account_circle_rounded),
+                  title: const Text('Account'),
                   onTap: () {
                     context.pop();
-                    context.pushNamed(RouteNames.leave);
+                    context.pushNamed(
+                      RouteNames.account,
+                      pathParameters: {"id": _asSr.profile?.userId ?? " "},
+                      queryParameters: {"img-path": imgPath},
+                    );
                   },
                 ),
               ],

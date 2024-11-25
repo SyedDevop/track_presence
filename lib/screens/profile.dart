@@ -88,7 +88,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                         ),
                       ),
-                      const SliverToBoxAdapter(child: RpoerHeader("Personal")),
+                      const SliverToBoxAdapter(child: ReportHeader("Personal")),
                       SliverList.builder(
                         itemCount: _personal.length,
                         itemBuilder: (context, index) {
@@ -99,7 +99,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                       ),
                       const SliverToBoxAdapter(
-                          child: RpoerHeader("Company Details")),
+                          child: ReportHeader("Company Details")),
                       SliverList.builder(
                         itemCount: _company.length,
                         itemBuilder: (context, index) {
@@ -111,7 +111,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                       ),
                       const SliverToBoxAdapter(
-                          child: RpoerHeader("Job History")),
+                          child: ReportHeader("Job History")),
                       SliverList.builder(
                         itemCount: _jobHistory.length,
                         itemBuilder: (context, index) {
@@ -123,7 +123,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                       ),
                       const SliverToBoxAdapter(
-                          child: RpoerHeader("Bank Details")),
+                          child: ReportHeader("Bank Details")),
                       SliverList.builder(
                         itemCount: _bank.length,
                         itemBuilder: (context, index) {

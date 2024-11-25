@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:vcare_attendance/api/account_api.dart';
 import 'package:vcare_attendance/api/error.dart';
 import 'package:vcare_attendance/api/leave_api.dart';
 import 'package:vcare_attendance/models/empolyee_modeal.dart';
@@ -22,21 +23,7 @@ String toDay2() {
 
 class Api {
   static LeaveApi leave = LeaveApi(baseUrl: baseApi);
-
-  static Future<Profile?> login(String id, String password) async {
-    final res = await http.post(
-      Uri.parse('$baseApi/login.php'),
-      body: json.encode({"id": id, "password": password}),
-      headers: {"Content-Type": "application/json"},
-    );
-    if (res.statusCode >= 400 && res.statusCode < 500) {
-      throw ApiException(ApiError.fromJson(jsonDecode(res.body)));
-    }
-
-    final jsBody = jsonDecode(res.body);
-    print(jsBody);
-    return Profile.fromApiJson(jsBody["profile"]);
-  }
+  static AccountApi account = AccountApi(baseUrl: baseApi);
 
   static Future<ShiftReport?> getShifts(
       String id, String fromDate, String toDate) async {

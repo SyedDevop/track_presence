@@ -3,9 +3,13 @@ class RouteNames {
   static String home = "home";
   static String homePath = "/";
 
-  /// Profile Screen path name "Params = {'id':"vch1111"} required " required [profile]
+  /// Profile Screen path name "Params = {'id':"vch1111"} and queryParams = {"img-path": "/path/tp/img"}" required [profile]
   static String profile = "profile";
   static String profilePath = "/profile/:id";
+
+  /// Account Screen path name no {Params || queryParams} required "[account]
+  static String account = "account";
+  static String accountPath = "/account/:id";
 
   /// Leaves  Screen path name no {Params || queryParams} required [leave]
   static String leave = "leave";

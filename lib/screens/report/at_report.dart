@@ -111,10 +111,11 @@ class _AtReportScreenState extends State<AtReportScreen> {
                   Expanded(
                     child: CustomScrollView(
                       slivers: [
-                        const SliverToBoxAdapter(child: RpoerHeader("Summery")),
+                        const SliverToBoxAdapter(
+                            child: ReportHeader("Summery")),
                         SliverToBoxAdapter(child: _reportSummery(context)),
                         const SliverToBoxAdapter(
-                            child: RpoerHeader("Attendance")),
+                            child: ReportHeader("Attendance")),
                         SliverList.builder(
                           itemCount: report?.attendance.length,
                           itemBuilder: (context, index) {
@@ -135,7 +136,7 @@ class _AtReportScreenState extends State<AtReportScreen> {
                           },
                         ),
                         const SliverToBoxAdapter(
-                            child: RpoerHeader("Extra Hours")),
+                            child: ReportHeader("Extra Hours")),
                         SliverList.builder(
                           itemCount: extraHoursKeys?.length,
                           itemBuilder: (context, index) {

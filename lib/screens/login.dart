@@ -15,15 +15,24 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _accApi = Api.account;
+
   final _userCT = TextEditingController(text: '');
   final _passwordCT = TextEditingController(text: '');
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void dispose() {
+    super.dispose();
+    _userCT.dispose();
+    _passwordCT.dispose();
+  }
 
   void _submit() async {
     if (_formKey.currentState!.validate()) {
       snackbarNotefy(context, message: 'Login in progress..🔥🔥🔥..');
       try {
-        final profile = await Api.login(_userCT.text, _passwordCT.text);
+        final profile = await _accApi.login(_userCT.text, _passwordCT.text);
         if (profile == null) {
           snackbarNotefy(context,
               message: 'Unable to login try after some time.');

@@ -314,8 +314,8 @@ class ExtraHourCard extends StatelessWidget {
   }
 }
 
-class RpoerHeader extends StatelessWidget {
-  const RpoerHeader(
+class ReportHeader extends StatelessWidget {
+  const ReportHeader(
     this.title, {
     super.key,
   });

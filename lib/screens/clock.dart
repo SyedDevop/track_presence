@@ -48,6 +48,7 @@ class _ClockScreenState extends State<ClockScreen> {
     _camSR.dispose();
     _mlSR.dispose();
     _faceSR.dispose();
+    _reasonController.dispose();
     super.dispose();
   }
 

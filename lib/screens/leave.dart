@@ -41,6 +41,12 @@ class _LeaveScreenState extends State<LeaveScreen> {
     _start();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _reasonCT.dispose();
+  }
+
   Future<void> _fetchLeaves() async {
     final leav = await apiL.getLeaves(profile?.userId ?? " ");
     setState(() => leaves = leav);
