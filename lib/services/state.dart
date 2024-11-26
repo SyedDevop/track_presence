@@ -3,14 +3,15 @@ import 'package:vcare_attendance/db/profile_db.dart';
 import 'package:vcare_attendance/models/profile_model.dart';
 
 class AppState {
+  final _userApi = Api.user;
   Profile? profile;
   Profile? localProfile;
 
   List<String> department = [];
 
   Future<void> initProfile(String id) async {
-    profile = await Api.getProfile(id);
-    department = await Api.getDepartments();
+    profile = await _userApi.getProfile(id);
+    department = await _userApi.getDepartments();
 
     final pdb = ProfileDB.instance;
     final pro = await pdb.queryAllProfile();
@@ -21,6 +22,6 @@ class AppState {
   }
 
   Future<void> fetchDepartments() async {
-    department = await Api.getDepartments();
+    department = await _userApi.getDepartments();
   }
 }

@@ -22,8 +22,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
-      GlobalKey<RefreshIndicatorState>();
+  final _attendanceApi = Api.attendance;
+  final _shiftApi = Api.shift;
+
+  final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   final AppState _asSr = getIt<AppState>();
 
   ShiftTime? shiftTime;
@@ -43,9 +45,9 @@ class _MyHomePageState extends State<MyHomePage> {
     DB dbHelper = DB.instance;
     List<User> users = await dbHelper.queryAllUsers();
     final userId = users[0].userId;
-    final gotsShiftTime = await Api.getShifttime(userId);
-    final gotClockedTime = await Api.getColockedtime(userId);
-    final gotOt = await Api.getOvertime(userId);
+    final gotsShiftTime = await _shiftApi.getShifttime(userId);
+    final gotClockedTime = await _attendanceApi.getColockedtime(userId);
+    final gotOt = await _attendanceApi.getOvertime(userId);
     await _asSr.initProfile(userId);
 
     setState(() {

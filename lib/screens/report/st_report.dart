@@ -19,6 +19,7 @@ class StReportScreen extends StatefulWidget {
 }
 
 class _StReportScreenState extends State<StReportScreen> {
+  final _shiftApi = Api.shift;
   final _stateSR = getIt<AppState>();
   Profile? _profile;
 
@@ -156,7 +157,7 @@ class _StReportScreenState extends State<StReportScreen> {
     if (fromDate == null || toDate == null) return;
     final fdStr = dateFmtDMY.format(fromDate);
     final tdStr = dateFmtDMY.format(toDate);
-    final sh = await Api.getShifts(_profile!.userId, fdStr, tdStr);
+    final sh = await _shiftApi.getShifts(_profile!.userId, fdStr, tdStr);
     if (sh != null) {
       setState(() => shiftReport = sh);
     }

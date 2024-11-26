@@ -23,6 +23,8 @@ class ClockScreen extends StatefulWidget {
 }
 
 class _ClockScreenState extends State<ClockScreen> {
+  final _attendanceApi = Api.attendance;
+
   final MLService _mlSR = getIt<MLService>();
   final CameraService _camSR = getIt<CameraService>();
   final FaceDetectorService _faceSR = getIt<FaceDetectorService>();
@@ -154,7 +156,11 @@ class _ClockScreenState extends State<ClockScreen> {
             onPressed: () async {
               setState(() => _initializing = true);
               try {
-                await Api.postColock(user.userId, 'in', _reasonController.text);
+                await _attendanceApi.postColock(
+                  user.userId,
+                  'in',
+                  _reasonController.text,
+                );
               } on ApiException catch (e) {
                 if (mounted) {
                   showDialog(
@@ -190,8 +196,11 @@ class _ClockScreenState extends State<ClockScreen> {
             onPressed: () async {
               setState(() => _initializing = true);
               try {
-                await Api.postColock(
-                    user.userId, 'out', _reasonController.text);
+                await _attendanceApi.postColock(
+                  user.userId,
+                  'out',
+                  _reasonController.text,
+                );
               } on ApiException catch (e) {
                 showDialog(
                   context: context,

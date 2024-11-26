@@ -21,6 +21,8 @@ class AtReportScreen extends StatefulWidget {
 typedef Empolye = (String, String);
 
 class _AtReportScreenState extends State<AtReportScreen> {
+  final _attendanceApi = Api.attendance;
+
   final _stateSR = getIt<AppState>();
   Profile? _profile;
 
@@ -192,7 +194,7 @@ class _AtReportScreenState extends State<AtReportScreen> {
         toShiftTime = Duration.zero;
         toWorkTime = Duration.zero;
         final emp = "${_profile?.name ?? " "}-${_profile?.userId ?? " "}";
-        final rep = await Api.getReport(emp, month, year);
+        final rep = await _attendanceApi.getReport(emp, month, year);
         setState(() {
           report = rep;
           extraHoursKeys = rep?.extraHours.keys.toList();

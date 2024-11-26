@@ -17,6 +17,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   Employee? _employee;
+  final _userApi = Api.user;
 
   List<(String, dynamic)> _personal = [];
   List<(String, dynamic)> _company = [];
@@ -37,7 +38,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _imgPath = (_imgPath == null || _imgPath!.isEmpty) ? null : _imgPath;
 
     _loading = true;
-    final emp = await Api.getEmployee(widget.id);
+    final emp = await _userApi.getEmployee(widget.id);
     setState(() {
       _employee = emp;
       _personal = _employee?.personalDetails?.todata() ?? [];
