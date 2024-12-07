@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:readmore/readmore.dart';
 import 'package:vcare_attendance/models/report_model.dart';
 import 'package:vcare_attendance/utils/utils.dart';
@@ -20,13 +19,6 @@ const List<String> months = [
   "November",
   "December"
 ];
-DateFormat dateFormat = DateFormat("yyyy-MM-dd h:mm a");
-Duration calDiff(String date, String inTime, String? outTime) {
-  if (outTime == null) return Duration.zero;
-  final inT = dateFormat.parse("$date $inTime".toUpperCase());
-  final outT = dateFormat.parse("$date $outTime".toUpperCase());
-  return outT.difference(inT);
-}
 
 class FullExtraHoursReport extends StatelessWidget {
   const FullExtraHoursReport({

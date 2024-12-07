@@ -23,3 +23,12 @@ String minToHrMin(dynamic min) {
 String durationToHrMin(Duration d) {
   return "${d.inHours} Hr  ${d.inMinutes % 60} Min";
 }
+
+DateFormat dateFormat = DateFormat("yyyy-MM-dd h:mm a");
+
+Duration calDiff(String date, String inTime, String? outTime) {
+  if (outTime == null) return Duration.zero;
+  final inT = dateFormat.parse("$date $inTime".toUpperCase());
+  final outT = dateFormat.parse("$date $outTime".toUpperCase());
+  return outT.difference(inT);
+}

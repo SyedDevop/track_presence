@@ -21,9 +21,7 @@ class ShiftApi {
     try {
       final res = await http.post(
         Uri.parse(shifturl),
-        body: json.encode(
-          {"id": id, "from-date": fromDate, "to-date": toDate},
-        ),
+        body: json.encode({"id": id, "from-date": fromDate, "to-date": toDate}),
         headers: {"Content-Type": "application/json"},
       );
       if (res.statusCode != 200) return null;
@@ -35,16 +33,12 @@ class ShiftApi {
   }
 
   Future<ShiftTime?> getShifttime(String id) async {
-    print("Getting ShiftTime $id");
     try {
-      final res = await http.get(
-        Uri.parse('$shiftTimeurl?id=$id'),
-      );
-      print({"ShiftTime Res": res.statusCode});
+      final res = await http.get(Uri.parse('$shiftTimeurl?id=$id'));
       if (res.statusCode != 200) return null;
       return ShiftTime.fromMap(jsonDecode(res.body));
     } catch (e) {
-      print("Error geting shiftTime data: $e");
+      print("[Error] Api shift geting shiftTime data: $e");
       return null;
     }
   }
