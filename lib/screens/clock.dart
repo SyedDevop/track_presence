@@ -2,16 +2,21 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/api/error.dart';
+import 'package:vcare_attendance/db/databse_helper.dart';
 
 import 'package:vcare_attendance/getit.dart';
+import 'package:vcare_attendance/models/profile_model.dart';
 import 'package:vcare_attendance/models/user_model.dart';
 import 'package:vcare_attendance/services/camera_service.dart';
 import 'package:vcare_attendance/services/face_detector_service.dart';
 import 'package:vcare_attendance/services/ml_service.dart';
+import 'package:vcare_attendance/services/state.dart';
 
 import 'package:vcare_attendance/widgets/widget.dart';
 
@@ -25,6 +30,7 @@ class ClockScreen extends StatefulWidget {
 class _ClockScreenState extends State<ClockScreen> {
   final _attendanceApi = Api.attendance;
 
+  final LocalAuthentication auth = LocalAuthentication();
   final MLService _mlSR = getIt<MLService>();
   final CameraService _camSR = getIt<CameraService>();
   final FaceDetectorService _faceSR = getIt<FaceDetectorService>();
@@ -37,6 +43,7 @@ class _ClockScreenState extends State<ClockScreen> {
   bool _isUser = false;
   bool _initializing = false;
   bool _detectingFaces = false;
+  bool _showBiometric = false;
   String? imagePath;
 
   @override
@@ -56,9 +63,15 @@ class _ClockScreenState extends State<ClockScreen> {
 
   Future _start() async {
     setState(() => _initializing = true);
+
     await _camSR.initialize();
     await _mlSR.initialize();
     _faceSR.initialize();
+    if (await auth.canCheckBiometrics) {
+      Future.delayed(const Duration(seconds: 5), () {
+        setState(() => _showBiometric = true);
+      });
+    }
     setState(() => _initializing = false);
     _frameFaces();
   }
@@ -87,10 +100,11 @@ class _ClockScreenState extends State<ClockScreen> {
   Future<void> _predictFacesFromImage(CameraImage image) async {
     await _faceSR.detectFacesFromCam(image, _camSR.cameraRotation!);
     if (_faceSR.faceDetected) {
-      await Future.delayed(const Duration(milliseconds: 200));
+      await Future.delayed(const Duration(milliseconds: 100));
       _mlSR.setCurrentPrediction(image, _faceSR.faces[0]);
       User? user = await _mlSR.predict();
       if (user != null) {
+        setState(() => _showBiometric = false);
         await _savePic();
         var attendSheetHandeler = scaffoldKey.currentState!
             .showBottomSheet((context) => attendSheet(user));
@@ -98,6 +112,29 @@ class _ClockScreenState extends State<ClockScreen> {
       }
     }
     if (mounted) setState(() {});
+  }
+
+  Future<void> _onBioAuth() async {
+    DB dbHelper = DB.instance;
+    List<User> users = await dbHelper.queryAllUsers();
+    await _savePic();
+    try {
+      final bool didAuthenticate = await auth.authenticate(
+        localizedReason: 'Please authenticate to Clock Attendance',
+        options: const AuthenticationOptions(biometricOnly: true),
+      );
+      if (didAuthenticate) {
+        var attendSheetHandeler = scaffoldKey.currentState!
+            .showBottomSheet((context) => attendSheet(users.first));
+        if (mounted) {
+          attendSheetHandeler.closed.whenComplete(context.pop);
+        }
+      } else {
+        if (mounted) context.pop();
+      }
+    } catch (_) {
+      if (mounted) context.pop();
+    }
   }
 
   Widget getBodyWidget() {
@@ -125,6 +162,15 @@ class _ClockScreenState extends State<ClockScreen> {
           ),
         ],
       ),
+      floatingActionButton: _showBiometric
+          ? IconButton.filledTonal(
+              onPressed: _onBioAuth,
+              icon: const Icon(
+                Icons.fingerprint_rounded,
+                size: 45,
+              ),
+            )
+          : null,
     );
   }
 
