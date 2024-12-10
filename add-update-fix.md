@@ -9,7 +9,7 @@
 - [ ] :V1.3.0:
   - [x] Reports
   - [x] Shifts (show all shifts for the month)
-  - [ ] leave
+  - [x] leave
   - [x] profile
 
 ## Next Release

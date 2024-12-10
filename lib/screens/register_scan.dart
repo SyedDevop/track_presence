@@ -63,6 +63,7 @@ class _RegisterScanState extends State<RegisterScan> {
   void dispose() {
     super.dispose();
     _camSR.dispose();
+    captureCount = 0;
   }
 
   Future _start() async {

@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:path_provider/path_provider.dart';
@@ -11,12 +10,10 @@ import 'package:vcare_attendance/api/error.dart';
 import 'package:vcare_attendance/db/databse_helper.dart';
 
 import 'package:vcare_attendance/getit.dart';
-import 'package:vcare_attendance/models/profile_model.dart';
 import 'package:vcare_attendance/models/user_model.dart';
 import 'package:vcare_attendance/services/camera_service.dart';
 import 'package:vcare_attendance/services/face_detector_service.dart';
 import 'package:vcare_attendance/services/ml_service.dart';
-import 'package:vcare_attendance/services/state.dart';
 
 import 'package:vcare_attendance/widgets/widget.dart';
 
@@ -28,16 +25,12 @@ class ClockScreen extends StatefulWidget {
 }
 
 class _ClockScreenState extends State<ClockScreen> {
-  final _attendanceApi = Api.attendance;
-
   final LocalAuthentication auth = LocalAuthentication();
   final MLService _mlSR = getIt<MLService>();
   final CameraService _camSR = getIt<CameraService>();
   final FaceDetectorService _faceSR = getIt<FaceDetectorService>();
 
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-
-  final _reasonController = TextEditingController();
   bool isReasonRequared = false;
 
   bool _isUser = false;
@@ -57,7 +50,6 @@ class _ClockScreenState extends State<ClockScreen> {
     _camSR.dispose();
     _mlSR.dispose();
     _faceSR.dispose();
-    _reasonController.dispose();
     super.dispose();
   }
 
@@ -179,19 +171,51 @@ class _ClockScreenState extends State<ClockScreen> {
   attendSheet(User user) {
     return Container(
       padding: const EdgeInsets.all(20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            user.userName,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
+      child: AttendanceBottomSheet(
+        user: user,
+        onStateChange: (e) => setState(() => _initializing = e),
+      ),
+    );
+  }
+}
+
+class AttendanceBottomSheet extends StatefulWidget {
+  const AttendanceBottomSheet(
+      {super.key, required this.user, required this.onStateChange});
+  final User user;
+  final void Function(bool value) onStateChange;
+  @override
+  State<AttendanceBottomSheet> createState() => _AttendanceBottomSheetState();
+}
+
+class _AttendanceBottomSheetState extends State<AttendanceBottomSheet> {
+  final _attendanceApi = Api.attendance;
+
+  final _reasonController = TextEditingController();
+  bool _showReason = false;
+  @override
+  void dispose() {
+    super.dispose();
+
+    _reasonController.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          widget.user.userName,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
           ),
-          const SizedBox(height: 50),
+        ),
+        const SizedBox(height: 50),
+        if (_showReason)
           TextField(
             controller: _reasonController,
             autofocus: true,
@@ -199,58 +223,19 @@ class _ClockScreenState extends State<ClockScreen> {
             keyboardType: TextInputType.name,
             decoration: const InputDecoration(labelText: "Reason "),
           ),
-          const SizedBox(height: 50),
-          TextButton.icon(
-            onPressed: () async {
-              setState(() => _initializing = true);
-              try {
-                await _attendanceApi.postColock(
-                  user.userId,
-                  'in',
-                  _reasonController.text,
-                );
-              } on ApiException catch (e) {
-                if (mounted) {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        content: Text(e.message),
-                      );
-                    },
-                  );
-                }
-                return;
-              } finally {
-                if (mounted) setState(() => _initializing = false);
-              }
-              if (mounted) context.pop();
-            },
-            icon: const Icon(Icons.more_time_rounded),
-            label: const Text("Clock In"),
-            style: TextButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                borderRadius: const BorderRadius.all(Radius.circular(8)),
-                side: BorderSide(
-                  color: Theme.of(context).colorScheme.primary,
-                  width: 1,
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 15),
-            ),
-          ),
-          const SizedBox(height: 25),
-          TextButton.icon(
-            onPressed: () async {
-              setState(() => _initializing = true);
-              try {
-                await _attendanceApi.postColock(
-                  user.userId,
-                  'out',
-                  _reasonController.text,
-                );
-              } on ApiException catch (e) {
-                showDialog(
+        const SizedBox(height: 50),
+        TextButton.icon(
+          onPressed: () async {
+            widget.onStateChange(true);
+            try {
+              await _attendanceApi.postColock(
+                widget.user.userId,
+                'in',
+                _reasonController.text,
+              );
+            } on ApiException catch (e) {
+              if (mounted) {
+                await showDialog(
                   context: context,
                   builder: (context) {
                     return AlertDialog(
@@ -258,28 +243,73 @@ class _ClockScreenState extends State<ClockScreen> {
                     );
                   },
                 );
-                return;
-              } finally {
-                setState(() => _initializing = false);
               }
-              if (mounted) context.pop();
-            },
-            icon: const Icon(Icons.history_rounded),
-            label: const Text("Clock Out"),
-            style: TextButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                borderRadius: const BorderRadius.all(Radius.circular(8)),
-                side: BorderSide(
-                  color: Theme.of(context).colorScheme.primary,
-                  width: 1,
-                ),
+              if (e.error == kReasonRequired) {
+                setState(() => _showReason = true);
+              }
+              return;
+            } finally {
+              if (mounted) widget.onStateChange(false);
+            }
+            if (mounted) context.pop();
+          },
+          icon: const Icon(Icons.more_time_rounded),
+          label: const Text("Clock In"),
+          style: TextButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: const BorderRadius.all(Radius.circular(8)),
+              side: BorderSide(
+                color: Theme.of(context).colorScheme.primary,
+                width: 1,
               ),
-              padding: const EdgeInsets.symmetric(vertical: 15),
             ),
+            padding: const EdgeInsets.symmetric(vertical: 15),
           ),
-          const SizedBox(height: 50),
-        ],
-      ),
+        ),
+        const SizedBox(height: 25),
+        TextButton.icon(
+          onPressed: () async {
+            widget.onStateChange(true);
+            try {
+              await _attendanceApi.postColock(
+                widget.user.userId,
+                'out',
+                _reasonController.text,
+              );
+            } on ApiException catch (e) {
+              await showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    content: Text(e.message),
+                  );
+                },
+              );
+
+              if (e.error == kReasonRequired) {
+                setState(() => _showReason = true);
+              }
+              return;
+            } finally {
+              if (mounted) widget.onStateChange(false);
+            }
+            if (mounted) context.pop();
+          },
+          icon: const Icon(Icons.history_rounded),
+          label: const Text("Clock Out"),
+          style: TextButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: const BorderRadius.all(Radius.circular(8)),
+              side: BorderSide(
+                color: Theme.of(context).colorScheme.primary,
+                width: 1,
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 15),
+          ),
+        ),
+        const SizedBox(height: 50),
+      ],
     );
   }
 }

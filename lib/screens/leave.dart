@@ -199,17 +199,19 @@ class _LeaveScreenState extends State<LeaveScreen> {
         height: MediaQuery.of(context).size.height * 0.55,
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
         child: SfDateRangePicker(
-            selectionMode: DateRangePickerSelectionMode.range,
-            showTodayButton: true,
-            showActionButtons: true,
-            enableMultiView: true,
-            onCancel: () => context.pop(),
-            onSubmit: (Object? value) {
-              if (mounted) context.pop();
-              if (value is PickerDateRange) {
-                setState(() => range = value);
-              }
-            }),
+          selectionMode: DateRangePickerSelectionMode.range,
+          showTodayButton: true,
+          showActionButtons: true,
+          enableMultiView: true,
+          enablePastDates: false,
+          onCancel: () => context.pop(),
+          onSubmit: (Object? value) {
+            if (mounted) context.pop();
+            if (value is PickerDateRange) {
+              setState(() => range = value);
+            }
+          },
+        ),
       ),
     );
   }

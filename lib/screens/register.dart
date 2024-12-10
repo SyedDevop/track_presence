@@ -50,7 +50,7 @@ class _RegisterState extends State<Register> {
                   horizontal: 10,
                 ),
                 child: Text(
-                  "Redister Face ID",
+                  "Register Face ID",
                   style: TextStyle(fontSize: 38),
                 ),
               ),
