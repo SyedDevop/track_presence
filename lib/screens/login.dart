@@ -17,6 +17,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _accApi = Api.account;
 
+  bool _dontShowPassword = true;
   final _userCT = TextEditingController(text: '');
   final _passwordCT = TextEditingController(text: '');
   final _formKey = GlobalKey<FormState>();
@@ -122,11 +123,22 @@ class _LoginScreenState extends State<LoginScreen> {
                         controller: _passwordCT,
                         autocorrect: false,
                         enableSuggestions: false,
-                        obscureText: true,
+                        obscureText: _dontShowPassword,
                         textInputAction: TextInputAction.done,
-                        decoration: const InputDecoration(
-                            prefixIcon: Icon(Icons.lock_open_outlined),
-                            labelText: "user password"),
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.lock_open_outlined),
+                          labelText: "user password",
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _dontShowPassword = !_dontShowPassword;
+                              });
+                            },
+                            icon: Icon(_dontShowPassword
+                                ? Icons.visibility_rounded
+                                : Icons.visibility_off_rounded),
+                          ),
+                        ),
                         onFieldSubmitted: (_) => _submit(),
                       ),
                       const SizedBox(height: 15),
