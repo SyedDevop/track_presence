@@ -10,6 +10,7 @@ import 'package:vcare_attendance/models/profile_model.dart';
 import 'package:vcare_attendance/models/time.dart';
 import 'package:vcare_attendance/router/router_name.dart';
 import 'package:vcare_attendance/services/state.dart';
+import 'package:vcare_attendance/snackbar/snackbar.dart';
 import 'package:vcare_attendance/utils/utils.dart';
 
 import 'package:vcare_attendance/widgets/widget.dart';
@@ -30,6 +31,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   final AppState _asSr = getIt<AppState>();
 
+  bool _initializing = false;
   ShiftTime? shiftTime;
   String strSiftTime = "---:--- / ---:---";
   String strSiftdate = "--:--:---- / --:--:----";
@@ -44,6 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _getTimes() async {
+    setState(() => _initializing = true);
     ProfileDB pdb = ProfileDB.instance;
     List<Profile> profile = await pdb.queryAllProfile();
     final userId = profile.first.userId;
@@ -67,25 +70,42 @@ class _MyHomePageState extends State<MyHomePage> {
         overTime = null;
       }
     });
+
+    setState(() => _initializing = false);
     return;
   }
 
   Future<void> _handleClock() async {
+    if (_initializing) return;
+    setState(() => _initializing = true);
     final currPoss = await _determinePosition();
-    double distanceInMeters = Geolocator.distanceBetween(
+    double vcareDistance = Geolocator.distanceBetween(
       kVacreCord.lat,
       kVacreCord.long,
       currPoss.latitude,
       currPoss.longitude,
     );
+    double mediDistance = Geolocator.distanceBetween(
+      kMedisconCord.lat,
+      kMedisconCord.long,
+      currPoss.latitude,
+      currPoss.longitude,
+    );
+    setState(() => _initializing = false);
     print("[Info] Current Position: |$currPoss|");
-    print("[Info] Distance between Current and Vcare : |$distanceInMeters|");
-    if (distanceInMeters <= kminDistance) {
-      if (0 == 0) return;
+    print("[Info] Distance between Current and Vcare : |$vcareDistance|");
+    if (vcareDistance <= kminDistance || mediDistance <= kminDistance) {
       await context.pushNamed(RouteNames.clock);
       await _getTimes();
       return;
     }
+
+    snackbarNotefy(
+      context,
+      message:
+          'You are currently not on-site and cannot clock in your attendance.',
+      duration: 5,
+    );
     print("[Info] Your not on premises");
   }
 
@@ -96,60 +116,73 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text("Home"),
       ),
       drawer: const AppDrawer(),
-      body: RefreshIndicator(
-        key: _refreshIndicatorKey,
-        onRefresh: _getTimes,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              children: <Widget>[
-                TimeInfo(
-                  header: "Shift",
-                  childens: [
-                    TimePrimeryView(time: strSiftTime),
-                    const SizedBox(height: 10),
-                    TimeSecondaryView(
-                        time: shiftTime?.shiftHours ?? "-- hr -- min"),
-                    const Divider(),
-                    TimeSecondaryView(time: strSiftdate),
+      body: Stack(
+        children: [
+          RefreshIndicator(
+            key: _refreshIndicatorKey,
+            onRefresh: _getTimes,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  children: <Widget>[
+                    TimeInfo(
+                      header: "Shift",
+                      childens: [
+                        TimePrimeryView(time: strSiftTime),
+                        const SizedBox(height: 10),
+                        TimeSecondaryView(
+                            time: shiftTime?.shiftHours ?? "-- hr -- min"),
+                        const Divider(),
+                        TimeSecondaryView(time: strSiftdate),
+                      ],
+                    ),
+                    const SizedBox(height: gap),
+                    TimeInfo(header: "Attendance", childens: [
+                      TimePrimeryView(time: strClockTime),
+                      const SizedBox(height: 10),
+                      TimeSecondaryView(
+                          time: clockedTime?.clockHours ?? "-- hr -- min"),
+                      const Divider(),
+                      TimeSecondaryView(
+                        icon: const Icon(
+                          Icons.hourglass_empty_rounded,
+                          color: Colors.redAccent,
+                        ),
+                        time:
+                            "Loss Of Time : ${minToHrMin(clockedTime?.lossOfTime)}",
+                      ),
+                      const SizedBox(height: 5),
+                      TimeSecondaryView(
+                        icon: const Icon(
+                          Icons.alarm_add,
+                          color: Colors.tealAccent,
+                        ),
+                        time:
+                            "Over Time : ${minToHrMin(clockedTime?.overTime)}",
+                      ),
+                    ]),
+                    const SizedBox(height: gap),
+                    if (overTime != null)
+                      TimeInfo(
+                        header: "Extra Hours",
+                        childens:
+                            overTime!.map((ot) => ExtraHourInfo(ot)).toList(),
+                      )
                   ],
                 ),
-                const SizedBox(height: gap),
-                TimeInfo(header: "Attendance", childens: [
-                  TimePrimeryView(time: strClockTime),
-                  const SizedBox(height: 10),
-                  TimeSecondaryView(
-                      time: clockedTime?.clockHours ?? "-- hr -- min"),
-                  const Divider(),
-                  TimeSecondaryView(
-                    icon: const Icon(
-                      Icons.hourglass_empty_rounded,
-                      color: Colors.redAccent,
-                    ),
-                    time:
-                        "Loss Of Time : ${minToHrMin(clockedTime?.lossOfTime)}",
-                  ),
-                  const SizedBox(height: 5),
-                  TimeSecondaryView(
-                    icon: const Icon(
-                      Icons.alarm_add,
-                      color: Colors.tealAccent,
-                    ),
-                    time: "Over Time : ${minToHrMin(clockedTime?.overTime)}",
-                  ),
-                ]),
-                const SizedBox(height: gap),
-                if (overTime != null)
-                  TimeInfo(
-                    header: "Extra Hours",
-                    childens: overTime!.map((ot) => ExtraHourInfo(ot)).toList(),
-                  )
-              ],
+              ),
             ),
           ),
-        ),
+          if (_initializing)
+            Container(
+              color: Colors.black.withOpacity(0.75),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+        ],
       ),
       floatingActionButton: FilledButton.icon(
         onPressed: _handleClock,

@@ -43,7 +43,13 @@ void snackbarSuccess(BuildContext context, {required String message}) {
     ));
 }
 
-void snackbarNotefy(BuildContext context, {required String message}) {
+void snackbarNotefy(
+  BuildContext context, {
+  required String message,
+
+  /// [duration] in seconds of the snackBar default is 2 seconds
+  int duration = 2,
+}) {
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(
