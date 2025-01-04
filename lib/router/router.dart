@@ -76,11 +76,11 @@ final router = GoRouter(
       }
       return RouteNames.loginPath;
     }
-    if (user.isEmpty) {
-      if (urlPath == RouteNames.registerScanPath ||
-          urlPath == RouteNames.registerPath) return null;
-      return RouteNames.registerPath;
-    }
+    // if (user.isEmpty) {
+    //   if (urlPath == RouteNames.registerScanPath ||
+    //       urlPath == RouteNames.registerPath) return null;
+    //   return RouteNames.registerPath;
+    // }
     return null;
   },
 );

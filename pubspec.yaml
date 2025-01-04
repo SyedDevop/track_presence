@@ -52,6 +52,7 @@ dependencies:
   readmore: ^3.0.0
   syncfusion_flutter_datepicker: ^27.2.3
   local_auth: ^2.3.0
+  geolocator: ^13.0.2
 
 dev_dependencies:
   flutter_test:
