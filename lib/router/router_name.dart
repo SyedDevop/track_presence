@@ -23,9 +23,9 @@ class RouteNames {
   static String stReport = "st-report";
   static String stReportPath = "/st-report";
 
-  /// Clock Attendance Screen path name no {Params || queryParams} required [clock]
+  /// Clock Attendance Screen path name Params = {'location': '12.3443,123.123124'} no {queryParams} required [clock]
   static String clock = "clock";
-  static String clockPath = "/$clock";
+  static String clockPath = "/$clock/:location";
 
   /// Registration Screen path name no {Params || queryParams} required [register]
   static String register = "register";

@@ -54,10 +54,14 @@ class AttendanceApi {
     String id,
     String clockType,
     String reason,
+    String location,
+    String authType,
   ) async {
     final reas = reason.isEmpty ? null : reason;
     final res = await http.post(
-      Uri.parse('$baseUrl/clock_attendance.php?id=$id&clock=$clockType'),
+      Uri.parse(
+        '$baseUrl/clock_attendance.php?id=$id&clock=$clockType&location=$location&authType=$authType',
+      ),
       body: reas == null ? null : json.encode({"reason": reason}),
       headers: {"Content-Type": "application/json"},
     );

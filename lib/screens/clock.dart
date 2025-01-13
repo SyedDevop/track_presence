@@ -18,7 +18,13 @@ import 'package:vcare_attendance/services/ml_service.dart';
 import 'package:vcare_attendance/widgets/widget.dart';
 
 class ClockScreen extends StatefulWidget {
-  const ClockScreen({super.key});
+  const ClockScreen({
+    super.key,
+    required this.location,
+  });
+
+  /// Current location of the clocking attendance.
+  final String location;
 
   @override
   State<ClockScreen> createState() => _ClockScreenState();
@@ -100,8 +106,11 @@ class _ClockScreenState extends State<ClockScreen> {
       if (user != null) {
         setState(() => _showBiometric = false);
         await _savePic();
-        var attendSheetHandeler = scaffoldKey.currentState!
-            .showBottomSheet((context) => attendSheet(user));
+        var attendSheetHandeler =
+            scaffoldKey.currentState!.showBottomSheet((context) => attendSheet(
+                  user,
+                  "Mlface auth",
+                ));
         if (mounted) attendSheetHandeler.closed.whenComplete(context.pop);
       }
     }
@@ -118,8 +127,11 @@ class _ClockScreenState extends State<ClockScreen> {
         options: const AuthenticationOptions(biometricOnly: true),
       );
       if (didAuthenticate) {
-        var attendSheetHandeler = scaffoldKey.currentState!
-            .showBottomSheet((context) => attendSheet(users.first));
+        var attendSheetHandeler =
+            scaffoldKey.currentState!.showBottomSheet((context) => attendSheet(
+                  users.first,
+                  "biometric auth",
+                ));
         if (mounted) {
           attendSheetHandeler.closed.whenComplete(context.pop);
         }
@@ -168,21 +180,37 @@ class _ClockScreenState extends State<ClockScreen> {
     );
   }
 
-  attendSheet(User user) {
+  attendSheet(User user, String authType) {
     return Container(
       padding: const EdgeInsets.all(20),
       child: AttendanceBottomSheet(
         user: user,
         onStateChange: (e) => setState(() => _initializing = e),
+        location: widget.location,
+        authType: authType,
       ),
     );
   }
 }
 
 class AttendanceBottomSheet extends StatefulWidget {
-  const AttendanceBottomSheet(
-      {super.key, required this.user, required this.onStateChange});
+  const AttendanceBottomSheet({
+    super.key,
+    required this.user,
+    required this.onStateChange,
+    required this.location,
+    required this.authType,
+  });
+
+  /// [User] Current user
   final User user;
+
+  /// [location] Current location of the user clocking.
+  final String location;
+
+  /// [authType] user Authenticated type for clocking attendance.
+  final String authType;
+
   final void Function(bool value) onStateChange;
   @override
   State<AttendanceBottomSheet> createState() => _AttendanceBottomSheetState();
@@ -232,6 +260,8 @@ class _AttendanceBottomSheetState extends State<AttendanceBottomSheet> {
                 widget.user.userId,
                 'in',
                 _reasonController.text,
+                widget.location,
+                widget.authType,
               );
             } on ApiException catch (e) {
               if (mounted) {
@@ -275,6 +305,8 @@ class _AttendanceBottomSheetState extends State<AttendanceBottomSheet> {
                 widget.user.userId,
                 'out',
                 _reasonController.text,
+                widget.location,
+                widget.authType,
               );
             } on ApiException catch (e) {
               await showDialog(

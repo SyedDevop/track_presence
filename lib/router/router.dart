@@ -45,7 +45,9 @@ final router = GoRouter(
     GoRoute(
       path: RouteNames.clockPath,
       name: RouteNames.clock,
-      builder: (_, __) => const ClockScreen(),
+      builder: (_, state) {
+        return ClockScreen(location: state.pathParameters["location"]!);
+      },
     ),
     GoRoute(
       path: RouteNames.registerPath,
@@ -76,11 +78,11 @@ final router = GoRouter(
       }
       return RouteNames.loginPath;
     }
-    // if (user.isEmpty) {
-    //   if (urlPath == RouteNames.registerScanPath ||
-    //       urlPath == RouteNames.registerPath) return null;
-    //   return RouteNames.registerPath;
-    // }
+    if (user.isEmpty) {
+      if (urlPath == RouteNames.registerScanPath ||
+          urlPath == RouteNames.registerPath) return null;
+      return RouteNames.registerPath;
+    }
     return null;
   },
 );

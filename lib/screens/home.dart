@@ -3,6 +3,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:vcare_attendance/api/api.dart';
+import 'package:vcare_attendance/constant/department.dart';
 import 'package:vcare_attendance/constant/location.dart';
 import 'package:vcare_attendance/db/profile_db.dart';
 import 'package:vcare_attendance/getit.dart';
@@ -79,6 +80,18 @@ class _MyHomePageState extends State<MyHomePage> {
     if (_initializing) return;
     setState(() => _initializing = true);
     final currPoss = await _determinePosition();
+    if (kExemptDeparments.contains(
+      _asSr.employee?.companyDetails?.department,
+    )) {
+      await context.pushNamed(
+        RouteNames.clock,
+        pathParameters: {
+          "location": "${currPoss.latitude} , ${currPoss.latitude}"
+        },
+      );
+      await _getTimes();
+      return;
+    }
     double vcareDistance = Geolocator.distanceBetween(
       kVacreCord.lat,
       kVacreCord.long,
@@ -91,11 +104,24 @@ class _MyHomePageState extends State<MyHomePage> {
       currPoss.latitude,
       currPoss.longitude,
     );
+    double rizDistance = Geolocator.distanceBetween(
+      kRizHomeCord.lat,
+      kRizHomeCord.long,
+      currPoss.latitude,
+      currPoss.longitude,
+    );
     setState(() => _initializing = false);
     print("[Info] Current Position: |$currPoss|");
     print("[Info] Distance between Current and Vcare : |$vcareDistance|");
-    if (vcareDistance <= kminDistance || mediDistance <= kminDistance) {
-      await context.pushNamed(RouteNames.clock);
+    if (vcareDistance <= kminDistance ||
+        mediDistance <= kminDistance ||
+        rizDistance <= kminDistance) {
+      await context.pushNamed(
+        RouteNames.clock,
+        pathParameters: {
+          "location": "${currPoss.latitude} , ${currPoss.latitude}"
+        },
+      );
       await _getTimes();
       return;
     }
