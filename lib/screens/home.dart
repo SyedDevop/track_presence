@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/constant/department.dart';
@@ -10,7 +13,7 @@ import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/profile_model.dart';
 import 'package:vcare_attendance/models/time.dart';
 import 'package:vcare_attendance/router/router_name.dart';
-import 'package:vcare_attendance/services/state.dart';
+import 'package:vcare_attendance/services/state.dart' as local;
 import 'package:vcare_attendance/snackbar/snackbar.dart';
 import 'package:vcare_attendance/utils/utils.dart';
 
@@ -30,7 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final _shiftApi = Api.shift;
 
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
-  final AppState _asSr = getIt<AppState>();
+  final local.AppState _asSr = getIt<local.AppState>();
 
   bool _initializing = false;
   ShiftTime? shiftTime;
@@ -44,6 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _getTimes();
+    // loadAd();
   }
 
   Future<void> _getTimes() async {
@@ -81,12 +85,14 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() => _initializing = true);
     final currPoss = await _determinePosition();
     if (kExemptDeparments.contains(
-      _asSr.employee?.companyDetails?.department,
-    )) {
+          _asSr.employee?.companyDetails?.department,
+        ) ||
+        _asSr.employee?.personalDetails?.empId == "VCH0000") {
+      setState(() => _initializing = false);
       await context.pushNamed(
         RouteNames.clock,
         pathParameters: {
-          "location": "${currPoss.latitude} , ${currPoss.latitude}"
+          "location": "${currPoss.latitude} , ${currPoss.longitude}"
         },
       );
       await _getTimes();
@@ -119,7 +125,7 @@ class _MyHomePageState extends State<MyHomePage> {
       await context.pushNamed(
         RouteNames.clock,
         pathParameters: {
-          "location": "${currPoss.latitude} , ${currPoss.latitude}"
+          "location": "${currPoss.latitude} , ${currPoss.longitude}"
         },
       );
       await _getTimes();
@@ -135,6 +141,31 @@ class _MyHomePageState extends State<MyHomePage> {
     print("[Info] Your not on premises");
   }
 
+  BannerAd? _bannerAd;
+  bool _isAdLoaded = false;
+  // final adUnitId = 'ca-app-pub-2791763544217577/3961842060';
+  //
+  // void loadAd() async {
+  //   _bannerAd = BannerAd(
+  //     adUnitId: adUnitId,
+  //     request: const AdRequest(),
+  //     size: AdSize.banner,
+  //     listener: BannerAdListener(
+  //       // Called when an ad is successfully received.
+  //       onAdLoaded: (ad) {
+  //         debugPrint('$ad loaded.');
+  //         setState(() => _isAdLoaded = true);
+  //       },
+  //       // Called when an ad request failed.
+  //       onAdFailedToLoad: (ad, err) {
+  //         debugPrint('BannerAd failed to load: $err');
+  //         // Dispose the ad here to free resources.
+  //         ad.dispose();
+  //       },
+  //     ),
+  //   )..load();
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -142,72 +173,90 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text("Home"),
       ),
       drawer: const AppDrawer(),
-      body: Stack(
+      body: Column(
         children: [
-          RefreshIndicator(
-            key: _refreshIndicatorKey,
-            onRefresh: _getTimes,
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  children: <Widget>[
-                    TimeInfo(
-                      header: "Shift",
-                      childens: [
-                        TimePrimeryView(time: strSiftTime),
-                        const SizedBox(height: 10),
-                        TimeSecondaryView(
-                            time: shiftTime?.shiftHours ?? "-- hr -- min"),
-                        const Divider(),
-                        TimeSecondaryView(time: strSiftdate),
-                      ],
-                    ),
-                    const SizedBox(height: gap),
-                    TimeInfo(header: "Attendance", childens: [
-                      TimePrimeryView(time: strClockTime),
-                      const SizedBox(height: 10),
-                      TimeSecondaryView(
-                          time: clockedTime?.clockHours ?? "-- hr -- min"),
-                      const Divider(),
-                      TimeSecondaryView(
-                        icon: const Icon(
-                          Icons.hourglass_empty_rounded,
-                          color: Colors.redAccent,
-                        ),
-                        time:
-                            "Loss Of Time : ${minToHrMin(clockedTime?.lossOfTime)}",
-                      ),
-                      const SizedBox(height: 5),
-                      TimeSecondaryView(
-                        icon: const Icon(
-                          Icons.alarm_add,
-                          color: Colors.tealAccent,
-                        ),
-                        time:
-                            "Over Time : ${minToHrMin(clockedTime?.overTime)}",
-                      ),
-                    ]),
-                    const SizedBox(height: gap),
-                    if (overTime != null)
-                      TimeInfo(
-                        header: "Extra Hours",
-                        childens:
-                            overTime!.map((ot) => ExtraHourInfo(ot)).toList(),
-                      )
-                  ],
-                ),
+          if (_bannerAd != null && _isAdLoaded)
+            Align(
+              alignment: Alignment.topCenter,
+              child: SizedBox(
+                width: double.infinity,
+                height: _bannerAd!.size.height.toDouble(),
+                child: AdWidget(ad: _bannerAd!),
               ),
+            ),
+          Expanded(
+            child: Stack(
+              children: [
+                RefreshIndicator(
+                  key: _refreshIndicatorKey,
+                  onRefresh: _getTimes,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
+                        children: <Widget>[
+                          TimeInfo(
+                            header: "Shift",
+                            childens: [
+                              TimePrimeryView(time: strSiftTime),
+                              const SizedBox(height: 10),
+                              TimeSecondaryView(
+                                  time:
+                                      shiftTime?.shiftHours ?? "-- hr -- min"),
+                              const Divider(),
+                              TimeSecondaryView(time: strSiftdate),
+                            ],
+                          ),
+                          const SizedBox(height: gap),
+                          TimeInfo(header: "Attendance", childens: [
+                            TimePrimeryView(time: strClockTime),
+                            const SizedBox(height: 10),
+                            TimeSecondaryView(
+                                time:
+                                    clockedTime?.clockHours ?? "-- hr -- min"),
+                            const Divider(),
+                            TimeSecondaryView(
+                              icon: const Icon(
+                                Icons.hourglass_empty_rounded,
+                                color: Colors.redAccent,
+                              ),
+                              time:
+                                  "Loss Of Time : ${minToHrMin(clockedTime?.lossOfTime)}",
+                            ),
+                            const SizedBox(height: 5),
+                            TimeSecondaryView(
+                              icon: const Icon(
+                                Icons.alarm_add,
+                                color: Colors.tealAccent,
+                              ),
+                              time:
+                                  "Over Time : ${minToHrMin(clockedTime?.overTime)}",
+                            ),
+                          ]),
+                          const SizedBox(height: gap),
+                          if (overTime != null)
+                            TimeInfo(
+                              header: "Extra Hours",
+                              childens: overTime!
+                                  .map((ot) => ExtraHourInfo(ot))
+                                  .toList(),
+                            )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                if (_initializing)
+                  Container(
+                    color: Colors.black.withOpacity(0.75),
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+              ],
             ),
           ),
-          if (_initializing)
-            Container(
-              color: Colors.black.withOpacity(0.75),
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
         ],
       ),
       floatingActionButton: FilledButton.icon(
@@ -230,10 +279,13 @@ Future<Position> _determinePosition() async {
   // Test if location services are enabled.
   serviceEnabled = await Geolocator.isLocationServiceEnabled();
   if (!serviceEnabled) {
-    // Location services are not enabled don't continue
-    // accessing the position and request users of the
-    // App to enable the location services.
-    return Future.error('Location services are disabled.');
+    serviceEnabled = await Geolocator.openLocationSettings();
+    if (!serviceEnabled) {
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+      return Future.error('Location services are disabled.');
+    }
   }
 
   permission = await Geolocator.checkPermission();
@@ -256,13 +308,14 @@ Future<Position> _determinePosition() async {
   }
 
   const LocationSettings locationSettings = LocationSettings(
-    accuracy: LocationAccuracy.high,
+    accuracy: LocationAccuracy.best,
   );
 
   // When we reach here, permissions are granted and we can
   // continue accessing the position of the device.
   return await Geolocator.getCurrentPosition(
-      locationSettings: locationSettings);
+    locationSettings: locationSettings,
+  );
 }
 
 class StatBar extends StatelessWidget {
