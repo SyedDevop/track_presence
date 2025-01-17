@@ -59,7 +59,7 @@ class _AccountScreenState extends State<AccountScreen> {
       } on ApiException catch (e) {
         snackbarError(context, message: "${e.message}  😭");
       } catch (e) {
-        print("[Error]: Api login error :: $e");
+        print("[Error]: changePassword error :: $e");
       } finally {
         setState(() => _loading = false);
       }

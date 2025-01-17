@@ -123,7 +123,7 @@ class _LeaveScreenState extends State<LeaveScreen> {
       } on ApiException catch (e) {
         snackbarError(context, message: "${e.message}  😭");
       } catch (e) {
-        print("[Error]: Api login error :: $e");
+        print("[Error]: Api Posting Leave error :: $e");
       }
     }
   }

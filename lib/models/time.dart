@@ -1,8 +1,4 @@
-import 'package:intl/intl.dart';
 import 'package:vcare_attendance/utils/utils.dart';
-
-DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm");
-DateFormat dateFormat2 = DateFormat("dd-MM-yyyy h:mm a");
 
 class ShiftTime {
   final String name;
@@ -20,8 +16,8 @@ class ShiftTime {
     required this.shiftHours,
   });
   static ShiftTime fromMap(Map<String, dynamic> data) {
-    final inT = dateFormat.parse(data["from_time"]);
-    final outT = dateFormat.parse(data["to_time"]);
+    final inT = dateFormat24.parse(data["from_time"]);
+    final outT = dateFormat24.parse(data["to_time"]);
     final shH = durationToHrMin(outT.difference(inT));
 
     return ShiftTime(
@@ -128,20 +124,21 @@ class Attendance {
     this.clockOutLate,
   });
   static Attendance fromMap(Map<String, dynamic> data) {
-    final chH = data["work_time"] != null
-        ? "${data["work_time"]["hour"]} hr ${data["work_time"]["minutes"]} min"
+    final inTime = dateFormat2.format(dateFormat24.parse(data['in_time']));
+    final outTime = data['out_time'] != null
+        ? dateFormat2.format(dateFormat24.parse(data['out_time']))
         : null;
     return Attendance(
       id: data['id'],
-      inTime: data['in_time'],
-      outTime: data['out_time'],
+      inTime: inTime,
+      outTime: outTime,
       shiftTime: data['shift_time'],
       lossOfTime: data['loss_of_hours'],
       overTime: data['maintainance'],
       date: data['date'],
       date1: data['date1'],
       date2: data['date2'],
-      clockHours: chH,
+      clockHours: data["work_time"],
       clockInEarly: data['clock_in_early'],
       clockInLate: data['clock_in_late'],
       clockOutEarly: data['clock_out_early'],

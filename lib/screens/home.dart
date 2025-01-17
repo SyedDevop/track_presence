@@ -67,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
         strSiftdate = "${gotsShiftTime.fromDate} -/- ${gotsShiftTime.toDate}";
       }
       strClockTime =
-          "${gotClockedTime?.inTime ?? "---:---"} -/- ${gotClockedTime?.outTime ?? "---:---"}";
+          "${gotClockedTime?.inTime ?? "---:---"}\n To \n${gotClockedTime?.outTime ?? "---:---"}";
       if (gotOt.isNotEmpty) {
         overTime = gotOt;
       } else {
@@ -212,8 +212,8 @@ class _MyHomePageState extends State<MyHomePage> {
                             TimePrimeryView(time: strClockTime),
                             const SizedBox(height: 10),
                             TimeSecondaryView(
-                                time:
-                                    clockedTime?.clockHours ?? "-- hr -- min"),
+                              time: clockedTime?.clockHours ?? "-- hr -- min",
+                            ),
                             const Divider(),
                             TimeSecondaryView(
                               icon: const Icon(

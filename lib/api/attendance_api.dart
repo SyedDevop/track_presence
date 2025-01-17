@@ -19,7 +19,7 @@ class AttendanceApi {
   const AttendanceApi({required this.baseUrl});
 
   Future<Attendance?> getColockedtime(String id, {String? date}) async {
-    final getDate = date ?? toDay();
+    final getDate = date ?? toDay2();
     print({"From ": "ClockedTime", "toDay": getDate});
     try {
       final res = await http.get(
@@ -60,12 +60,12 @@ class AttendanceApi {
     final reas = reason.isEmpty ? null : reason;
     final res = await http.post(
       Uri.parse(
-        '$baseUrl/clock_attendance.php?id=$id&clock=$clockType&location=$location&authType=$authType',
+        '$baseUrl/attandance/attandance.php?id=$id&clock=$clockType&location=$location&authType=$authType',
       ),
       body: reas == null ? null : json.encode({"reason": reason}),
       headers: {"Content-Type": "application/json"},
     );
-    // print(res.body);
+    print("[Info] postColock res body :: ${res.body}");
     if (res.statusCode >= 400 && res.statusCode < 500) {
       throw ApiException(ApiError.fromJson(jsonDecode(res.body)));
     }

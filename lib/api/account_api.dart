@@ -22,7 +22,6 @@ class AccountApi {
       throw ApiException(ApiError.fromJson(jsonDecode(res.body)));
     }
     final jsBody = jsonDecode(res.body);
-    print(jsBody);
     return Profile.fromApiJson(jsBody["profile"]);
   }
 

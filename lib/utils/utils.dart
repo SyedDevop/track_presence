@@ -25,7 +25,8 @@ String durationToHrMin(Duration d) {
 }
 
 DateFormat dateFormat = DateFormat("yyyy-MM-dd h:mm a");
-
+DateFormat dateFormat24 = DateFormat("yyyy-MM-dd HH:mm");
+DateFormat dateFormat2 = DateFormat("dd-MM-yyyy h:mm a");
 Duration calDiff(String date, String inTime, String? outTime) {
   if (outTime == null) return Duration.zero;
   final inT = dateFormat.parse("$date $inTime".toUpperCase());
