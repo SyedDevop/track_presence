@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
@@ -64,7 +62,8 @@ class _MyHomePageState extends State<MyHomePage> {
       shiftTime = gotsShiftTime;
       clockedTime = gotClockedTime;
       if (gotsShiftTime != null) {
-        strSiftTime = "${gotsShiftTime.fromTime} -/- ${gotsShiftTime.toTime}";
+        strSiftTime =
+            "${gotsShiftTime.fromTime}\n To \n${gotsShiftTime.toTime}";
         strSiftdate = "${gotsShiftTime.fromDate} -/- ${gotsShiftTime.toDate}";
       }
       strClockTime =
@@ -142,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   BannerAd? _bannerAd;
-  bool _isAdLoaded = false;
+  final bool _isAdLoaded = false;
   // final adUnitId = 'ca-app-pub-2791763544217577/3961842060';
   //
   // void loadAd() async {
@@ -199,11 +198,11 @@ class _MyHomePageState extends State<MyHomePage> {
                           TimeInfo(
                             header: "Shift",
                             childens: [
-                              TimePrimeryView(time: strSiftTime),
+                              TimePrimeryView(time: strSiftTime, fontSize: 14),
                               const SizedBox(height: 10),
                               TimeSecondaryView(
-                                  time:
-                                      shiftTime?.shiftHours ?? "-- hr -- min"),
+                                time: shiftTime?.shiftHours ?? "-- hr -- min",
+                              ),
                               const Divider(),
                               TimeSecondaryView(time: strSiftdate),
                             ],
@@ -504,9 +503,11 @@ class TimePrimeryView extends StatelessWidget {
   const TimePrimeryView({
     super.key,
     required this.time,
+    this.fontSize = 16,
   });
 
   final String time;
+  final double? fontSize;
 
   @override
   Widget build(BuildContext context) {
@@ -519,8 +520,9 @@ class TimePrimeryView extends StatelessWidget {
         const SizedBox(width: 8),
         Text(
           time,
-          style: const TextStyle(
-            fontSize: 16,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: fontSize,
             fontWeight: FontWeight.w500,
             color: Colors.white70, // Slightly lighter than white
           ),

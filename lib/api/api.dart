@@ -4,7 +4,7 @@ import 'package:vcare_attendance/api/leave_api.dart';
 import 'package:vcare_attendance/api/shift.dart';
 import 'package:vcare_attendance/api/user_api.dart';
 
-const kBaseApi = "https://vcarehospital.in/hmsversion8.2/payroll/api";
+const kBaseApi = "http://192.168.1.120:6969/api";
 
 class Api {
   static LeaveApi leave = LeaveApi(baseUrl: kBaseApi);

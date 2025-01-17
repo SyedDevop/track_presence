@@ -1,13 +1,8 @@
 import 'package:intl/intl.dart';
 import 'package:vcare_attendance/utils/utils.dart';
 
-DateFormat dateFormat = DateFormat("dd/MM/yyyy h:mm a");
-Duration calDiff(String date, String inTime, String? outTime) {
-  if (outTime == null) return Duration.zero;
-  final inT = dateFormat.parse("$date $inTime".toUpperCase());
-  final outT = dateFormat.parse("$date $outTime".toUpperCase());
-  return outT.difference(inT);
-}
+DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm");
+DateFormat dateFormat2 = DateFormat("dd-MM-yyyy h:mm a");
 
 class ShiftTime {
   final String name;
@@ -25,17 +20,16 @@ class ShiftTime {
     required this.shiftHours,
   });
   static ShiftTime fromMap(Map<String, dynamic> data) {
-    final shH = durationToHrMin(calDiff(
-      data["to_date"],
-      data["from_time"],
-      data["to_time"],
-    ));
+    final inT = dateFormat.parse(data["from_time"]);
+    final outT = dateFormat.parse(data["to_time"]);
+    final shH = durationToHrMin(outT.difference(inT));
+
     return ShiftTime(
       name: data["emp_name"],
-      fromTime: data["from_time"],
+      fromTime: dateFormat2.format(inT),
       fromDate: data["from_date"],
       toDate: data["to_date"],
-      toTime: data["to_time"],
+      toTime: dateFormat2.format(outT),
       shiftHours: shH,
     );
   }
