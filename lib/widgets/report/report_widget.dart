@@ -62,7 +62,7 @@ Iterable<Widget> genrateExtraHours(List<ExtraHourReport> exHr) {
         ReportSheetRow(
           leadingIcon: Icons.work_history,
           leadingText: "Working Hours:",
-          trailingText: durationToHrMin(calDiff(e.date, e.inTime, e.outTime)),
+          trailingText: durationToHrMin(calDiff(e.inTime, e.outTime)),
         ),
         ReportSheetRow(
           leadingIcon: Icons.help_rounded,
@@ -85,7 +85,7 @@ class FullAttendancesReport extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final shiftHours = calDiff(item.date, item.inTime, item.outTime);
+    final shiftHours = calDiff(item.inTime, item.outTime);
     final shiftHoursStr = durationToHrMin(shiftHours);
     return SizedBox.expand(
       child: Padding(

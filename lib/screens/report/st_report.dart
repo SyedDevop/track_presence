@@ -41,7 +41,7 @@ class _StReportScreenState extends State<StReportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Shifts Summary")),
+      appBar: AppBar(title: const Text("Shifts Summery")),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : Padding(

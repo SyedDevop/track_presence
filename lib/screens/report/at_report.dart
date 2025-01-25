@@ -66,7 +66,7 @@ class _AtReportScreenState extends State<AtReportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Attendance Summary')),
+      appBar: AppBar(title: const Text('Attendance Summery')),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
@@ -241,15 +241,15 @@ class _AtReportScreenState extends State<AtReportScreen> {
     if (rep == null) return;
     for (var at in rep.attendance) {
       for (var e in at.extraHours) {
-        toExtraTime += calDiff(e.date, e.inTime, e.outTime);
+        toExtraTime += calDiff(e.inTime, e.outTime);
       }
 
       if (at.outTime == null || at.status == "0") continue;
-      toShiftTime += calDiff(at.date, at.inTime, at.outTime);
+      toShiftTime += calDiff(at.inTime, at.outTime);
     }
     rep.extraHours.forEach((_, v) {
       for (var e in v) {
-        toExtraTime += calDiff(e.date, e.inTime, e.outTime);
+        toExtraTime += calDiff(e.inTime, e.outTime);
       }
     });
   }
