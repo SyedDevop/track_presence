@@ -6,11 +6,11 @@ import 'package:vcare_attendance/models/time.dart';
 
 class ShiftApi {
   String baseUrl;
-  late String shiftTimeurl;
-  late String shifturl;
+  late String shiftTimeUrl;
+  late String shiftUrl;
   ShiftApi({required this.baseUrl}) {
-    shifturl = "$baseUrl/get_shifts.php";
-    shiftTimeurl = "$baseUrl/get_shifttime.php";
+    shiftUrl = "$baseUrl/get_shifts.php";
+    shiftTimeUrl = "$baseUrl/get_shifttime.php";
   }
 
   Future<ShiftReport?> getShifts(
@@ -20,7 +20,7 @@ class ShiftApi {
   ) async {
     try {
       final res = await http.post(
-        Uri.parse(shifturl),
+        Uri.parse(shiftUrl),
         body: json.encode({"id": id, "from-date": fromDate, "to-date": toDate}),
         headers: {"Content-Type": "application/json"},
       );
@@ -34,7 +34,7 @@ class ShiftApi {
 
   Future<ShiftTime?> getShifttime(String id) async {
     try {
-      final res = await http.get(Uri.parse('$shiftTimeurl?id=$id'));
+      final res = await http.get(Uri.parse('$shiftTimeUrl?id=$id'));
       if (res.statusCode != 200) return null;
       return ShiftTime.fromMap(jsonDecode(res.body));
     } catch (e) {
