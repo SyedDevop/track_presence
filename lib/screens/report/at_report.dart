@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/getit.dart';
+import 'package:vcare_attendance/models/attendance_model.dart';
+import 'package:vcare_attendance/models/extra_hour_modeal.dart';
 import 'package:vcare_attendance/models/profile_model.dart';
 import 'package:vcare_attendance/models/report_model.dart';
 import 'package:vcare_attendance/services/state.dart';
@@ -36,6 +38,12 @@ class _AtReportScreenState extends State<AtReportScreen> {
 
   /// Total Entrys
   int toEntry = 0;
+  int presentCount = 0;
+  int absentCount = 0;
+  int overtimeCount = 0;
+  int extraDayCount = 0;
+  int leaveCount = 0;
+  int holidayCount = 0;
 
   Duration toShiftTime = Duration.zero;
   Duration toExtraTime = Duration.zero;
@@ -62,6 +70,18 @@ class _AtReportScreenState extends State<AtReportScreen> {
     reverseDuration: const Duration(seconds: 1),
     curve: Curves.fastLinearToSlowEaseIn,
   );
+  void _resetSummery() {
+    toEntry = 0;
+    presentCount = 0;
+    absentCount = 0;
+    overtimeCount = 0;
+    extraDayCount = 0;
+    leaveCount = 0;
+    holidayCount = 0;
+    toShiftTime = Duration.zero;
+    toExtraTime = Duration.zero;
+    toWorkTime = Duration.zero;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,44 +139,51 @@ class _AtReportScreenState extends State<AtReportScreen> {
                         const SliverToBoxAdapter(
                             child: ReportHeader("Attendance")),
                         SliverList.builder(
-                          itemCount: report?.attendance.length,
+                          itemCount: report?.data.length,
                           itemBuilder: (context, index) {
                             if (report == null) return null;
-                            final atten = report!.attendance;
-                            final item = atten[index];
-                            final statusColor = item.status == "1"
-                                ? Colors.greenAccent
-                                : Colors.redAccent;
-                            return AttendanceCard(
-                              item.date1,
-                              statusColor: statusColor,
-                              inTime: item.inTime,
-                              outTime: item.outTime ?? "--:--:--",
-                              extraHourCount: item.extraHours.length,
-                              onTap: () => _showAtFullReport(context, item),
-                            );
+                            final data = report!.data[index];
+                            final atten = data.attendance;
+                            final isShift = data.shift;
+                            final isLeave = data.leaveStatus == "Approved";
+                            final extraHour = data.extraHour;
+                            overtimeCount += extraHour.length;
+                            if (atten != null) {
+                              presentCount += 1;
+                              return AttendanceCard(
+                                data.date,
+                                statusColor: Colors.greenAccent,
+                                inTime: atten.inTime,
+                                outTime: atten.outTime ?? "--:--:--",
+                                extraHourCount: extraHour.length,
+                                onTap: () => _showAtFullReport(
+                                    context, atten, extraHour),
+                              );
+                            } else if (extraHour.isNotEmpty) {
+                              extraDayCount += 1;
+                              return ExtraHourCard(
+                                statusColor: Colors.greenAccent,
+                                title: data.date,
+                                count: extraHour.length,
+                                onTap: () => _showExFullReport(
+                                    context, data.date, extraHour),
+                              );
+                            } else if (isShift == true && isLeave == false) {
+                              absentCount += 1;
+                              return AbsentCard(
+                                data.date,
+                                onTap: () => (),
+                              );
+                            } else if (isLeave == true) {
+                              leaveCount += 1;
+                              return LeaveCard(data.date);
+                            } else if (isShift == false && isLeave == false) {
+                              holidayCount += 1;
+                              return HolidayCard(data.date);
+                            }
+                            return null;
                           },
                         ),
-                        const SliverToBoxAdapter(
-                            child: ReportHeader("Extra Hours")),
-                        SliverList.builder(
-                          itemCount: extraHoursKeys?.length,
-                          itemBuilder: (context, index) {
-                            if (report == null && extraHoursKeys == null) {
-                              return null;
-                            }
-                            final atKey = extraHoursKeys![index];
-                            final atten = report!.extraHours[atKey]!;
-                            const statusColor = Colors.greenAccent;
-                            return ExtraHourCard(
-                              statusColor: statusColor,
-                              title: atKey,
-                              count: atten.length,
-                              onTap: () =>
-                                  _showExFullReport(context, atKey, atten),
-                            );
-                          },
-                        )
                       ],
                     ),
                   ),
@@ -190,15 +217,10 @@ class _AtReportScreenState extends State<AtReportScreen> {
         _loading = true;
       });
       try {
-        toExtraTime = Duration.zero;
-        toShiftTime = Duration.zero;
-        toWorkTime = Duration.zero;
+        _resetSummery();
         final emp = "${_profile?.name ?? " "}-${_profile?.userId ?? " "}";
         final rep = await _attendanceApi.getReport(emp, month, year);
-        setState(() {
-          report = rep;
-          extraHoursKeys = rep?.extraHours.keys.toList();
-        });
+        setState(() => report = rep);
         calculateTimes(rep);
         toWorkTime = toExtraTime + toShiftTime;
       } catch (e) {
@@ -213,19 +235,20 @@ class _AtReportScreenState extends State<AtReportScreen> {
 
   void _showAtFullReport(
     BuildContext context,
-    AttendanceReport attendance,
+    Attendance attendance,
+    List<ExtraHour> extraHour,
   ) {
     showModalBottomSheet(
       context: context,
       sheetAnimationStyle: _animationStyle,
       elevation: 4,
       builder: (BuildContext context) =>
-          FullAttendancesReport(item: attendance),
+          FullAttendancesReport(attendance: attendance, extraHours: extraHour),
     );
   }
 
-  void _showExFullReport(BuildContext context, String extraHourDate,
-      List<ExtraHourReport> extraHour) {
+  void _showExFullReport(
+      BuildContext context, String extraHourDate, List<ExtraHour> extraHour) {
     showModalBottomSheet(
       context: context,
       sheetAnimationStyle: _animationStyle,
@@ -239,33 +262,44 @@ class _AtReportScreenState extends State<AtReportScreen> {
 
   void calculateTimes(Report? rep) {
     if (rep == null) return;
-    for (var at in rep.attendance) {
-      for (var e in at.extraHours) {
-        toExtraTime += calDiff(e.inTime, e.outTime);
-      }
 
-      if (at.outTime == null || at.status == "0") continue;
-      toShiftTime += calDiff(at.inTime, at.outTime);
-    }
-    rep.extraHours.forEach((_, v) {
-      for (var e in v) {
-        toExtraTime += calDiff(e.inTime, e.outTime);
+    for (var data in rep.data) {
+      final atten = data.attendance;
+      final isShift = data.shift;
+      final isLeave = data.leaveStatus == "Approved";
+      final extraHour = data.extraHour;
+
+      // Calculate attendance summary
+      if (atten != null) {
+        presentCount += 1;
+        toEntry += extraHour.length + 1;
+        toShiftTime += calDiff(atten.inTime, atten.outTime);
+      } else if (extraHour.isNotEmpty) {
+        toEntry += extraHour.length;
+        extraDayCount += 1;
+      } else if (isShift == true && isLeave == false) {
+        absentCount += 1;
+      } else if (isLeave == true) {
+        leaveCount += 1;
+      } else if (isShift == false && isLeave == false) {
+        holidayCount += 1;
       }
-    });
+      for (var exh in data.extraHour) {
+        toExtraTime += calDiff(exh.inTime, exh.outTime);
+      }
+    }
   }
 
   List<Widget> _summeryRow() {
     return [
-      numberBlock(
-          "Present", report?.info.presentCount ?? "0", Colors.greenAccent),
-      numberBlock("Absent", report?.info.absentCount ?? "0", Colors.redAccent),
-      numberBlock("Total Entry", "$toEntry", Colors.yellowAccent),
-      timeBlock(
-          "Total Shift Hour", durationToHrMin(toShiftTime), Colors.tealAccent),
-      timeBlock(
-          "Total Extra Hour", durationToHrMin(toExtraTime), Colors.blueAccent),
-      timeBlock(
-          "Total Worked Hour", durationToHrMin(toWorkTime), Colors.cyanAccent),
+      numberBlock("Present", "$presentCount", Colors.greenAccent),
+      numberBlock("Absent", "$absentCount", Colors.redAccent),
+      numberBlock("Leave", "$leaveCount", Colors.blueAccent),
+      numberBlock("Holiday", "$holidayCount", Colors.yellowAccent),
+      numberBlock("Total Entry", "$toEntry", Colors.orangeAccent),
+      timeBlock("Total Shift Hour", durationToHrMin(toShiftTime), Colors.teal),
+      timeBlock("Total Extra Hour", durationToHrMin(toExtraTime), Colors.blue),
+      timeBlock("Total Worked Hour", durationToHrMin(toWorkTime), Colors.cyan),
     ];
   }
 }

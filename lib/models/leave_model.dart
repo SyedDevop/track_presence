@@ -82,3 +82,5 @@ class Leave {
         "department": department,
       };
 }
+
+enum LeaveStatus { approved, declined, pending }

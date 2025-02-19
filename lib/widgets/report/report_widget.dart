@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:readmore/readmore.dart';
-import 'package:vcare_attendance/models/report_model.dart';
+import 'package:vcare_attendance/models/attendance_model.dart';
+import 'package:vcare_attendance/models/extra_hour_modeal.dart';
 import 'package:vcare_attendance/utils/utils.dart';
 
 enum ReportType { attendance, extraHour }
@@ -27,7 +28,7 @@ class FullExtraHoursReport extends StatelessWidget {
     required this.extraHourDate,
   });
 
-  final List<ExtraHourReport> extraHour;
+  final List<ExtraHour> extraHour;
   final String extraHourDate;
 
   @override
@@ -50,7 +51,7 @@ class FullExtraHoursReport extends StatelessWidget {
   }
 }
 
-Iterable<Widget> genrateExtraHours(List<ExtraHourReport> exHr) {
+Iterable<Widget> genrateExtraHours(List<ExtraHour> exHr) {
   return exHr.map(
     (e) => Column(
       children: [
@@ -78,14 +79,15 @@ Iterable<Widget> genrateExtraHours(List<ExtraHourReport> exHr) {
 class FullAttendancesReport extends StatelessWidget {
   const FullAttendancesReport({
     super.key,
-    required this.item,
+    required this.attendance,
+    required this.extraHours,
   });
 
-  final AttendanceReport item;
-
+  final Attendance attendance;
+  final List<ExtraHour> extraHours;
   @override
   Widget build(BuildContext context) {
-    final shiftHours = calDiff(item.inTime, item.outTime);
+    final shiftHours = calDiff(attendance.inTime, attendance.outTime);
     final shiftHoursStr = durationToHrMin(shiftHours);
     return SizedBox.expand(
       child: Padding(
@@ -94,17 +96,17 @@ class FullAttendancesReport extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ReportSheetTitle(date: item.date1),
+              ReportSheetTitle(date: attendance.date1),
               const Divider(),
               ReportSheetRow(
                 leadingIcon: Icons.update_rounded,
                 leadingText: "In Time: ",
-                trailingText: item.inTime,
+                trailingText: attendance.inTime,
               ),
               ReportSheetRow(
                 leadingIcon: Icons.history_rounded,
                 leadingText: "Out Time:",
-                trailingText: item.outTime,
+                trailingText: attendance.outTime,
               ),
               ReportSheetRow(
                 leadingIcon: Icons.work_history,
@@ -114,37 +116,37 @@ class FullAttendancesReport extends StatelessWidget {
               ReportSheetRow(
                 leadingIcon: Icons.hourglass_bottom_rounded,
                 leadingText: "Loss Of Hours:",
-                trailingText: minToHrMin(item.lossOfHours),
+                trailingText: minToHrMin(attendance.lossOfHours),
               ),
               ReportSheetRow(
                 leadingIcon: Icons.alarm_add_rounded,
                 leadingText: "Over time:",
-                trailingText: minToHrMin(item.maintainance),
+                trailingText: minToHrMin(attendance.maintainance),
               ),
               const Divider(),
               ReportSheetRow(
                 leadingIcon: Icons.schedule_rounded,
                 leadingText: "Shift Timing:",
-                trailingText: item.shiftTime,
+                trailingText: attendance.shiftTime,
               ),
               const Divider(),
               ReportSheetRow(
                 leadingIcon: Icons.help_rounded,
                 leadingText: "Reason:",
-                trailingText: item.reason,
+                trailingText: attendance.reason,
               ),
               ReportSheetRow(
                 leadingIcon: Icons.help_rounded,
                 leadingText: "Reason For Late:",
-                trailingText: item.reasonLate,
+                trailingText: attendance.reasonLate,
               ),
               ReportSheetRow(
                 leadingIcon: Icons.help_rounded,
                 leadingText: "Reason For Early:",
-                trailingText: item.reasonEarly,
+                trailingText: attendance.reasonEarly,
               ),
-              if (item.extraHours.isNotEmpty) const Divider(),
-              ...genrateExtraHours(item.extraHours),
+              if (extraHours.isNotEmpty) const Divider(),
+              ...genrateExtraHours(extraHours),
             ],
           ),
         ),
@@ -230,6 +232,93 @@ class ReportSheetTitle extends StatelessWidget {
             style: TextStyle(color: pColor),
           )
         ],
+      ),
+    );
+  }
+}
+
+class HolidayCard extends StatelessWidget {
+  const HolidayCard(
+    this.title, {
+    super.key,
+    this.onTap,
+  });
+
+  final String title;
+  final void Function()? onTap;
+
+  final statusColor = Colors.yellowAccent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2.5,
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: statusColor.withOpacity(0.2),
+          child: Icon(Icons.calendar_today_rounded, color: statusColor),
+        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        trailing: const Icon(Icons.read_more_rounded),
+        onTap: onTap,
+      ),
+    );
+  }
+}
+
+class LeaveCard extends StatelessWidget {
+  const LeaveCard(
+    this.title, {
+    super.key,
+    this.onTap,
+  });
+
+  final String title;
+  final void Function()? onTap;
+
+  final statusColor = Colors.blueAccent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2.5,
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: statusColor.withOpacity(0.2),
+          child: Icon(Icons.calendar_today_rounded, color: statusColor),
+        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        trailing: const Icon(Icons.read_more_rounded),
+        onTap: onTap,
+      ),
+    );
+  }
+}
+
+class AbsentCard extends StatelessWidget {
+  const AbsentCard(
+    this.title, {
+    super.key,
+    this.onTap,
+  });
+
+  final String title;
+  final void Function()? onTap;
+
+  final statusColor = Colors.redAccent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2.5,
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: statusColor.withOpacity(0.2),
+          child: Icon(Icons.calendar_today_rounded, color: statusColor),
+        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        trailing: const Icon(Icons.read_more_rounded),
+        onTap: onTap,
       ),
     );
   }

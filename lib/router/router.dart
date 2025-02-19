@@ -1,9 +1,11 @@
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vcare_attendance/db/databse_helper.dart';
 import 'package:vcare_attendance/db/profile_db.dart';
 
 import 'package:vcare_attendance/router/router_name.dart';
 import 'package:vcare_attendance/screens/screen.dart';
+import 'package:vcare_attendance/utils/utils.dart';
 
 // GoRouter configuration
 final router = GoRouter(
@@ -78,7 +80,10 @@ final router = GoRouter(
       }
       return RouteNames.loginPath;
     }
-    if (user.isEmpty) {
+    DeviceInfoPlugin df = DeviceInfoPlugin();
+    final af = await df.androidInfo;
+    final isEmu = await af.isPhysicalDevice;
+    if (isEmu && user.isEmpty) {
       if (urlPath == RouteNames.registerScanPath ||
           urlPath == RouteNames.registerPath) return null;
       return RouteNames.registerPath;
