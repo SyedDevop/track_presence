@@ -5,6 +5,7 @@ import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/attendance_model.dart';
 import 'package:vcare_attendance/models/extra_hour_modeal.dart';
+import 'package:vcare_attendance/models/leave_model.dart';
 import 'package:vcare_attendance/models/profile_model.dart';
 import 'package:vcare_attendance/models/report_model.dart';
 import 'package:vcare_attendance/services/state.dart';
@@ -51,6 +52,7 @@ class _AtReportScreenState extends State<AtReportScreen> {
 
   bool _loading = false;
 
+  DateTime currentDate = DateTime.now();
   @override
   void initState() {
     super.initState();
@@ -58,6 +60,11 @@ class _AtReportScreenState extends State<AtReportScreen> {
   }
 
   Future<void> _start() async {
+    currentDate = DateTime(
+      currentDate.year,
+      currentDate.month,
+      currentDate.day,
+    );
     _profile = _stateSR.profile;
   }
 
@@ -143,6 +150,14 @@ class _AtReportScreenState extends State<AtReportScreen> {
                           itemBuilder: (context, index) {
                             if (report == null) return null;
                             final data = report!.data[index];
+                            DateTime givenDate = DateTime.parse(
+                              data.date,
+                            ); // Assuming user.date is a valid ISO 8601 string
+                            givenDate = DateTime(
+                                givenDate.year, givenDate.month, givenDate.day);
+
+                            if (currentDate.isBefore(givenDate)) return null;
+
                             final atten = data.attendance;
                             final isShift = data.shift;
                             final isLeave = data.leaveStatus == "Approved";
@@ -152,34 +167,41 @@ class _AtReportScreenState extends State<AtReportScreen> {
                               presentCount += 1;
                               return AttendanceCard(
                                 data.date,
-                                statusColor: Colors.greenAccent,
                                 inTime: atten.inTime,
                                 outTime: atten.outTime ?? "--:--:--",
                                 extraHourCount: extraHour.length,
                                 onTap: () => _showAtFullReport(
-                                    context, atten, extraHour),
+                                    context, atten, extraHour, data.leave),
                               );
                             } else if (extraHour.isNotEmpty) {
                               extraDayCount += 1;
                               return ExtraHourCard(
-                                statusColor: Colors.greenAccent,
                                 title: data.date,
                                 count: extraHour.length,
                                 onTap: () => _showExFullReport(
-                                    context, data.date, extraHour),
+                                    context, data.date, extraHour, data.leave),
                               );
                             } else if (isShift == true && isLeave == false) {
                               absentCount += 1;
                               return AbsentCard(
                                 data.date,
-                                onTap: () => (),
+                                onTap: () => _showExFullReport(
+                                    context, data.date, extraHour, data.leave),
                               );
                             } else if (isLeave == true) {
                               leaveCount += 1;
-                              return LeaveCard(data.date);
+                              return LeaveCard(
+                                data.date,
+                                onTap: () => _showExFullReport(
+                                    context, data.date, extraHour, data.leave),
+                              );
                             } else if (isShift == false && isLeave == false) {
                               holidayCount += 1;
-                              return HolidayCard(data.date);
+                              return HolidayCard(
+                                data.date,
+                                onTap: () => _showExFullReport(
+                                    context, data.date, extraHour, data.leave),
+                              );
                             }
                             return null;
                           },
@@ -237,18 +259,19 @@ class _AtReportScreenState extends State<AtReportScreen> {
     BuildContext context,
     Attendance attendance,
     List<ExtraHour> extraHour,
+    Leave? leave,
   ) {
     showModalBottomSheet(
       context: context,
       sheetAnimationStyle: _animationStyle,
       elevation: 4,
-      builder: (BuildContext context) =>
-          FullAttendancesReport(attendance: attendance, extraHours: extraHour),
+      builder: (BuildContext context) => FullAttendancesReport(
+          attendance: attendance, extraHours: extraHour, leave: leave),
     );
   }
 
-  void _showExFullReport(
-      BuildContext context, String extraHourDate, List<ExtraHour> extraHour) {
+  void _showExFullReport(BuildContext context, String extraHourDate,
+      List<ExtraHour> extraHour, Leave? leave) {
     showModalBottomSheet(
       context: context,
       sheetAnimationStyle: _animationStyle,
@@ -256,6 +279,7 @@ class _AtReportScreenState extends State<AtReportScreen> {
       builder: (BuildContext context) => FullExtraHoursReport(
         extraHourDate: extraHourDate,
         extraHour: extraHour,
+        leave: leave,
       ),
     );
   }
@@ -264,6 +288,16 @@ class _AtReportScreenState extends State<AtReportScreen> {
     if (rep == null) return;
 
     for (var data in rep.data) {
+      DateTime givenDate = DateTime.parse(
+        data.date,
+      ); // Assuming user.date is a valid ISO 8601 string
+      givenDate = DateTime(
+        givenDate.year,
+        givenDate.month,
+        givenDate.day,
+      ); // Reset time to 00:00:00
+
+      if (currentDate.isBefore(givenDate)) break;
       final atten = data.attendance;
       final isShift = data.shift;
       final isLeave = data.leaveStatus == "Approved";
