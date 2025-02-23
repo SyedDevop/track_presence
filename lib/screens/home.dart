@@ -103,6 +103,12 @@ class _MyHomePageState extends State<MyHomePage> {
       currPoss.latitude,
       currPoss.longitude,
     );
+    double vcareWareHouseDistance = Geolocator.distanceBetween(
+      kVacreWareHouseCord.lat,
+      kVacreWareHouseCord.long,
+      currPoss.latitude,
+      currPoss.longitude,
+    );
     double mediDistance = Geolocator.distanceBetween(
       kMedisconCord.lat,
       kMedisconCord.long,
@@ -119,6 +125,7 @@ class _MyHomePageState extends State<MyHomePage> {
     print("[Info] Current Position: |$currPoss|");
     print("[Info] Distance between Current and Vcare : |$vcareDistance|");
     if (vcareDistance <= kminDistance ||
+        vcareWareHouseDistance <= kminDistance ||
         mediDistance <= kminDistance ||
         rizDistance <= kminDistance) {
       await context.pushNamed(

@@ -274,7 +274,7 @@ class _AttendanceBottomSheetState extends State<AttendanceBottomSheet> {
                   },
                 );
               }
-              if (e.error == kReasonRequired) {
+              if (e.error == kReasonRequired || e.error == kShiftNotFound) {
                 setState(() => _showReason = true);
               }
               return;

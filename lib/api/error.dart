@@ -15,6 +15,7 @@ const knotValidMethod = "not-valid-method";
 
 const kAlreadyClocked = "already-clocked ";
 const kReasonRequired = "reason-required";
+const kShiftNotFound = "shift-not-found";
 const kAttendanceNotFound = "attendance-not-found";
 const kReacchedOvertimeLimit = "reached-overtime-limit";
 

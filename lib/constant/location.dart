@@ -13,5 +13,8 @@ const kVacreCord = Cord(lat: 13.015923, long: 77.597281);
 /// [kMedisconCord] Coordination for Vcare Mediscon.
 const kMedisconCord = Cord(lat: 13.011386, long: 77.616240);
 
+/// [kVacreWareHouseCord] Coordination for Vcare Mediscon.
+const kVacreWareHouseCord = Cord(lat: 13.015602, long: 77.597355);
+
 /// [kRizHomeCord] Coordination for riz home
 const kRizHomeCord = Cord(lat: 12.942789, long: 77.591243);

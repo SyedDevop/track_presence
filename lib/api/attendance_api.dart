@@ -85,7 +85,7 @@ class AttendanceApi {
       final res = await http.post(
         Uri.parse('$baseUrl/get_report.php'),
         body: json.encode(
-          {"employee_id": employee, "month": month, "year": year}
+          {"employee_id": employee, "month": month, "year": year},
         ),
         headers: {"Content-Type": "application/json"},
       );

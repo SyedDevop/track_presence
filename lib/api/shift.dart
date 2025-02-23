@@ -3,14 +3,15 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:vcare_attendance/models/shift_report_modeal.dart';
 import 'package:vcare_attendance/models/time.dart';
+import 'package:vcare_attendance/utils/utils.dart';
 
 class ShiftApi {
   String baseUrl;
-  late String shiftTimeurl;
-  late String shifturl;
+  late String shiftTimeUrl;
+  late String shiftUrl;
   ShiftApi({required this.baseUrl}) {
-    shifturl = "$baseUrl/get_shifts.php";
-    shiftTimeurl = "$baseUrl/get_shifttime.php";
+    shiftUrl = "$baseUrl/get_shifts.php";
+    shiftTimeUrl = "$baseUrl/get_shifttime.php";
   }
 
   Future<ShiftReport?> getShifts(
@@ -20,7 +21,7 @@ class ShiftApi {
   ) async {
     try {
       final res = await http.post(
-        Uri.parse(shifturl),
+        Uri.parse(shiftUrl),
         body: json.encode({"id": id, "from-date": fromDate, "to-date": toDate}),
         headers: {"Content-Type": "application/json"},
       );
@@ -33,9 +34,13 @@ class ShiftApi {
   }
 
   Future<ShiftTime?> getShifttime(String id) async {
+    final toDay = dateFmtDMY.format(DateTime.now());
     try {
-      final res = await http.get(Uri.parse('$shiftTimeurl?id=$id'));
-      if (res.statusCode != 200) return null;
+      final res = await http.get(Uri.parse('$shiftTimeUrl?id=$id&date=$toDay'));
+      if (res.statusCode != 200) {
+        print("[Error] Api shift geting shiftTime data: ${res.body}");
+        return null;
+      }
       return ShiftTime.fromMap(jsonDecode(res.body));
     } catch (e) {
       print("[Error] Api shift geting shiftTime data: $e");
