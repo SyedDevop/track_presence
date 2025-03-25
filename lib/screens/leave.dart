@@ -160,7 +160,7 @@ class _LeaveScreenState extends State<LeaveScreen> {
                 TextFormField(
                   controller: _reasonCT,
                   keyboardType: TextInputType.text,
-                  textInputAction: TextInputAction.done,
+                  textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(
                     labelText: "Reason",
                     prefixIcon: Icon(Icons.psychology_alt_rounded),
@@ -171,7 +171,6 @@ class _LeaveScreenState extends State<LeaveScreen> {
                     }
                     return null;
                   },
-                  onFieldSubmitted: (_) => _submit(),
                 ),
                 const SizedBox(height: 25),
                 DropdownSearch<String>(

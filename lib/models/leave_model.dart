@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 
 class LeaveReport {
   List<Leave> data;
-  LeaveReport({
-    required this.data,
-  });
+  LeaveReport({required this.data});
 
   factory LeaveReport.fromRawJson(String str) =>
       LeaveReport.fromJson(json.decode(str));

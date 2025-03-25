@@ -4,8 +4,8 @@ import 'package:vcare_attendance/db/databse_helper.dart';
 import 'package:vcare_attendance/db/profile_db.dart';
 
 import 'package:vcare_attendance/router/router_name.dart';
+import 'package:vcare_attendance/screens/loan.dart';
 import 'package:vcare_attendance/screens/screen.dart';
-import 'package:vcare_attendance/utils/utils.dart';
 
 // GoRouter configuration
 final router = GoRouter(
@@ -20,6 +20,11 @@ final router = GoRouter(
       path: RouteNames.leavePath,
       name: RouteNames.leave,
       builder: (_, __) => const LeaveScreen(),
+    ),
+    GoRoute(
+      path: RouteNames.loanPath,
+      name: RouteNames.loan,
+      builder: (_, __) => const LoanScreen(),
     ),
     GoRoute(
         path: RouteNames.profilePath,

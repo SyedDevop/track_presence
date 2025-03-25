@@ -15,6 +15,10 @@ class RouteNames {
   static String leave = "leave";
   static String leavePath = "/leave";
 
+  /// Loan Screen path name no {Params || queryParams} required [loan]
+  static String loan = "loan";
+  static String loanPath = "/loan";
+
   /// Attendance Report Screen path name no {Params || queryParams} required [atReport]
   static String atReport = "at-report";
   static String atReportPath = "/at-report";

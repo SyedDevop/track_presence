@@ -54,6 +54,14 @@ class _AppDrawerState extends State<AppDrawer> {
                   },
                 ),
                 ListTile(
+                  leading: const Icon(Icons.money_rounded),
+                  title: const Text('Loan'),
+                  onTap: () {
+                    context.pop();
+                    context.pushNamed(RouteNames.loan);
+                  },
+                ),
+                ListTile(
                   leading: const Icon(Icons.person_2_rounded),
                   title: const Text('Profile'),
                   onTap: () {
