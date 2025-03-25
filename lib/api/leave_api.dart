@@ -24,6 +24,7 @@ class LeaveApi {
     required String fromDate,
     required String toDate,
     required String reason,
+    required String leaveType,
     required String department,
   }) async {
     final res = await http.post(
@@ -34,7 +35,8 @@ class LeaveApi {
         "from-date": fromDate,
         "to-date": toDate,
         "reason": reason,
-        "department": department
+        "department": department,
+        "leave_type": leaveType,
       }),
       headers: {"Content-Type": "application/json"},
     );

@@ -1,9 +1,11 @@
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/api/error.dart';
+import 'package:vcare_attendance/constant/holidays.dart';
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/leave_model.dart';
 import 'package:vcare_attendance/services/state.dart';
@@ -34,7 +36,7 @@ class _LeaveScreenState extends State<LeaveScreen> {
 
   final _reasonCT = TextEditingController(text: '');
   final _formKey = GlobalKey<FormState>();
-
+  final _leaveTypeKey = GlobalKey<DropdownSearchState<String>>();
   @override
   void initState() {
     super.initState();
@@ -94,14 +96,15 @@ class _LeaveScreenState extends State<LeaveScreen> {
   }
 
   Future<void> _submit() async {
-    if (mounted) context.pop();
     if (profile == null) {
       snackbarError(context, message: "User profile is not Set 😭");
+      if (mounted) context.pop();
       return;
     }
 
     if (range == null || range?.startDate == null || range?.endDate == null) {
       snackbarError(context, message: "Dates not selected for leave 😭");
+      if (mounted) context.pop();
       return;
     }
     if (_formKey.currentState!.validate()) {
@@ -115,6 +118,7 @@ class _LeaveScreenState extends State<LeaveScreen> {
           fromDate: fDate,
           toDate: tDate,
           reason: _reasonCT.text,
+          leaveType: _leaveTypeKey.currentState?.getSelectedItem as String,
           department: profile!.department ?? " None ",
         );
 
@@ -124,6 +128,8 @@ class _LeaveScreenState extends State<LeaveScreen> {
         snackbarError(context, message: "${e.message}  😭");
       } catch (e) {
         print("[Error]: Api Posting Leave error :: $e");
+      } finally {
+        if (mounted) context.pop();
       }
     }
   }
@@ -152,7 +158,6 @@ class _LeaveScreenState extends State<LeaveScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TextFormField(
-                  autofocus: true,
                   controller: _reasonCT,
                   keyboardType: TextInputType.text,
                   textInputAction: TextInputAction.done,
@@ -167,6 +172,36 @@ class _LeaveScreenState extends State<LeaveScreen> {
                     return null;
                   },
                   onFieldSubmitted: (_) => _submit(),
+                ),
+                const SizedBox(height: 25),
+                DropdownSearch<String>(
+                  key: _leaveTypeKey,
+                  autoValidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (String? i) {
+                    if (i == null) {
+                      return 'Leave Type is required';
+                    }
+                    return null;
+                  },
+                  items: (f, cs) => kHolidays,
+                  popupProps: const PopupProps.menu(
+                    fit: FlexFit.loose,
+                    showSelectedItems: true,
+                    showSearchBox: true,
+                    menuProps: MenuProps(
+                      backgroundColor: Color(0xff36454f),
+                      elevation: 4,
+                      borderRadius: BorderRadius.horizontal(
+                          left: Radius.circular(5), right: Radius.circular(5)),
+                    ),
+                  ),
+                  compareFn: (item1, item2) => item1 == item2,
+                  decoratorProps: const DropDownDecoratorProps(
+                    decoration: InputDecoration(
+                      labelText: "Select a Leave Type",
+                      hintText: "leave type...",
+                    ),
+                  ),
                 ),
               ],
             ),
