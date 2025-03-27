@@ -16,6 +16,25 @@ class LoanReport {
   }
 }
 
+class LoanFullReport {
+  Loan loan;
+  List<LoanPayemt> payments;
+  LoanFullReport({required this.loan, required this.payments});
+
+  factory LoanFullReport.formRawJson(String str) =>
+      LoanFullReport.fromJson(jsonDecode(str));
+
+  factory LoanFullReport.fromJson(Map<String, dynamic> json) {
+    print(json["data"]["loan_payments"]);
+    return LoanFullReport(
+      loan: Loan.fromJson(json["data"]["loan"]),
+      payments: List<LoanPayemt>.from(
+        json["data"]["loan_payments"].map((x) => LoanPayemt.fromJson(x)),
+      ),
+    );
+  }
+}
+
 class Loan {
   final int id;
   final String payrollId;
@@ -76,6 +95,58 @@ class Loan {
       'approval_status': approval,
       'credited': credited ? 1 : 0,
       'approved_by': approvedBy,
+    };
+  }
+}
+
+class LoanPayemt {
+  final int id;
+  final int loanRefId;
+  final int payrollRefId;
+  final String employeeId;
+  final String paymentDate;
+  final double amountPaid;
+  final double balance;
+  final bool payrollDeducted;
+  final bool credited;
+
+  LoanPayemt({
+    required this.id,
+    required this.loanRefId,
+    required this.payrollRefId,
+    required this.employeeId,
+    required this.paymentDate,
+    required this.amountPaid,
+    required this.balance,
+    required this.payrollDeducted,
+    required this.credited,
+  });
+
+  factory LoanPayemt.fromJson(Map<String, dynamic> json) {
+    return LoanPayemt(
+      id: json['id'],
+      loanRefId: json['loan_ref_id'],
+      payrollRefId: json['payroll_ref_id'],
+      employeeId: json['employee_id'],
+      paymentDate: json['payment_date'],
+      amountPaid: double.tryParse(json['amount_paid']) ?? 0.0,
+      balance: double.tryParse(json['remaining_balance']) ?? 0.0,
+      payrollDeducted: json['payroll_deducted'] == 1,
+      credited: json['credited'] == 1,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'loan_ref_id': loanRefId,
+      'payroll_ref_id': payrollRefId,
+      'employee_id': employeeId,
+      'payment_date': paymentDate,
+      'amount_paid': amountPaid,
+      'remaining_balance': balance,
+      'payroll_deducted': payrollDeducted ? 1 : 0,
+      'credited': credited ? 1 : 0,
     };
   }
 }

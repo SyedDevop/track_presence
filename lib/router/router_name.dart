@@ -19,6 +19,14 @@ class RouteNames {
   static String loan = "loan";
   static String loanPath = "/loan";
 
+  /// Loan Summery Screen path name Params = {'id': 'vch1111'} no {queryParams} required [loanSummery]
+  static String loanSummery = "loan-summery";
+  static String loanSummeryPath = "/loan-summery:id";
+
+  /// payroll Screen path name no {Params || queryParams} required [payroll]
+  static String payroll = "payroll";
+  static String payrollPath = "/payroll";
+
   /// Attendance Report Screen path name no {Params || queryParams} required [atReport]
   static String atReport = "at-report";
   static String atReportPath = "/at-report";

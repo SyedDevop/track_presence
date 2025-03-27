@@ -4,7 +4,8 @@ import 'package:vcare_attendance/db/databse_helper.dart';
 import 'package:vcare_attendance/db/profile_db.dart';
 
 import 'package:vcare_attendance/router/router_name.dart';
-import 'package:vcare_attendance/screens/loan.dart';
+import 'package:vcare_attendance/screens/loan/loan.dart';
+import 'package:vcare_attendance/screens/loan/loan_summery.dart';
 import 'package:vcare_attendance/screens/screen.dart';
 
 // GoRouter configuration
@@ -26,6 +27,12 @@ final router = GoRouter(
       name: RouteNames.loan,
       builder: (_, __) => const LoanScreen(),
     ),
+    GoRoute(
+        path: RouteNames.loanSummeryPath,
+        name: RouteNames.loanSummery,
+        builder: (_, state) {
+          return LoanSummeryScreen(id: state.pathParameters['id']!);
+        }),
     GoRoute(
         path: RouteNames.profilePath,
         name: RouteNames.profile,

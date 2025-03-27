@@ -46,6 +46,14 @@ class _AppDrawerState extends State<AppDrawer> {
                   },
                 ),
                 ListTile(
+                  leading: const Icon(Icons.currency_rupee_rounded),
+                  title: const Text('Payroll Report'),
+                  onTap: () {
+                    context.pop();
+                    context.pushNamed(RouteNames.payroll);
+                  },
+                ),
+                ListTile(
                   leading: const Icon(Icons.flight_rounded),
                   title: const Text('Leaves'),
                   onTap: () {
@@ -54,7 +62,7 @@ class _AppDrawerState extends State<AppDrawer> {
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.money_rounded),
+                  leading: const Icon(Icons.credit_score_rounded),
                   title: const Text('Loan'),
                   onTap: () {
                     context.pop();
