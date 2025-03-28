@@ -2,6 +2,7 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 
 import 'package:vcare_attendance/api/api.dart';
+import 'package:vcare_attendance/constant/main.dart';
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/attendance_model.dart';
 import 'package:vcare_attendance/models/extra_hour_modeal.dart';
@@ -32,7 +33,7 @@ class _AtReportScreenState extends State<AtReportScreen> {
   int currYear = DateTime.now().year;
   int yearLinit = 10;
   int year = DateTime.now().year;
-  String month = months[DateTime.now().month - 1];
+  String month = kMonths[DateTime.now().month - 1];
 
   Report? report;
   List<String>? extraHoursKeys;
@@ -111,7 +112,7 @@ class _AtReportScreenState extends State<AtReportScreen> {
                           labelText: "Select Month",
                           hintText: "select a month.",
                           validationErrorText: "month is required.",
-                          items: (f, cs) => months,
+                          items: (f, cs) => kMonths,
                           onChanged: (p0) {
                             if (p0 != null) {
                               month = p0;

@@ -24,6 +24,16 @@ class LoanApi {
     return LoanFullReport.formRawJson(res.body);
   }
 
+  Future<List<LoanPayemt>> getLoanPaymentFromPayrollId(
+    String userId,
+    int payrollId,
+  ) async {
+    final fullurl = "$url?id=$userId&payroll_id=$payrollId";
+    final res = await http.get(Uri.parse(fullurl));
+    if (res.statusCode != 200) return [];
+    return loanPaymentListFromJson(res.body);
+  }
+
   Future<void> postLoan({
     required String userId,
     required double amount,

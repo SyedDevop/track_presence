@@ -99,6 +99,10 @@ class Loan {
   }
 }
 
+List<LoanPayemt> loanPaymentListFromJson(String str) => List<LoanPayemt>.from(
+      json.decode(str).map((x) => LoanPayemt.fromJson(x)),
+    );
+
 class LoanPayemt {
   final int id;
   final int loanRefId;
@@ -107,6 +111,7 @@ class LoanPayemt {
   final String paymentDate;
   final double amountPaid;
   final double balance;
+  final String? loanType;
   final bool payrollDeducted;
   final bool credited;
 
@@ -120,6 +125,7 @@ class LoanPayemt {
     required this.balance,
     required this.payrollDeducted,
     required this.credited,
+    this.loanType,
   });
 
   factory LoanPayemt.fromJson(Map<String, dynamic> json) {
@@ -133,6 +139,7 @@ class LoanPayemt {
       balance: double.tryParse(json['remaining_balance']) ?? 0.0,
       payrollDeducted: json['payroll_deducted'] == 1,
       credited: json['credited'] == 1,
+      loanType: json['loan_type'],
     );
   }
 
@@ -147,6 +154,7 @@ class LoanPayemt {
       'remaining_balance': balance,
       'payroll_deducted': payrollDeducted ? 1 : 0,
       'credited': credited ? 1 : 0,
+      'loan_type': loanType,
     };
   }
 }

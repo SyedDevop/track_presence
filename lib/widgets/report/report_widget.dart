@@ -7,21 +7,6 @@ import 'package:vcare_attendance/utils/utils.dart';
 
 enum ReportType { attendance, extraHour }
 
-const List<String> months = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December"
-];
-
 class FullExtraHoursReport extends StatelessWidget {
   const FullExtraHoursReport({
     super.key,
