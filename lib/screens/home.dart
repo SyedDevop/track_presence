@@ -49,33 +49,35 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _getTimes() async {
-    setState(() => _initializing = true);
-    ProfileDB pdb = ProfileDB.instance;
-    List<Profile> profile = await pdb.queryAllProfile();
-    final userId = profile.first.userId;
-    final gotsShiftTime = await _shiftApi.getShifttime(userId);
-    final gotClockedTime = await _attendanceApi.getColockedtime(userId);
-    final gotOt = await _attendanceApi.getOvertime(userId);
-    await _asSr.initProfile(userId);
+    try {
+      setState(() => _initializing = true);
+      ProfileDB pdb = ProfileDB.instance;
+      List<Profile> profile = await pdb.queryAllProfile();
+      final userId = profile.first.userId;
+      final gotsShiftTime = await _shiftApi.getShifttime(userId);
+      final gotClockedTime = await _attendanceApi.getColockedtime(userId);
+      final gotOt = await _attendanceApi.getOvertime(userId);
+      await _asSr.initProfile(userId);
 
-    setState(() {
-      shiftTime = gotsShiftTime;
-      clockedTime = gotClockedTime;
-      if (gotsShiftTime != null) {
-        strSiftTime =
-            "${gotsShiftTime.fromTime}\n To \n${gotsShiftTime.toTime}";
-        strSiftdate = "${gotsShiftTime.fromDate} -/- ${gotsShiftTime.toDate}";
-      }
-      strClockTime =
-          "${gotClockedTime?.inTime ?? "---:---"}\n To \n${gotClockedTime?.outTime ?? "---:---"}";
-      if (gotOt.isNotEmpty) {
-        overTime = gotOt;
-      } else {
-        overTime = null;
-      }
-    });
-
-    setState(() => _initializing = false);
+      setState(() {
+        shiftTime = gotsShiftTime;
+        clockedTime = gotClockedTime;
+        if (gotsShiftTime != null) {
+          strSiftTime =
+              "${gotsShiftTime.fromTime}\n To \n${gotsShiftTime.toTime}";
+          strSiftdate = "${gotsShiftTime.fromDate} -/- ${gotsShiftTime.toDate}";
+        }
+        strClockTime =
+            "${gotClockedTime?.inTime ?? "---:---"}\n To \n${gotClockedTime?.outTime ?? "---:---"}";
+        if (gotOt.isNotEmpty) {
+          overTime = gotOt;
+        } else {
+          overTime = null;
+        }
+      });
+    } finally {
+      setState(() => _initializing = false);
+    }
     return;
   }
 

@@ -50,7 +50,7 @@ class _AppDrawerState extends State<AppDrawer> {
                   title: const Text('Payroll Report'),
                   onTap: () {
                     context.pop();
-                    context.pushNamed(RouteNames.payroll);
+                    context.pushNamed(RouteNames.payrollDay);
                   },
                 ),
                 ListTile(

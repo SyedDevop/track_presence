@@ -9,10 +9,10 @@ class Payslip {
   String empId;
   String empName;
   String department;
-  int basicSalary;
-  int totalAllowances;
-  int totalDeductions;
-  int netSalary;
+  double basicSalary;
+  double totalAllowances;
+  double totalDeductions;
+  double netSalary;
   String date1;
   int status;
   int totalDays;
@@ -43,25 +43,26 @@ class Payslip {
     required this.lostDays,
   });
 
-  factory Payslip.fromRawJson(String str) => Payslip.fromJson(json.decode(str));
+  factory Payslip.fromRawJson(String str) =>
+      Payslip.fromJson(jsonDecode(str)["data"]);
 
   factory Payslip.fromJson(Map<String, dynamic> json) => Payslip(
         id: json["id"],
         empId: json["emp_id"],
         empName: json["emp_name"],
         department: json["department"],
-        basicSalary: json["basic_salary"],
-        totalAllowances: json["total_allowances"],
-        totalDeductions: json["total_deductions"],
-        netSalary: json["net_salary"],
+        basicSalary: (json["basic_salary"] as num).toDouble(),
+        totalAllowances: (json["total_allowances"] as num).toDouble(),
+        totalDeductions: (json["total_deductions"] as num).toDouble(),
+        netSalary: (json["net_salary"] as num).toDouble(),
         date1: json["date1"],
         status: json["status"],
         totalDays: json["total_days"],
         daysSalary: json["days_salary"],
         extraHrs: json["extra_hrs"],
         extraOtHrs: json["extra_ot_hrs"],
-        allowances: json["allowances"],
-        deductions: json["deductions"],
+        allowances: jsonDecode(json["allowances"]),
+        deductions: jsonDecode(json["deductions"]),
         lostDays: json["lost_days"],
       );
 

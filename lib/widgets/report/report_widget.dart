@@ -190,18 +190,20 @@ class ReportSheetRow extends StatelessWidget {
     this.leadingIcon,
     required this.leadingText,
     this.trailingText,
+    this.padding = const EdgeInsets.symmetric(vertical: 10),
   });
 
   final IconData? leadingIcon;
   final String leadingText;
   final String? trailingText;
+  final EdgeInsets padding;
 
   TextStyle _leadTextStyle(BuildContext context) =>
       TextStyle(color: Theme.of(context).colorScheme.secondaryFixed);
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: padding,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

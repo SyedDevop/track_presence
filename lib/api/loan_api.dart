@@ -24,7 +24,7 @@ class LoanApi {
     return LoanFullReport.formRawJson(res.body);
   }
 
-  Future<List<LoanPayemt>> getLoanPaymentFromPayrollId(
+  Future<List<LoanPayment>> getLoanPaymentFromPayrollId(
     String userId,
     int payrollId,
   ) async {

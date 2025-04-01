@@ -113,7 +113,7 @@ class LoanPaymentTile extends StatelessWidget {
     required this.payment,
   });
 
-  final LoanPayemt payment;
+  final LoanPayment payment;
 
   @override
   Widget build(BuildContext context) {

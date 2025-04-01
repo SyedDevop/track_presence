@@ -18,7 +18,7 @@ class LoanReport {
 
 class LoanFullReport {
   Loan loan;
-  List<LoanPayemt> payments;
+  List<LoanPayment> payments;
   LoanFullReport({required this.loan, required this.payments});
 
   factory LoanFullReport.formRawJson(String str) =>
@@ -28,8 +28,8 @@ class LoanFullReport {
     print(json["data"]["loan_payments"]);
     return LoanFullReport(
       loan: Loan.fromJson(json["data"]["loan"]),
-      payments: List<LoanPayemt>.from(
-        json["data"]["loan_payments"].map((x) => LoanPayemt.fromJson(x)),
+      payments: List<LoanPayment>.from(
+        json["data"]["loan_payments"].map((x) => LoanPayment.fromJson(x)),
       ),
     );
   }
@@ -99,11 +99,11 @@ class Loan {
   }
 }
 
-List<LoanPayemt> loanPaymentListFromJson(String str) => List<LoanPayemt>.from(
-      json.decode(str).map((x) => LoanPayemt.fromJson(x)),
+List<LoanPayment> loanPaymentListFromJson(String str) => List<LoanPayment>.from(
+      json.decode(str)["data"].map((x) => LoanPayment.fromJson(x)),
     );
 
-class LoanPayemt {
+class LoanPayment {
   final int id;
   final int loanRefId;
   final int payrollRefId;
@@ -115,7 +115,7 @@ class LoanPayemt {
   final bool payrollDeducted;
   final bool credited;
 
-  LoanPayemt({
+  LoanPayment({
     required this.id,
     required this.loanRefId,
     required this.payrollRefId,
@@ -128,8 +128,8 @@ class LoanPayemt {
     this.loanType,
   });
 
-  factory LoanPayemt.fromJson(Map<String, dynamic> json) {
-    return LoanPayemt(
+  factory LoanPayment.fromJson(Map<String, dynamic> json) {
+    return LoanPayment(
       id: json['id'],
       loanRefId: json['loan_ref_id'],
       payrollRefId: json['payroll_ref_id'],

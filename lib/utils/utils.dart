@@ -28,6 +28,7 @@ DateFormat dateFormat = DateFormat("yyyy-MM-dd h:mm a");
 DateFormat dateFormat24 = DateFormat("yyyy-MM-dd HH:mm");
 DateFormat dateFormat2 = DateFormat("dd-MM-yyyy h:mm a");
 DateFormat dateFormat12 = DateFormat("dd-MM-yyyy HH:mm");
+
 Duration calDiff12(String inTime, String? outTime) {
   if (outTime == null) return Duration.zero;
   final inT = dateFormat12.parse(inTime);
@@ -44,4 +45,12 @@ Duration calDiff(String? inTime, String? outTime) {
   } catch (e) {
     return Duration.zero;
   }
+}
+
+String fmtInr(dynamic cur) {
+  return NumberFormat.currency(
+    locale: "en_IN",
+    decimalDigits: 2,
+    symbol: "Rs. ",
+  ).format(cur);
 }

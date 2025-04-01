@@ -1,17 +1,18 @@
-import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:vcare_attendance/models/payroll_model.dart';
 import 'package:vcare_attendance/models/payslip_model.dart';
 
 class PayslipApi {
-  static const String baseUrl = 'https://api.example.com/payslips';
+  String baseUrl;
   late String url;
-  PayslipApi({required String baseUrl}) {
-    url = "$baseUrl/payslip.php";
+  PayslipApi({required this.baseUrl}) {
+    url = "$baseUrl/payroll.php";
   }
 
   Future<void> deletePayslip(int id) async {
-    final response = await http.delete(Uri.parse('$baseUrl/$id'));
+    final response = await http.delete(Uri.parse('$url/$id'));
 
     if (response.statusCode != 200) {
       throw Exception('Failed to delete payslip');
@@ -24,20 +25,49 @@ class PayslipApi {
     int year,
   ) async {
     final response = await http.get(
-      Uri.parse('$baseUrl?id=$userId&month=$month&year=$year'),
+      Uri.parse('$url?id=$userId&month=$month&year=$year'),
     );
     if (response.statusCode != 200) return null;
     return Payslip.fromRawJson(response.body);
   }
 
-  Future<List<Payslip>> fetchPayslipsByEmployeeId(String empId) async {
-    final response = await http.get(Uri.parse('$baseUrl?emp_id=$empId'));
+  Future<String?> downloadPayslip(int payslipId) async {
+    try {
+      final res = await http
+          .get(Uri.parse("$baseUrl/../generate/payslip_pdf.php?id=$payslipId"));
+      if (res.statusCode != 200) throw "Error: Failed to download the payslip";
 
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      return data.map((payslip) => Payslip.fromJson(payslip)).toList();
-    } else {
-      throw Exception('Failed to load payslips');
+      String? contentDisposition = res.headers['content-disposition'];
+      String filename = "payslip_$payslipId.pdf";
+      if (contentDisposition != null &&
+          contentDisposition.contains('filename=')) {
+        filename =
+            contentDisposition.split('filename=')[1].replaceAll('"', '').trim();
+
+        // Directory? downloadsDir = await getExternalStorageDirectory();
+        // if (downloadsDir == null) {
+        //   throw "Error: Could not get downloads directory";
+        // }
+
+        // String filePath = '${downloadsDir.path}/$filename';
+        String filePath = "/storage/emulated/0/Download/$filename";
+        File file = File(filePath);
+
+        await file.writeAsBytes(res.bodyBytes);
+        return "Your payslip '$filename' is ready! Find it at: $filePath.";
+      }
+    } catch (e) {
+      print("[Error]: #downloadPayslip catch:error = $e");
+      throw "Error: Unknow error accoured try again later";
     }
+    return null;
+  }
+
+  Future<PayrollRaw?> getRawPayroll(String id, String date) async {
+    final res = await http.get(
+      Uri.parse('$baseUrl/get_report_payslip.php?id=$id&day=$date'),
+    );
+    if (res.statusCode != 200) return null;
+    return PayrollRaw.fromRawJson(res.body);
   }
 }

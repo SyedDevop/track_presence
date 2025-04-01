@@ -1,4 +1,5 @@
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vcare_attendance/db/databse_helper.dart';
 import 'package:vcare_attendance/db/profile_db.dart';
@@ -6,11 +7,19 @@ import 'package:vcare_attendance/db/profile_db.dart';
 import 'package:vcare_attendance/router/router_name.dart';
 import 'package:vcare_attendance/screens/loan/loan.dart';
 import 'package:vcare_attendance/screens/loan/loan_summery.dart';
-import 'package:vcare_attendance/screens/payroll/payroll.dart';
+import 'package:vcare_attendance/screens/payroll/payroll_day.dart';
+import 'package:vcare_attendance/screens/payroll/payroll_month.dart';
 import 'package:vcare_attendance/screens/screen.dart';
+
+final GlobalKey<NavigatorState> _rootNavigatorKey =
+    GlobalKey<NavigatorState>(debugLabel: 'root');
+final GlobalKey<NavigatorState> _shellNavigatorKey =
+    GlobalKey<NavigatorState>(debugLabel: 'shell');
 
 // GoRouter configuration
 final router = GoRouter(
+  navigatorKey: _rootNavigatorKey,
+  debugLogDiagnostics: true,
   // initialLocation: RouteNames.reportPath,
   routes: [
     GoRoute(
@@ -34,10 +43,6 @@ final router = GoRouter(
         builder: (_, state) {
           return LoanSummeryScreen(id: state.pathParameters['id']!);
         }),
-    GoRoute(
-        path: RouteNames.payrollPath,
-        name: RouteNames.payroll,
-        builder: (_, __) => const PayrollScreen()),
     GoRoute(
         path: RouteNames.profilePath,
         name: RouteNames.profile,
@@ -83,6 +88,22 @@ final router = GoRouter(
       name: RouteNames.login,
       builder: (_, __) => const LoginScreen(),
     ),
+    ShellRoute(
+        navigatorKey: _shellNavigatorKey,
+        builder: (_, __, Widget child) =>
+            PayrollScaffoldWithNavBar(child: child),
+        routes: [
+          GoRoute(
+            path: RouteNames.payrollDayPath,
+            name: RouteNames.payrollDay,
+            builder: (_, __) => const PayrollDayScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.payrollMonthPath,
+            name: RouteNames.payrollMonth,
+            builder: (_, __) => const PayrollMonthScreen(),
+          )
+        ]),
   ],
   redirect: (context, state) async {
     final DB db = DB.instance;
@@ -108,3 +129,59 @@ final router = GoRouter(
     return null;
   },
 );
+
+/// Builds the "shell" for the app by building a Scaffold with a
+/// BottomNavigationBar, where [child] is placed in the body of the Scaffold.
+class PayrollScaffoldWithNavBar extends StatelessWidget {
+  /// Constructs an [PayrollScaffoldWithNavBar].
+  const PayrollScaffoldWithNavBar({
+    required this.child,
+    super.key,
+  });
+
+  /// The widget to display in the body of the Scaffold.
+  /// In this sample, it is a Navigator.
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: child,
+      appBar: AppBar(title: const Text("Payroll")),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.today_rounded),
+            label: 'Day\'s',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_month_rounded),
+            label: 'Month\'s',
+          ),
+        ],
+        currentIndex: _calculateSelectedIndex(context),
+        onTap: (int idx) => _onItemTapped(idx, context),
+      ),
+    );
+  }
+
+  static int _calculateSelectedIndex(BuildContext context) {
+    final String location = GoRouterState.of(context).uri.path;
+    if (location == RouteNames.payrollDayPath) {
+      return 0;
+    }
+    if (location == RouteNames.payrollMonthPath) {
+      return 1;
+    }
+    return 0;
+  }
+
+  void _onItemTapped(int index, BuildContext context) {
+    switch (index) {
+      case 0:
+        GoRouter.of(context).pushNamed(RouteNames.payrollDay);
+      case 1:
+        GoRouter.of(context).pushNamed(RouteNames.payrollMonth);
+    }
+  }
+}

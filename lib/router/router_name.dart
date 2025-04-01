@@ -27,6 +27,14 @@ class RouteNames {
   static String payroll = "payroll";
   static String payrollPath = "/payroll";
 
+  /// payroll Day Screen path name no {Params || queryParams} required [payrollDay]
+  static String payrollDay = "$payroll-day";
+  static String payrollDayPath = "/$payroll/day";
+
+  /// payroll Month Screen path name no {Params || queryParams} required [payrollMonth]
+  static String payrollMonth = "$payroll-month";
+  static String payrollMonthPath = "/$payroll/month";
+
   /// Attendance Report Screen path name no {Params || queryParams} required [atReport]
   static String atReport = "at-report";
   static String atReportPath = "/at-report";
