@@ -235,85 +235,136 @@ class PayslipBreakDown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Earnings",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.greenAccent,
+    return Column(
+      children: [
+        Card(
+          elevation: 4,
+          margin: const EdgeInsets.symmetric(vertical: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: double.infinity,
+                color: Colors.greenAccent.withOpacity(0.2),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Earnings",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.greenAccent,
+                        ),
+                      ),
+                      Text(
+                        fmtInr(payslip!.totalDeductions + totalLoanDr),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.greenAccent,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
               ),
-            ),
-            const Divider(),
-            ReportSheetRow(
-              leadingText: "Base Salary",
-              trailingText: fmtInr(payslip?.daysSalary),
-              padding: const EdgeInsets.symmetric(vertical: 5),
-            ),
-            ...payslip?.allowances.entries.map((entry) {
-                  return ReportSheetRow(
-                    leadingText: entry.key,
-                    trailingText: fmtInr(entry.value),
-                    padding: const EdgeInsets.symmetric(vertical: 5),
-                  );
-                }) ??
-                [],
-            ...loanCr.map((loan) {
-              return ReportSheetRow(
-                leadingText: "Loan: ${loan.loanType}",
-                trailingText: fmtInr(loan.amountPaid),
-                padding: const EdgeInsets.symmetric(vertical: 5),
-              );
-            }),
-            const SizedBox(height: 10),
-            ReportSheetRow(
-              leadingText: "Total Earnings",
-              trailingText: fmtInr(
-                  payslip!.daysSalary + payslip!.totalAllowances + totalLoanCr),
-              padding: const EdgeInsets.symmetric(vertical: 5),
-            ),
-            const Divider(),
-            const SizedBox(height: 10),
-            const Text(
-              "Deductions",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.redAccent,
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                child: Column(
+                  children: [
+                    ReportSheetRow(
+                      leadingText: "Base Salary",
+                      trailingText: fmtInr(payslip?.daysSalary),
+                      padding: const EdgeInsets.symmetric(vertical: 5),
+                    ),
+                    ...payslip?.allowances.entries.map((entry) {
+                          return ReportSheetRow(
+                            leadingText: entry.key,
+                            trailingText: fmtInr(entry.value),
+                            padding: const EdgeInsets.symmetric(vertical: 5),
+                          );
+                        }) ??
+                        [],
+                    ...loanCr.map((loan) {
+                      return ReportSheetRow(
+                        leadingText: "Loan: ${loan.loanType}",
+                        trailingText: fmtInr(loan.amountPaid),
+                        padding: const EdgeInsets.symmetric(vertical: 5),
+                      );
+                    }),
+                  ],
+                ),
               ),
-            ),
-            const Divider(),
-            ...payslip?.deductions.entries.map((entry) {
-                  return ReportSheetRow(
-                    leadingText: entry.key,
-                    trailingText: fmtInr(entry.value),
-                    padding: const EdgeInsets.symmetric(vertical: 5),
-                  );
-                }) ??
-                [],
-            ...loanDr.map((loan) {
-              return ReportSheetRow(
-                leadingText: "Loan: ${loan.loanType}",
-                trailingText: fmtInr(loan.amountPaid),
-                padding: const EdgeInsets.symmetric(vertical: 5),
-              );
-            }),
-            const SizedBox(height: 10),
-            ReportSheetRow(
-              leadingText: "Total Deduction",
-              trailingText: fmtInr(payslip!.totalDeductions + totalLoanDr),
-              padding: const EdgeInsets.symmetric(vertical: 5),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
+        Card(
+          elevation: 4,
+          margin: const EdgeInsets.symmetric(vertical: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: double.infinity,
+                color: Colors.redAccent.withOpacity(0.2),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Deductions",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.redAccent,
+                        ),
+                      ),
+                      Text(
+                        fmtInr(payslip!.totalDeductions + totalLoanDr),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.redAccent,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Column(
+                  children: [
+                    ...payslip?.deductions.entries.map((entry) {
+                          return ReportSheetRow(
+                            leadingText: entry.key,
+                            trailingText: fmtInr(entry.value),
+                            padding: const EdgeInsets.symmetric(vertical: 5),
+                          );
+                        }) ??
+                        [],
+                    ...loanDr.map((loan) {
+                      return ReportSheetRow(
+                        leadingText: "Loan: ${loan.loanType}",
+                        trailingText: fmtInr(loan.amountPaid),
+                        padding: const EdgeInsets.symmetric(vertical: 5),
+                      );
+                    }),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
