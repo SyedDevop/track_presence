@@ -83,18 +83,28 @@ class Payroll {
         "is_absent": isAbsent,
         "has_shift": hasShift,
       };
+
+  String todayIs() {
+    if (attendance.attendanceMin > 0) return "Present";
+    if (isLeave) return "Leave";
+    if (isHoliday) return "Holiday";
+    return "Absent";
+  }
+
   Color payrollRawColor() {
+    if (attendance.attendanceMin > 0) return Colors.greenAccent;
     if (isLeave) return Colors.lightBlue;
     if (isHoliday) return Colors.yellowAccent;
-    if (isAbsent) return Colors.redAccent;
-    return Colors.greenAccent;
+    return Colors.redAccent;
   }
 
   Color payrollRawColor2() {
+    if (attendance.attendanceMin > 0) {
+      return Colors.green.shade500;
+    } // Balanced green for presence
     if (isLeave) return Colors.blue.shade400; // Softer blue for leave
     if (isHoliday) return Colors.amber.shade600; // Warmer gold for holidays
-    if (isAbsent) return Colors.red.shade600; // Deeper red for absence
-    return Colors.green.shade500; // Balanced green for presence
+    return Colors.red.shade600; // Deeper red for absence
   }
 }
 

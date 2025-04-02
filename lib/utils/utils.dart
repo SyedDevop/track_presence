@@ -21,7 +21,7 @@ String minToHrMin(dynamic min) {
 }
 
 String durationToHrMin(Duration d) {
-  return "${d.inHours} Hr  ${d.inMinutes % 60} Min";
+  return "${d.inHours.toString().padLeft(2, '0')} Hr  ${(d.inMinutes % 60).toString().padLeft(2, '0')} Min";
 }
 
 DateFormat dateFormat = DateFormat("yyyy-MM-dd h:mm a");

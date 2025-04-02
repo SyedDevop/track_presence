@@ -116,11 +116,15 @@ class PayrollDayRawBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final payroll = payrollRaw.payroll;
     final payrollInfo = payrollRaw.info;
+    final attendance = payroll.attendance;
 
-    double overtimePay = payroll.overtimeMin * payrollInfo.salaryPerMinute;
-    double dailyPay =
-        payroll.attendance.attendanceMin * payrollInfo.salaryPerMinute;
-    double totalPay = dailyPay + overtimePay;
+    final salaryPerMin = payrollInfo.salaryPerMinute;
+    final overtimePay = payroll.overtimeMin * salaryPerMin;
+    final dailyPay = attendance.attendanceMin * salaryPerMin;
+    final totalPay = dailyPay + overtimePay;
+
+    // Cache the dynamic color value.
+    final payrollColor = payroll.payrollRawColor();
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
@@ -136,64 +140,151 @@ class PayrollDayRawBody extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: payroll.payrollRawColor2().withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: payroll.payrollRawColor2().withOpacity(0.2),
+          ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(15)),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.05),
+                  border: Border.all(
+                    color: payrollColor.withOpacity(0.3),
+                    width: 2.5,
+                  ),
+                  borderRadius: const BorderRadius.all(Radius.circular(15)),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Text(
+                        payroll.todayIs(),
+                        style: TextStyle(
+                          color: payrollColor,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _infoText('Overtime: ${payroll.overtimeMin} mins'),
-                        _infoText(
-                            'Shift Minutes: ${payroll.attendance.shiftMin}'),
-                        _infoText(
-                            'Attendance Minutes: ${payroll.attendance.attendanceMin}'),
-                        const Divider(color: Colors.white54),
-                        _infoText(
-                            'Basic Salary: \$${payrollInfo.basicSalary.toStringAsFixed(2)}'),
-                        _infoText(
-                            'Daily Salary: \$${dailyPay.toStringAsFixed(2)}'),
-                        _infoText(
-                            'Overtime Pay: \$${overtimePay.toStringAsFixed(2)}'),
-                        _infoText('Total Pay: \$${totalPay.toStringAsFixed(2)}',
-                            bold: true),
-                      ],
-                    ),
+                      const Divider(),
+                      const SizedBox(height: 10),
+                      _infoTextPrice(
+                        "Shift Hours",
+                        minToHrMin(attendance.shiftMin),
+                        fmtInr(attendance.shiftMin * salaryPerMin),
+                        textColor: Colors.white60,
+                      ),
+                      const Divider(),
+                      const SizedBox(height: 10),
+                      _infoTextPrice(
+                        "Worked Hours",
+                        minToHrMin(attendance.attendanceMin),
+                        fmtInr(attendance.attendanceMin * salaryPerMin),
+                      ),
+                      _infoTextPrice(
+                        "Loss Of Hours",
+                        minToHrMin(attendance.attendanceLOHMin),
+                        fmtInr(attendance.attendanceLOHMin * salaryPerMin),
+                      ),
+                      _infoTextPrice(
+                        "OverTime Hours",
+                        minToHrMin(attendance.attendanceOTMin),
+                        fmtInr(attendance.attendanceOTMin * salaryPerMin),
+                      ),
+                      _infoTextPrice(
+                        "Extra Hours",
+                        minToHrMin(payroll.overtimeMin),
+                        fmtInr(payroll.overtimeMin * salaryPerMin),
+                      ),
+                      const Divider(),
+                      const SizedBox(height: 10),
+                      _infoText(
+                        "Total Salary",
+                        fmtInr(totalPay),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ],
+            ),
+          ),
+          const SizedBox(height: 25),
+          const Text(
+            "*The overtime pay is not included yet. Your admin needs to confirm the overtime hours, and it will be calculated at the end of the month.",
+            style: TextStyle(
+              color: Colors.red,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _infoText(String text, {bool bold = false}) {
+  Widget _infoText(String leadingText, String trailingText) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: bold ? FontWeight.bold : FontWeight.normal,
-        ),
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            leadingText,
+            style: const TextStyle(
+              color: Colors.white,
+            ),
+          ),
+          Text(
+            trailingText,
+            style: const TextStyle(
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.left,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoTextPrice(
+    String leadingText,
+    String timeText,
+    String priceText, {
+    Color textColor = Colors.white,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            leadingText,
+            style: TextStyle(
+              color: textColor,
+            ),
+          ),
+          SizedBox(
+            width: 250,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Text(
+                  timeText,
+                  style: TextStyle(
+                    color: textColor,
+                  ),
+                ),
+                Text(
+                  priceText,
+                  style: TextStyle(
+                    color: textColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 }
-
 
 // class PayrollDayRawBody extends StatelessWidget {
 //   const PayrollDayRawBody({
