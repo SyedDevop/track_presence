@@ -124,7 +124,7 @@ class FullAttendancesReport extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ReportSheetTitle(date: attendance.date1),
+              ReportSheetTitle(date: attendance.date),
               const Divider(),
               ReportSheetRow(
                 leadingIcon: Icons.update_rounded,
