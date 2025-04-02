@@ -64,7 +64,6 @@ class _PayrollMonthScreenState extends State<PayrollMonthScreen> {
         final loanRes = await apil.getLoanPaymentFromPayrollId(userId, res.id);
         loanCr = loanRes.where((loan) => loan.credited).toList();
         loanDr = loanRes.where((loan) => !loan.credited).toList();
-
         setState(() {
           payslip = res;
           loanPayment = loanRes;
@@ -121,6 +120,17 @@ class _PayrollMonthScreenState extends State<PayrollMonthScreen> {
                         ),
                       ),
                     )
+                  else if (_selectedPeriod.isNotEmpty && payslip == null)
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          "No Payslip Found For the select a month and year \"$_selectedPeriod\"",
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    )
                   else
                     const Expanded(
                       child: Center(
@@ -131,7 +141,7 @@ class _PayrollMonthScreenState extends State<PayrollMonthScreen> {
                               fontSize: 18, fontWeight: FontWeight.w500),
                         ),
                       ),
-                    ),
+                    )
                 ],
               ),
             ),
