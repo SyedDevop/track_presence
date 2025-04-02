@@ -104,40 +104,48 @@ class _AtReportScreenState extends State<AtReportScreen> {
                 children: [
                   Form(
                     key: _formKey,
-                    child: Column(
+                    child: Wrap(
+                      alignment: WrapAlignment.center,
+                      runSpacing: 15,
                       children: [
-                        AtDropdown<String>(
-                          dropdownKey: _monthDP,
-                          selectedItem: month,
-                          labelText: "Select Month",
-                          hintText: "select a month.",
-                          validationErrorText: "month is required.",
-                          items: (f, cs) => kMonths,
-                          onChanged: (p0) {
-                            if (p0 != null) {
-                              month = p0;
-                            }
-                          },
+                        SizedBox(
+                          width: 200,
+                          child: AtDropdown<String>(
+                            dropdownKey: _monthDP,
+                            selectedItem: month,
+                            labelText: "Select Month",
+                            hintText: "select a month.",
+                            validationErrorText: "month is required.",
+                            items: (f, cs) => kMonths,
+                            onChanged: (p0) {
+                              if (p0 != null) {
+                                month = p0;
+                              }
+                            },
+                          ),
                         ),
-                        const SizedBox(height: 20),
-                        AtDropdown<int>(
-                          dropdownKey: _yearDP,
-                          selectedItem: year,
-                          labelText: "Select Year",
-                          hintText: "select a year.",
-                          validationErrorText: "year is required.",
-                          items: (f, cs) =>
-                              List.generate(yearLinit, (i) => currYear - i),
-                          onChanged: (p0) {
-                            if (p0 != null) {
-                              year = p0;
-                            }
-                          },
+                        SizedBox(
+                          width: 200,
+                          child: AtDropdown<int>(
+                            dropdownKey: _yearDP,
+                            selectedItem: year,
+                            labelText: "Select Year",
+                            hintText: "select a year.",
+                            validationErrorText: "year is required.",
+                            items: (f, cs) =>
+                                List.generate(yearLinit, (i) => currYear - i),
+                            onChanged: (p0) {
+                              if (p0 != null) {
+                                year = p0;
+                              }
+                            },
+                          ),
                         ),
                         const SizedBox(height: 20),
                       ],
                     ),
                   ),
+                  const SizedBox(height: 20),
                   Expanded(
                     child: CustomScrollView(
                       slivers: [
