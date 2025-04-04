@@ -24,9 +24,8 @@ class PayslipApi {
     String month,
     int year,
   ) async {
-    final response = await http.get(
-      Uri.parse('$url?id=$userId&month=$month&year=$year'),
-    );
+    final payslipUrl = '$url?id=$userId&month=$month&year=$year';
+    final response = await http.get(Uri.parse(payslipUrl));
     if (response.statusCode != 200) return null;
     return Payslip.fromRawJson(response.body);
   }

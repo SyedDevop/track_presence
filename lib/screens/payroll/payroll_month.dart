@@ -103,9 +103,8 @@ class _PayrollMonthScreenState extends State<PayrollMonthScreen> {
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            PayslipSummery(payslip: payslip),
-                            PayslipBreakDown(
-                              payslip: payslip,
+                            PayslipMonthBody(
+                              payslip: payslip!,
                               loanCr: loanCr,
                               loanDr: loanDr,
                             ),
@@ -232,16 +231,15 @@ class PayslipBreakDown extends StatelessWidget {
     required this.payslip,
     required this.loanCr,
     required this.loanDr,
+    required this.earnings,
+    required this.deductions,
   });
 
   final Payslip? payslip;
   final List<LoanPayment> loanCr;
   final List<LoanPayment> loanDr;
-
-  double get totalLoanCr =>
-      loanCr.fold(0.0, (sum, cur) => sum + cur.amountPaid);
-  double get totalLoanDr =>
-      loanDr.fold(0.0, (sum, cur) => sum + cur.amountPaid);
+  final double earnings;
+  final double deductions;
 
   @override
   Widget build(BuildContext context) {
@@ -271,7 +269,7 @@ class PayslipBreakDown extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        fmtInr(payslip!.totalDeductions + totalLoanDr),
+                        fmtInr(earnings),
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -337,7 +335,7 @@ class PayslipBreakDown extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        fmtInr(payslip!.totalDeductions + totalLoanDr),
+                        fmtInr(deductions),
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -379,14 +377,57 @@ class PayslipBreakDown extends StatelessWidget {
   }
 }
 
+class PayslipMonthBody extends StatelessWidget {
+  const PayslipMonthBody({
+    super.key,
+    required this.payslip,
+    required this.loanCr,
+    required this.loanDr,
+  });
+
+  final Payslip payslip;
+  final List<LoanPayment> loanCr;
+  final List<LoanPayment> loanDr;
+
+  double get totalLoanCr =>
+      loanCr.fold(0.0, (sum, cur) => sum + cur.amountPaid);
+  double get totalLoanDr =>
+      loanDr.fold(0.0, (sum, cur) => sum + cur.amountPaid);
+
+  @override
+  Widget build(BuildContext context) {
+    final earnings = payslip.daysSalary + payslip.totalAllowances + totalLoanCr;
+    final deductions = payslip.totalDeductions + totalLoanDr;
+    return Column(
+      children: [
+        PayslipSummery(
+          payslip: payslip,
+          earnings: earnings,
+          deductions: deductions,
+        ),
+        PayslipBreakDown(
+          payslip: payslip,
+          loanCr: loanCr,
+          loanDr: loanDr,
+          earnings: earnings,
+          deductions: deductions,
+        ),
+      ],
+    );
+  }
+}
+
 class PayslipSummery extends StatelessWidget {
   const PayslipSummery({
     super.key,
     required this.payslip,
+    required this.earnings,
+    required this.deductions,
   });
 
   final Payslip? payslip;
-
+  final double earnings;
+  final double deductions;
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -404,13 +445,13 @@ class PayslipSummery extends StatelessWidget {
                     sections: [
                       PieChartSectionData(
                         color: Colors.greenAccent,
-                        value: payslip?.netSalary ?? 0.0,
+                        value: earnings - deductions,
                         radius: 30,
                         showTitle: false,
                       ),
                       PieChartSectionData(
                         color: Colors.redAccent,
-                        value: payslip?.totalDeductions ?? 0.0,
+                        value: deductions,
                         radius: 30,
                         showTitle: false,
                       ),
@@ -422,12 +463,12 @@ class PayslipSummery extends StatelessWidget {
                   InfoRowWidget(
                     label: "Earned Salary",
                     color: Colors.greenAccent,
-                    value: fmtInr(payslip?.netSalary),
+                    value: fmtInr(earnings - deductions),
                   ),
                   InfoRowWidget(
                     label: "Deducted Salary",
                     color: Colors.redAccent,
-                    value: fmtInr(payslip?.totalDeductions),
+                    value: fmtInr(deductions),
                   ),
                 ],
               )
@@ -435,8 +476,7 @@ class PayslipSummery extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 26),
-            child: Text(
-                "Total Gross pay: ${fmtInr(payslip!.totalDeductions + payslip!.netSalary)}"),
+            child: Text("Total Gross Pay: ${fmtInr(earnings)}"),
           ),
           const Divider(),
           Container(
