@@ -119,9 +119,9 @@ class PayrollDayRawBody extends StatelessWidget {
     final attendance = payroll.attendance;
 
     final salaryPerMin = payrollInfo.salaryPerMinute;
-    final overtimePay = payroll.overtimeMin * salaryPerMin;
-    final dailyPay = attendance.attendanceMin * salaryPerMin;
-    final totalPay = dailyPay + overtimePay;
+    final extratimePay = payroll.extratimeMin * salaryPerMin;
+    final dailyPay = attendance.workedMin * salaryPerMin;
+    final totalPay = dailyPay + extratimePay;
 
     // Cache the dynamic color value.
     final payrollColor = payroll.payrollRawColor();
@@ -132,7 +132,7 @@ class PayrollDayRawBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            selectedDate,
+            payroll.day(),
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -167,53 +167,69 @@ class PayrollDayRawBody extends StatelessWidget {
                       ),
                       const Divider(),
                       const SizedBox(height: 10),
-                      _infoTextPrice(
+                      _infoTextPay(
                         "Shift Hours",
-                        minToHrMin(attendance.shiftMin),
-                        fmtInr(attendance.shiftMin * salaryPerMin),
+                        (attendance.shiftMin),
+                        (attendance.shiftMin * salaryPerMin),
                         textColor: Colors.white60,
                       ),
                       const Divider(),
                       const SizedBox(height: 10),
-                      _infoTextPrice(
+                      _infoTextPay(
                         "Worked Hours",
-                        minToHrMin(attendance.attendanceMin),
-                        fmtInr(attendance.attendanceMin * salaryPerMin),
+                        (attendance.workedMin),
+                        (attendance.workedMin * salaryPerMin),
+                        payColor: Colors.greenAccent,
                       ),
-                      _infoTextPrice(
-                        "Loss Of Hours",
-                        minToHrMin(attendance.attendanceLOHMin),
-                        fmtInr(attendance.attendanceLOHMin * salaryPerMin),
+                      _infoTextPay(
+                        "Late In",
+                        (attendance.lateInLohMin),
+                        (attendance.lateInLohMin * salaryPerMin),
+                        payColor: Colors.redAccent,
                       ),
-                      _infoTextPrice(
-                        "OverTime Hours",
-                        minToHrMin(attendance.attendanceOTMin),
-                        fmtInr(attendance.attendanceOTMin * salaryPerMin),
+                      _infoTextPay(
+                        "Late Out",
+                        (attendance.lateOutOtMin),
+                        (attendance.lateOutOtMin * salaryPerMin),
+                        otMetric: payroll.otMetrics.lateOut,
+                        payColor: Colors.greenAccent,
                       ),
-                      _infoTextPrice(
+                      _infoTextPay(
+                        "Early In",
+                        (attendance.earlyInOtMin),
+                        (attendance.earlyInOtMin * salaryPerMin),
+                        otMetric: payroll.otMetrics.earlyIn,
+                        payColor: Colors.greenAccent,
+                      ),
+                      _infoTextPay(
+                        "Early Out",
+                        (attendance.earlyOutLohMin),
+                        (attendance.earlyOutLohMin * salaryPerMin),
+                        payColor: Colors.redAccent,
+                      ),
+                      const Divider(),
+                      _infoTextPay(
                         "Extra Hours",
-                        minToHrMin(payroll.overtimeMin),
-                        fmtInr(payroll.overtimeMin * salaryPerMin),
+                        payroll.extratimeMin,
+                        payroll.extratimeMin * salaryPerMin,
+                        payColor: Colors.greenAccent,
                       ),
                       const Divider(),
                       const SizedBox(height: 10),
-                      _infoText(
-                        "Total Salary",
-                        fmtInr(totalPay),
-                      ),
+                      _infoText("Total Salary", fmtInr(totalPay)),
                     ],
                   ),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 25),
-          const Text(
-            "*The overtime pay is not included yet. Your admin needs to confirm the overtime hours, and it will be calculated at the end of the month.",
-            style: TextStyle(
-              color: Colors.red,
-            ),
-          ),
+          // const SizedBox(height: 25),
+          // const Text(
+          //   "*The overtime pay is not included yet. Your admin needs to confirm the overtime hours, and it will be calculated at the end of the month.",
+          //   style: TextStyle(
+          //     color: Colors.red,
+          //   ),
+          // ),
         ],
       ),
     );
@@ -243,16 +259,34 @@ class PayrollDayRawBody extends StatelessWidget {
     );
   }
 
-  Widget _infoTextPrice(
+  Widget _infoTextPay(
     String leadingText,
-    String timeText,
-    String priceText, {
+    int time,
+    double pay, {
+    OtMetric? otMetric,
     Color textColor = Colors.white,
+    Color? payColor,
   }) {
+    final hasOt = otMetric != null;
+    final textStyle = TextStyle(color: payColor ?? textColor);
+    final payStrick = hasOt
+        ? textStyle.copyWith(
+            color: Colors.grey,
+            decoration: TextDecoration.lineThrough,
+          )
+        : textStyle;
+    final timeStrick = hasOt
+        ? textStyle.copyWith(
+            color: Colors.grey,
+            decoration: TextDecoration.lineThrough,
+          )
+        : TextStyle(color: textColor);
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             leadingText,
@@ -260,25 +294,42 @@ class PayrollDayRawBody extends StatelessWidget {
               color: textColor,
             ),
           ),
-          SizedBox(
-            width: 250,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text(
-                  timeText,
-                  style: TextStyle(
-                    color: textColor,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 250,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      minToHrMin(time),
+                      style: timeStrick,
+                    ),
+                    Text(
+                      fmtInr(pay),
+                      style: payStrick,
+                    ),
+                  ],
+                ),
+              ),
+              if (hasOt)
+                SizedBox(
+                  width: 250,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        minToHrMin(otMetric.minutes),
+                      ),
+                      Text(
+                        fmtInr(otMetric.pay),
+                        style: textStyle,
+                      ),
+                    ],
                   ),
                 ),
-                Text(
-                  priceText,
-                  style: TextStyle(
-                    color: textColor,
-                  ),
-                ),
-              ],
-            ),
+            ],
           ),
         ],
       ),

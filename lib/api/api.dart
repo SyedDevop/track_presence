@@ -6,7 +6,8 @@ import 'package:vcare_attendance/api/payslip_api.dart';
 import 'package:vcare_attendance/api/shift.dart';
 import 'package:vcare_attendance/api/user_api.dart';
 
-const kBaseApi = "http://192.168.1.120:6969/api";
+//const kBaseApi = "http://192.168.1.120:6969/api";
+const kBaseApi = "http://192.168.1.2:6969/api";
 //const kBaseApi = "https://vcarehospital.in/hmsversion8.2/payroll/api";
 
 class Api {

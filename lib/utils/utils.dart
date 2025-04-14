@@ -52,5 +52,6 @@ String fmtInr(dynamic cur) {
     locale: "en_IN",
     decimalDigits: 2,
     symbol: "Rs. ",
+    customPattern: "¤00.00",
   ).format(cur);
 }

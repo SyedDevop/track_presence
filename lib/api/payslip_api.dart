@@ -64,7 +64,7 @@ class PayslipApi {
 
   Future<PayrollRaw?> getRawPayroll(String id, String date) async {
     final res = await http.get(
-      Uri.parse('$baseUrl/get_report_payslip.php?id=$id&day=$date'),
+      Uri.parse('$baseUrl/payslip.php?id=$id&day=$date'),
     );
     if (res.statusCode != 200) return null;
     return PayrollRaw.fromRawJson(res.body);
