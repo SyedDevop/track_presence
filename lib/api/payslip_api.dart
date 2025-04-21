@@ -69,4 +69,16 @@ class PayslipApi {
     if (res.statusCode != 200) return null;
     return PayrollRaw.fromRawJson(res.body);
   }
+
+  Future<PayrollRaw?> getRawPayrolls(
+    String id,
+    String month,
+    int year,
+  ) async {
+    final res = await http.get(
+      Uri.parse('$baseUrl/payslip.php?id=$id&month=$month&year=$year'),
+    );
+    if (res.statusCode != 200) return null;
+    return PayrollRaw.fromRawJson(res.body);
+  }
 }

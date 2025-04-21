@@ -114,7 +114,10 @@ class PayrollDayRawBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final payroll = payrollRaw.payroll;
+    final payroll = payrollRaw.payroll ?? payrollRaw.payrolls?.first;
+    if (payroll == null) {
+      return const Center(child: Text("No payroll data available."));
+    }
     final payrollInfo = payrollRaw.info;
     final attendance = payroll.attendance;
 

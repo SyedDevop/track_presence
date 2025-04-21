@@ -4,19 +4,39 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class PayrollRaw {
-  Payroll payroll;
+  Payroll? payroll;
+  List<Payroll>? payrolls;
   PayrollInfo info;
+
   PayrollRaw({
-    required this.payroll,
     required this.info,
+    this.payroll,
+    this.payrolls,
   });
   factory PayrollRaw.fromRawJson(String str) =>
       PayrollRaw.fromJson(json.decode(str));
 
-  factory PayrollRaw.fromJson(Map<String, dynamic> json) => PayrollRaw(
-        payroll: Payroll.fromJson(json["data"]),
-        info: PayrollInfo.fromJson(json["info"]),
-      );
+  factory PayrollRaw.fromJson(Map<String, dynamic> json) {
+    final data = json["data"];
+    Payroll? payroll;
+    List<Payroll>? payrolls;
+    if (data is List) {
+      payrolls = data.map<Payroll>((x) => Payroll.fromJson(x)).toList();
+    } else if (data is Map<String, dynamic>) {
+      payroll = Payroll.fromJson(json["data"]);
+    } else {
+      throw Exception("Unexpected 'data' format in PayrollRaw");
+    }
+
+    return PayrollRaw(
+      payroll: payroll,
+      payrolls: payrolls,
+      info: PayrollInfo.fromJson(json["info"]),
+    );
+  }
+
+  /// Returns true if it's a list of payrolls, false if it's a single payroll.
+  bool get isPayrollList => payrolls != null && payrolls!.isNotEmpty;
 }
 
 List<Payroll> payrollRawList(String str) => List<Payroll>.from(
