@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -8,6 +6,7 @@ import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/payroll_model.dart';
 import 'package:vcare_attendance/services/state.dart';
 import 'package:vcare_attendance/utils/utils.dart';
+import 'package:vcare_attendance/widgets/ui/frost_glass.dart';
 
 class PayrollDayScreen extends StatefulWidget {
   const PayrollDayScreen({super.key});
@@ -143,87 +142,71 @@ class PayrollDayRawBody extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          ClipRRect(
-            borderRadius: const BorderRadius.all(Radius.circular(15)),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey.withOpacity(0.05),
-                  border: Border.all(
-                    color: payrollColor.withOpacity(0.3),
-                    width: 2.5,
-                  ),
-                  borderRadius: const BorderRadius.all(Radius.circular(15)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        payroll.todayIs(),
-                        style: TextStyle(
-                          color: payrollColor,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const Divider(),
-                      const SizedBox(height: 10),
-                      _infoTextPay(
-                        "Shift Hours",
-                        (attendance.shiftMin),
-                        (attendance.shiftMin * salaryPerMin),
-                        textColor: Colors.white60,
-                      ),
-                      const Divider(),
-                      const SizedBox(height: 10),
-                      _infoTextPay(
-                        "Worked Hours",
-                        (attendance.workedMin),
-                        (attendance.workedMin * salaryPerMin),
-                        payColor: Colors.greenAccent,
-                      ),
-                      _infoTextPay(
-                        "Late In",
-                        (attendance.lateInLohMin),
-                        (attendance.lateInLohMin * salaryPerMin),
-                        payColor: Colors.redAccent,
-                      ),
-                      _infoTextPay(
-                        "Late Out",
-                        (attendance.lateOutOtMin),
-                        (attendance.lateOutOtMin * salaryPerMin),
-                        otMetric: payroll.otMetrics.lateOut,
-                        payColor: Colors.greenAccent,
-                      ),
-                      _infoTextPay(
-                        "Early In",
-                        (attendance.earlyInOtMin),
-                        (attendance.earlyInOtMin * salaryPerMin),
-                        otMetric: payroll.otMetrics.earlyIn,
-                        payColor: Colors.greenAccent,
-                      ),
-                      _infoTextPay(
-                        "Early Out",
-                        (attendance.earlyOutLohMin),
-                        (attendance.earlyOutLohMin * salaryPerMin),
-                        payColor: Colors.redAccent,
-                      ),
-                      const Divider(),
-                      _infoTextPay(
-                        "Extra Hours",
-                        payroll.extratimeMin,
-                        payroll.extratimeMin * salaryPerMin,
-                        payColor: Colors.greenAccent,
-                      ),
-                      const Divider(),
-                      const SizedBox(height: 10),
-                      _infoText("Total Salary", fmtInr(totalPay)),
-                    ],
+          FrostedGlass(
+            borderColor: payrollColor.withOpacity(0.3),
+            child: Column(
+              children: [
+                Text(
+                  payroll.todayIs(),
+                  style: TextStyle(
+                    color: payrollColor,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
+                const Divider(),
+                const SizedBox(height: 10),
+                _infoTextPay(
+                  "Shift Hours",
+                  (attendance.shiftMin),
+                  (attendance.shiftMin * salaryPerMin),
+                  textColor: Colors.white60,
+                ),
+                const Divider(),
+                const SizedBox(height: 10),
+                _infoTextPay(
+                  "Worked Hours",
+                  (attendance.workedMin),
+                  (attendance.workedMin * salaryPerMin),
+                  payColor: Colors.greenAccent,
+                ),
+                _infoTextPay(
+                  "Late In",
+                  (attendance.lateInLohMin),
+                  (attendance.lateInLohMin * salaryPerMin),
+                  payColor: Colors.redAccent,
+                ),
+                _infoTextPay(
+                  "Late Out",
+                  (attendance.lateOutOtMin),
+                  (attendance.lateOutOtMin * salaryPerMin),
+                  otMetric: payroll.otMetrics.lateOut,
+                  payColor: Colors.greenAccent,
+                ),
+                _infoTextPay(
+                  "Early In",
+                  (attendance.earlyInOtMin),
+                  (attendance.earlyInOtMin * salaryPerMin),
+                  otMetric: payroll.otMetrics.earlyIn,
+                  payColor: Colors.greenAccent,
+                ),
+                _infoTextPay(
+                  "Early Out",
+                  (attendance.earlyOutLohMin),
+                  (attendance.earlyOutLohMin * salaryPerMin),
+                  payColor: Colors.redAccent,
+                ),
+                const Divider(),
+                _infoTextPay(
+                  "Extra Hours",
+                  payroll.extratimeMin,
+                  payroll.extratimeMin * salaryPerMin,
+                  payColor: Colors.greenAccent,
+                ),
+                const Divider(),
+                const SizedBox(height: 10),
+                _infoText("Total Salary", fmtInr(totalPay)),
+              ],
             ),
           ),
           // const SizedBox(height: 25),
