@@ -65,6 +65,33 @@ class _PayrollMonthScreenState extends State<PayrollMonthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    List<DataRow> payrollRows() {
+      final payPerMin = payrolls?.info.salaryPerMinute ?? 0;
+      return payrolls?.payrolls
+              ?.map((e) => DataRow(cells: [
+                    DataCell(Text(e.dateDay)),
+                    DataCell(Text("${e.attendance.shiftMin}")),
+                    DataCell(Text("${e.attendance.shiftMin * payPerMin}")),
+                    DataCell(Text("${e.attendance.workedMin}")),
+                    DataCell(Text("${e.attendance.workedMin * payPerMin}")),
+                    DataCell(Text("${e.attendance.lateInLohMin}")),
+                    DataCell(Text("${e.attendance.lateInLohMin * payPerMin}")),
+                    DataCell(Text("${e.attendance.lateOutOtMin}")),
+                    DataCell(Text("${e.attendance.lateOutOtMin * payPerMin}")),
+                    DataCell(Text("${e.attendance.earlyInOtMin}")),
+                    DataCell(Text("${e.attendance.earlyInOtMin * payPerMin}")),
+                    DataCell(Text("${e.attendance.earlyOutLohMin}")),
+                    DataCell(
+                        Text("${e.attendance.earlyOutLohMin * payPerMin}")),
+                    const DataCell(Text("00.000")),
+                    DataCell(Text("${e.extratimeMin}")),
+                    DataCell(Text("${e.extratimeMin * payPerMin}")),
+                    const DataCell(Text("000.0000")),
+                  ]))
+              .toList() ??
+          [];
+    }
+
     return Scaffold(
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -75,23 +102,51 @@ class _PayrollMonthScreenState extends State<PayrollMonthScreen> {
                   _filterForm(),
                   const SizedBox(height: 20),
                   Expanded(
-                      child: Table(
-                    children: [
-                      TableRow(
-                          decoration: BoxDecoration(color: Colors.black),
-                          children: [
-                            const Text("Name"),
-                            const Text("Amount"),
-                            const Text("Status"),
-                          ]),
-                      TableRow(children: [
-                        const Text("John Doe"),
-                        const Text("Rs. 1000"),
-                        const Text("Pending"),
-                      ])
-//
-                    ],
-                  )),
+                    child: InteractiveViewer(
+                      constrained: false,
+                      child: DataTable(columns: const [
+                        DataColumn(label: Text("Date")),
+                        DataColumn(label: Text("Shift Hours")),
+                        DataColumn(label: Text("Amount")),
+                        DataColumn(label: Text("Worked Hours ")),
+                        DataColumn(label: Text("Amount")),
+                        DataColumn(label: Text("Late In")),
+                        DataColumn(label: Text("Amount")),
+                        DataColumn(label: Text("Late Out ")),
+                        DataColumn(label: Text("Amount")),
+                        DataColumn(label: Text("Early In")),
+                        DataColumn(label: Text("Amount")),
+                        DataColumn(label: Text("Early Out ")),
+                        DataColumn(label: Text("Amount")),
+                        DataColumn(label: Text("Main Total")),
+                        DataColumn(label: Text("Extra Hours ")),
+                        DataColumn(label: Text("Amount")),
+                        DataColumn(label: Text("Total")),
+                      ], rows: [
+                        ...payrollRows(),
+                        const DataRow(cells: [
+                          DataCell(Text("")),
+                          DataCell(Text("")),
+                          DataCell(Text("")),
+                          DataCell(Text("")),
+                          DataCell(Text("Total")),
+                          DataCell(Text("0000:00")),
+                          DataCell(Text("")),
+                          DataCell(Text("")),
+                          DataCell(Text("")),
+                          DataCell(Text("0000:0")),
+                          DataCell(Text("")),
+                          DataCell(Text("")),
+                          DataCell(Text("")),
+                          DataCell(Text("5656565")),
+                          DataCell(Text("")),
+                          DataCell(Text("45464")),
+                          DataCell(Text("45646")),
+                          //
+                        ]),
+                      ]),
+                    ),
+                  ),
                 ],
               ),
             ),

@@ -150,7 +150,7 @@ class Payroll {
     return Payroll(
       date: json["date"],
       dateDay: json["date_word"],
-      attendance: AttendanceRawMin.fromJson(json["attendance"]),
+      attendance: AttendanceRawMin.fromJson(json["attendance_metric"]),
       otMetrics: OtMetrics.fromJson(json["ot_metrics"]),
       extratimeMin: json["extratime_min"],
       isLeave: json["is_leave"],
