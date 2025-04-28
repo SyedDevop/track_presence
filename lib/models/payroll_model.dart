@@ -62,9 +62,9 @@ class PayrollRaw {
     if (info is! MonthlyPayrollInfo) return ([], PayrollTotal.empty());
 
     final monthlyInfo = info as MonthlyPayrollInfo;
-    int appliedLeave = monthlyInfo.appliedLeave;
+    int allowedPaidLeaves = monthlyInfo.allowedPaidLeaves;
     final total = PayrollTotal.empty();
-    total.addPaidLeave(appliedLeave * monthlyInfo.salaryPerDay);
+    total.addPaidLeave(allowedPaidLeaves * monthlyInfo.salaryPerDay);
 
     final payrollList = payrolls!.map((payroll) {
       final fmtExtraTimeMin = minToHrMin(payroll.extratimeMin);
@@ -76,14 +76,14 @@ class PayrollRaw {
         String type = "Leave";
         String message = "Leave";
         double leavePay = 0;
-        if (appliedLeave > 0) {
-          appliedLeave--;
+        if (allowedPaidLeaves > 0) {
+          allowedPaidLeaves--;
           message = "Paid Leave";
           type = "Paid";
           leavePay = monthlyInfo.salaryPerDay;
         }
         return FormattedPayrollSpecial(
-          monthDay: payroll.date,
+          monthDay: payroll.dateDay,
           date: payroll.date,
           type: type,
           message: message,
@@ -96,14 +96,14 @@ class PayrollRaw {
         String type = "Holiday";
         String message = "Holiday";
         double leavePay = 0;
-        if (appliedLeave > 0) {
-          appliedLeave--;
+        if (allowedPaidLeaves > 0) {
+          allowedPaidLeaves--;
           message = "Paid Leave";
           type = "Paid";
           leavePay = monthlyInfo.salaryPerDay;
         }
         return FormattedPayrollSpecial(
-          monthDay: payroll.date,
+          monthDay: payroll.dateDay,
           date: payroll.date,
           type: type,
           message: message,
@@ -114,7 +114,7 @@ class PayrollRaw {
         );
       }
       return FormattedPayrollSpecial(
-        monthDay: payroll.date,
+        monthDay: payroll.dateDay,
         date: payroll.date,
         type: "Absent",
         message: "Absent",
@@ -170,7 +170,7 @@ class PayrollRaw {
     total.addTotal(totalPay + extratimePay);
 
     return FormattedPayroll(
-      monthDay: payroll.date,
+      monthDay: payroll.dateDay,
       date: payroll.date,
       shiftMins: minToHrMin(attendance.shiftMin),
       clockMins: minToHrMin(attendance.workedMin),
@@ -305,7 +305,7 @@ class Payroll {
     return Payroll.fromJson(jsonDecode(str));
   }
   factory Payroll.fromJson(Map<String, dynamic> json) {
-    print("Hello from Payroll json: $json");
+    // print("Hello from Payroll json: $json");
     return Payroll(
       date: json["date"],
       dateDay: json["date_word"],
@@ -478,6 +478,26 @@ class FormattedPayrollSpecial {
     required this.extratimePay,
     required this.total,
   });
+
+  Color typeColor() {
+    if (type == "Leave") {
+      return Colors.lightBlue.shade400; // Softer, richer blue
+    }
+    if (type == "Holiday") {
+      return Colors.amber.shade400; // Warmer, richer yellow
+    }
+    if (type == "Paid") {
+      return Colors.indigo.shade500; // A fresh teal instead of blue-grey
+    }
+    return Colors.redAccent.shade400; // Slightly softer red accent
+  }
+
+  Color typeColor2() {
+    if (type == "Leave") return Colors.lightBlue;
+    if (type == "Holiday") return Colors.yellowAccent;
+    if (type == "Paid") return Colors.blueGrey;
+    return Colors.redAccent;
+  }
 }
 
 class FormattedPayroll {
