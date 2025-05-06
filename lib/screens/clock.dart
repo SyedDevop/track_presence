@@ -67,6 +67,7 @@ class _ClockScreenState extends State<ClockScreen> {
     _faceSR.initialize();
     if (await auth.canCheckBiometrics) {
       Future.delayed(const Duration(seconds: 5), () {
+        if (!mounted) return;
         if (!_isUser) {
           setState(() => _showBiometric = true);
         }
