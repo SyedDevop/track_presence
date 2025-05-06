@@ -1,7 +1,7 @@
 const kDepMaintenanceDriver = "MAINTENANCE AND DRIVER";
 const kDepMarketing = "Marketing";
 
-const kExemptDeparments = [
+const kExemptDepartments = [
   kDepMaintenanceDriver,
   kDepMarketing,
 ];

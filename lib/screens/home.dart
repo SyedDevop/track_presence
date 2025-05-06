@@ -1,3 +1,5 @@
+import 'dart:developer' as dev;
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
@@ -81,72 +83,70 @@ class _MyHomePageState extends State<MyHomePage> {
     return;
   }
 
+  bool _isExempt(String? department, String? empId) {
+    return kExemptDepartments.contains(department) || empId == 'VCH0000';
+  }
+
+  Future<void> _navigateToClock(Position currPos) async {
+    if (!mounted) return;
+    await context.pushNamed(
+      RouteNames.clock,
+      pathParameters: {
+        'location': '${currPos.latitude} , ${currPos.longitude}',
+      },
+    );
+  }
+
+  bool _isOnSite(Position currPos) {
+    return kCoords.any((coord) {
+      final dist = Geolocator.distanceBetween(
+        coord.lat,
+        coord.long,
+        currPos.latitude,
+        currPos.longitude,
+      );
+      debugPrint('[Info] Distance to ${coord.name}: $dist meters');
+      return dist <= kMinDistance;
+    });
+  }
+
   Future<void> _handleClock() async {
     if (_initializing) return;
     setState(() => _initializing = true);
-    final currPoss = await _determinePosition();
-    if (kExemptDeparments.contains(
-          _asSr.employee?.companyDetails?.department,
-        ) ||
-        _asSr.employee?.personalDetails?.empId == "VCH0000") {
-      setState(() => _initializing = false);
-      await context.pushNamed(
-        RouteNames.clock,
-        pathParameters: {
-          "location": "${currPoss.latitude} , ${currPoss.longitude}"
-        },
-      );
-      await _getTimes();
-      return;
-    }
-    double vcareDistance = Geolocator.distanceBetween(
-      kVacreCord.lat,
-      kVacreCord.long,
-      currPoss.latitude,
-      currPoss.longitude,
-    );
-    double vcareWareHouseDistance = Geolocator.distanceBetween(
-      kVacreWareHouseCord.lat,
-      kVacreWareHouseCord.long,
-      currPoss.latitude,
-      currPoss.longitude,
-    );
-    double mediDistance = Geolocator.distanceBetween(
-      kMedisconCord.lat,
-      kMedisconCord.long,
-      currPoss.latitude,
-      currPoss.longitude,
-    );
-    double rizDistance = Geolocator.distanceBetween(
-      kRizHomeCord.lat,
-      kRizHomeCord.long,
-      currPoss.latitude,
-      currPoss.longitude,
-    );
-    setState(() => _initializing = false);
-    print("[Info] Current Position: |$currPoss|");
-    print("[Info] Distance between Current and Vcare : |$vcareDistance|");
-    if (vcareDistance <= kminDistance ||
-        vcareWareHouseDistance <= kminDistance ||
-        mediDistance <= kminDistance ||
-        rizDistance <= kminDistance) {
-      await context.pushNamed(
-        RouteNames.clock,
-        pathParameters: {
-          "location": "${currPoss.latitude} , ${currPoss.longitude}"
-        },
-      );
-      await _getTimes();
-      return;
-    }
+    try {
+      final currPoss = await _determinePosition();
+      final dep = _asSr.employee?.companyDetails?.department;
+      final id = _asSr.employee?.personalDetails?.empId;
 
-    snackbarNotefy(
-      context,
-      message:
-          'You are currently not on-site and cannot clock in your attendance.',
-      duration: 5,
-    );
-    print("[Info] Your not on premises");
+      // 1) Exempt users always allowed
+      if (_isExempt(dep, id)) {
+        debugPrint('[Info] Exempt user Department:$dep and id:$id');
+        await _navigateToClock(currPoss);
+        await _getTimes();
+        return;
+      }
+      // 2) Regular users must be on-site
+      if (_isOnSite(currPoss)) {
+        await _navigateToClock(currPoss);
+        await _getTimes();
+        return;
+      }
+      snackbarNotefy(
+        context,
+        message:
+            'You are currently not on-site and cannot clock in your attendance.',
+        duration: 5,
+      );
+    } catch (e) {
+      debugPrint('[Error] Couldn’t get location: $e');
+      snackbarNotefy(
+        context,
+        message: 'Couldn’t get location: $e',
+        duration: 5,
+      );
+    } finally {
+      if (mounted) setState(() => _initializing = false);
+    }
   }
 
   BannerAd? _bannerAd;
