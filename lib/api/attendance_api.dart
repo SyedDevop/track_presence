@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:vcare_attendance/api/error.dart';
@@ -15,19 +16,20 @@ String toDay2() {
 }
 
 class AttendanceApi {
-  final String baseUrl;
-  const AttendanceApi({required this.baseUrl});
+  final Dio dio;
+  const AttendanceApi({required this.dio});
 
   Future<Attendance?> getColockedtime(String id, {String? date}) async {
     final getDate = date ?? toDay2();
     print({"From ": "ClockedTime", "toDay": getDate});
     try {
-      final res = await http.get(
-        Uri.parse('$baseUrl/get_attendance.php?id=$id&date=$getDate'),
+      final res = await dio.get(
+        "get_attendance.php",
+        queryParameters: {"id": id, "date": getDate},
       );
-      print(res.body);
+      print(res.data);
       if (res.statusCode != 200) return null;
-      return Attendance.fromMap(jsonDecode(res.body));
+      return Attendance.fromMap(jsonDecode(res.data));
     } catch (e) {
       print("Error geting Profile data: $e");
       return null;
@@ -38,12 +40,13 @@ class AttendanceApi {
     final getDate = date ?? toDay2();
     print({"From ": "Over Time", "toDay": getDate});
     try {
-      final res = await http.get(
-        Uri.parse('$baseUrl/get_attendance_ot.php?id=$id&date=$getDate'),
+      final res = await dio.get(
+        "get_attendance_ot.php",
+        queryParameters: {"id": id, "date": getDate},
       );
-      print(res.body);
+      print(res.data);
       if (res.statusCode != 200) return [];
-      return ExtraHours.fromArrayMap(jsonDecode(res.body));
+      return ExtraHours.fromArrayMap(jsonDecode(res.data));
     } catch (e) {
       print("Error geting Profile data: $e");
       return [];
@@ -58,16 +61,21 @@ class AttendanceApi {
     String authType,
   ) async {
     final reas = reason.isEmpty ? null : reason;
-    final res = await http.post(
-      Uri.parse(
-        '$baseUrl/attandance/attandance.php?id=$id&clock=$clockType&location=$location&authType=$authType',
-      ),
-      body: reas == null ? null : json.encode({"reason": reason}),
-      headers: {"Content-Type": "application/json"},
+    final res = await dio.post(
+      'attandance/attandance.php',
+      queryParameters: {
+        "id": id,
+        "clock": clockType,
+        "location": location,
+        "auhtType": authType
+      },
+      data: reas == null ? null : json.encode({"reason": reason}),
+      options: Options(contentType: "application/json"),
     );
-    print("[Info] postColock res body :: ${res.body}");
-    if (res.statusCode >= 400 && res.statusCode < 500) {
-      throw ApiException(ApiError.fromJson(jsonDecode(res.body)));
+    print("[Info] postColock res body :: ${res.data}");
+    final code = res.statusCode ?? 0;
+    if (code >= 400 && code < 500) {
+      throw ApiException(ApiError.fromJson(jsonDecode(res.data)));
     }
   }
 
@@ -82,15 +90,14 @@ class AttendanceApi {
     int year,
   ) async {
     try {
-      final res = await http.post(
-        Uri.parse('$baseUrl/get_report.php'),
-        body: json.encode(
-          {"employee_id": employee, "month": month, "year": year},
-        ),
-        headers: {"Content-Type": "application/json"},
+      final res = await dio.post(
+        "get_report.php",
+        data: json
+            .encode({"employee_id": employee, "month": month, "year": year}),
+        options: Options(contentType: "application/json"),
       );
       if (res.statusCode != 200) return null;
-      final result = Report.fromRawJson(res.body);
+      final result = Report.fromRawJson(res.data);
       return result;
     } catch (e) {
       print("Error geting Profile data: $e");
