@@ -57,6 +57,8 @@ final dioLoggerInterceptor = InterceptorsWrapper(
     print('┃ ─ Error  : ${error.error}');
     print('┃ ─ Status : ${error.response?.statusCode}');
     print('┃ ─ Data   : ${prettyJson(error.response.toString())}');
+    // print("┃ ─ Stack:");
+    // print("┃ ─ ${error.stackTrace}");
     print("┃");
     print('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\x1B[0m');
     handler.next(error);
