@@ -11,7 +11,9 @@ final customErrorInterceptor = InterceptorsWrapper(
       final data = response.data as Map<String, dynamic>;
       err = data['error']?.toString() ?? "";
       message = data['message']?.toString() ?? "";
-      code = data['status']?.toInt() ?? 0;
+      final dynamic status = data['status'];
+      code =
+          status is int ? status : int.tryParse(status?.toString() ?? '') ?? 0;
     } else {
       message = "Unknown (api) error. Please try again.";
     }
