@@ -15,8 +15,8 @@ class TokenStorage {
         _secure.write(key: 'refresh_token', value: refresh),
       ]);
 
-  Future<void> clear() => Future.wait([
-        _secure.delete(key: 'access_token'),
-        _secure.delete(key: 'refresh_token'),
-      ]);
+  Future<void> clearAccess() => _secure.delete(key: 'access_token');
+  Future<void> clearRefresh() => _secure.delete(key: 'refresh_token');
+
+  Future<void> clear() => Future.wait([clearAccess(), clearRefresh()]);
 }

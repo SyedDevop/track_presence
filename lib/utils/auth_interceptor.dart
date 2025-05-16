@@ -15,7 +15,8 @@ class AuthInterceptor extends Interceptor {
     if (token != null) {
       options.headers['Authorization'] = 'Bearer $token';
     }
-    handler.next(options);
+    return handler.next(options);
+    // super.onRequest(options, handler);
   }
 
   @override
@@ -53,6 +54,6 @@ class AuthInterceptor extends Interceptor {
         router.pushReplacementNamed(RouteNames.login);
       }
     }
-    handler.next(err);
+    return handler.next(err);
   }
 }

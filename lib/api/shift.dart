@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:http/http.dart' as http;
 import 'package:vcare_attendance/models/shift_report_modeal.dart';
 import 'package:vcare_attendance/models/time.dart';
 import 'package:vcare_attendance/utils/utils.dart';
@@ -24,10 +23,9 @@ class ShiftApi {
         data: json.encode({"id": id, "from-date": fromDate, "to-date": toDate}),
         options: Options(contentType: "application/json"),
       );
-      if (res.statusCode != 200) return null;
       return ShiftReport.fromRawJson(res.data);
     } catch (e) {
-      print("Error geting Shifts data: $e");
+      print("[Error] Getting Shifts data: $e");
       return null;
     }
   }
@@ -39,13 +37,9 @@ class ShiftApi {
         shiftTimeUrl,
         queryParameters: {"id": id, "date": toDay},
       );
-      if (res.statusCode != 200) {
-        print("[Error] Api shift geting shiftTime data: ${res.data}");
-        return null;
-      }
       return ShiftTime.fromMap(jsonDecode(res.data));
     } catch (e) {
-      print("[Error] Api shift geting shiftTime data: $e");
+      print("[Error] Api shift getting shiftTime data: $e");
       return null;
     }
   }

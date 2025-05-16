@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vcare_attendance/db/databse_helper.dart';
 import 'package:vcare_attendance/db/profile_db.dart';
+import 'package:vcare_attendance/getit.dart';
 
 import 'package:vcare_attendance/router/router_name.dart';
 import 'package:vcare_attendance/screens/loan/loan.dart';
@@ -10,6 +11,10 @@ import 'package:vcare_attendance/screens/loan/loan_summery.dart';
 import 'package:vcare_attendance/screens/payroll/payroll_day.dart';
 import 'package:vcare_attendance/screens/payroll/payroll_month.dart';
 import 'package:vcare_attendance/screens/screen.dart';
+import 'package:vcare_attendance/services/app_state.dart';
+import 'package:vcare_attendance/services/state.dart';
+import 'package:vcare_attendance/utils/jwtToken.dart';
+import 'package:vcare_attendance/utils/token_storage.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey =
     GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -106,22 +111,40 @@ final router = GoRouter(
         ]),
   ],
   redirect: (context, state) async {
-    final DB db = DB.instance;
-    final ProfileDB pdb = ProfileDB.instance;
-    final user = await db.queryAllUsers();
-    final profile = await pdb.queryAllProfile();
+    final storage = TokenStorage();
+    final rawToken = await storage.accessToken;
     final urlPath = state.uri.toString();
 
-    if (profile.isEmpty) {
+    // If no token stored → must login
+    if (rawToken == null) {
+      // If already on login, no redirect; otherwise send to login
       if (urlPath == RouteNames.loginPath || urlPath == RouteNames.loginPath) {
         return null;
       }
       return RouteNames.loginPath;
     }
+    // Try to parse & validate expiry
+    JwtToken token;
+    try {
+      token = JwtToken.fromRawToken(rawToken);
+    } catch (e) {
+      // Malformed token → force login
+      await storage.clear();
+      return RouteNames.loginPath;
+    }
+    // If token expired → clear and send to login
+    if (token.isExpired()) {
+      await storage.clearAccess();
+      return RouteNames.loginPath;
+    }
+
+    final asSr = getIt<AppStore>();
+    asSr.setToken(token);
+
     DeviceInfoPlugin df = DeviceInfoPlugin();
     final af = await df.androidInfo;
     final isEmu = await af.isPhysicalDevice;
-    if (isEmu && user.isEmpty) {
+    if (isEmu) {
       if (urlPath == RouteNames.registerScanPath ||
           urlPath == RouteNames.registerPath) return null;
       return RouteNames.registerPath;

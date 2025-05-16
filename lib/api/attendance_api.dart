@@ -1,9 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:vcare_attendance/api/error.dart';
 import 'package:vcare_attendance/models/report_model.dart';
 import 'package:vcare_attendance/models/time.dart';
 
@@ -21,34 +19,28 @@ class AttendanceApi {
 
   Future<Attendance?> getColockedtime(String id, {String? date}) async {
     final getDate = date ?? toDay2();
-    print({"From ": "ClockedTime", "toDay": getDate});
     try {
       final res = await dio.get(
         "get_attendance.php",
         queryParameters: {"id": id, "date": getDate},
       );
-      print(res.data);
-      if (res.statusCode != 200) return null;
       return Attendance.fromMap(jsonDecode(res.data));
     } catch (e) {
-      print("Error geting Profile data: $e");
+      print("[Error] getting Profile data: $e");
       return null;
     }
   }
 
   Future<List<ExtraHours>> getOvertime(String id, {String? date}) async {
     final getDate = date ?? toDay2();
-    print({"From ": "Over Time", "toDay": getDate});
     try {
       final res = await dio.get(
         "get_attendance_ot.php",
         queryParameters: {"id": id, "date": getDate},
       );
-      print(res.data);
-      if (res.statusCode != 200) return [];
       return ExtraHours.fromArrayMap(jsonDecode(res.data));
     } catch (e) {
-      print("Error geting Profile data: $e");
+      print("[Error] getting OverTime data: $e");
       return [];
     }
   }
@@ -61,7 +53,7 @@ class AttendanceApi {
     String authType,
   ) async {
     final reas = reason.isEmpty ? null : reason;
-    final res = await dio.post(
+    await dio.post(
       'attandance/attandance.php',
       queryParameters: {
         "id": id,
@@ -72,11 +64,6 @@ class AttendanceApi {
       data: reas == null ? null : json.encode({"reason": reason}),
       options: Options(contentType: "application/json"),
     );
-    print("[Info] postColock res body :: ${res.data}");
-    final code = res.statusCode ?? 0;
-    if (code >= 400 && code < 500) {
-      throw ApiException(ApiError.fromJson(jsonDecode(res.data)));
-    }
   }
 
   Future<Report?> getReport(
@@ -96,11 +83,9 @@ class AttendanceApi {
             .encode({"employee_id": employee, "month": month, "year": year}),
         options: Options(contentType: "application/json"),
       );
-      if (res.statusCode != 200) return null;
-      final result = Report.fromRawJson(res.data);
-      return result;
+      return Report.fromRawJson(res.data);
     } catch (e) {
-      print("Error geting Profile data: $e");
+      print("[Error] getting Profile data: $e");
       return null;
     }
   }

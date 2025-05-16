@@ -10,10 +10,7 @@ class PayslipApi {
   PayslipApi({required this.dio});
 
   Future<void> deletePayslip(int id) async {
-    final response = await dio.delete("$url/$id");
-    if (response.statusCode != 200) {
-      throw Exception('Failed to delete payslip');
-    }
+    await dio.delete("$url/$id");
   }
 
   Future<Payslip?> fetchPayslipsByMonthAndYear(
@@ -23,7 +20,6 @@ class PayslipApi {
   ) async {
     final query = {"id": userId, "month": month, "year": year};
     final response = await dio.get(url, queryParameters: query);
-    if (response.statusCode != 200) return null;
     return Payslip.fromRawJson(response.data);
   }
 
@@ -65,10 +61,13 @@ class PayslipApi {
   }
 
   Future<PayrollRaw?> getRawPayroll(String id, String date) async {
-    final query = {"id": id, "date": date};
-    final res = await dio.get("payslip.php", queryParameters: query);
-    if (res.statusCode != 200) return null;
-    return PayrollRaw.fromRawJson(res.data);
+    try {
+      final query = {"id": id, "date": date};
+      final res = await dio.get("payslip.php", queryParameters: query);
+      return PayrollRaw.fromRawJson(res.data);
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<PayrollRaw?> getRawPayrolls(
@@ -76,9 +75,12 @@ class PayslipApi {
     String month,
     int year,
   ) async {
-    final query = {"id": id, "month": month, "year": year};
-    final res = await dio.get("payslip.php", queryParameters: query);
-    if (res.statusCode != 200) return null;
-    return PayrollRaw.fromRawJson(res.data);
+    try {
+      final query = {"id": id, "month": month, "year": year};
+      final res = await dio.get("payslip.php", queryParameters: query);
+      return PayrollRaw.fromRawJson(res.data);
+    } catch (e) {
+      return null;
+    }
   }
 }

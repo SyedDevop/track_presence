@@ -1,10 +1,10 @@
+import 'package:dio/dio.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 import 'package:vcare_attendance/api/api.dart';
-import 'package:vcare_attendance/api/error.dart';
 import 'package:vcare_attendance/constant/holidays.dart';
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/leave_model.dart';
@@ -50,8 +50,13 @@ class _LeaveScreenState extends State<LeaveScreen> {
   }
 
   Future<void> _fetchLeaves() async {
-    final leav = await apiL.getLeaves(profile?.userId ?? " ");
-    setState(() => leaves = leav);
+    try {
+      final leav = await apiL.getLeaves(profile?.userId ?? " ");
+      setState(() => leaves = leav);
+    } catch (e) {
+      setState(() => leaves = []);
+      print("[Error] Fetching Leaves: $e");
+    }
   }
 
   Future<void> _start() async {
@@ -124,7 +129,7 @@ class _LeaveScreenState extends State<LeaveScreen> {
 
         await _fetchLeaves();
         snackbarSuccess(context, message: "Leave applied successful..🎉🎉🎉..");
-      } on ApiException catch (e) {
+      } on DioException catch (e) {
         snackbarError(context, message: "${e.message}  😭");
       } catch (e) {
         print("[Error]: Api Posting Leave error :: $e");

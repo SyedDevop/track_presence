@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
-import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:vcare_attendance/api/account_api.dart';
 import 'package:vcare_attendance/api/attendance_api.dart';
 import 'package:vcare_attendance/api/leave_api.dart';
@@ -8,37 +7,35 @@ import 'package:vcare_attendance/api/loan_api.dart';
 import 'package:vcare_attendance/api/payslip_api.dart';
 import 'package:vcare_attendance/api/shift.dart';
 import 'package:vcare_attendance/api/user_api.dart';
+import 'package:vcare_attendance/interceptor/error.dart';
+import 'package:vcare_attendance/interceptor/logger.dart';
 import 'package:vcare_attendance/utils/auth_interceptor.dart';
 import 'package:vcare_attendance/utils/token_storage.dart';
 
-//const kBaseApi = "http://192.168.1.120:6969/api";
+const kBaseApi = "http://192.168.1.120:6969/api/";
 //const kBaseApi = "http://192.168.1.2:6969/api";
-const kBaseApi = "https://vcarehospital.in/hmsversion8.2/payroll/api";
+//const kBaseApi = "https://vcarehospital.in/hmsversion8.2/payroll/api";
 
 final tokenStorage = TokenStorage();
-final dioLogger = PrettyDioLogger(
-  requestHeader: true,
-  requestBody: true,
-  responseBody: true,
-  responseHeader: false,
-  error: true,
-  compact: true,
-  enabled: kDebugMode,
-);
 
-final Dio rootDio = Dio(
-  BaseOptions(
-    baseUrl: kBaseApi,
-    connectTimeout: const Duration(seconds: 5),
-    receiveTimeout: const Duration(seconds: 3),
-  ),
-)
-  ..interceptors.add(AuthInterceptor(rootDio, tokenStorage))
-  ..interceptors.add(dioLogger);
+Dio dioConfig() {
+  final Dio dioConf = Dio(
+    BaseOptions(
+      baseUrl: kBaseApi,
+      connectTimeout: const Duration(seconds: 5),
+      receiveTimeout: const Duration(seconds: 3),
+    ),
+  );
+  dioConf.interceptors.add(customErrorInterceptor);
+  if (kDebugMode) dioConf.interceptors.add(dioLoggerInterceptor);
+  dioConf.interceptors.add(AuthInterceptor(dioConf, tokenStorage));
+  return dioConf;
+}
+
+final Dio rootDio = dioConfig();
 
 // TODO: Remove the employee_id||id any type of id for the current logged in
 // because the jwt will have it.
-
 class Api {
   static LeaveApi leave = LeaveApi(dio: rootDio);
   static AccountApi account = AccountApi(dio: rootDio);

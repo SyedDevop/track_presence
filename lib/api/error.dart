@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 class ApiError {
   final int status;
   final String error;

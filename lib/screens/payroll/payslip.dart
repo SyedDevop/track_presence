@@ -70,6 +70,12 @@ class _PayrollMonthScreenState extends State<PayrollMonthScreen> {
         });
       }
     } catch (e) {
+      setState(() {
+        payslip = null;
+        loanPayment = [];
+        loanCr = [];
+        loanDr = [];
+      });
       print("Error fetching data: $e");
     } finally {
       setState(() {
