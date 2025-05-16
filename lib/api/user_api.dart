@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:vcare_attendance/models/empolyee_modeal.dart';
 import 'package:vcare_attendance/models/profile_model.dart';
@@ -14,7 +12,7 @@ class UserApi {
         "get_employees_details.php",
         queryParameters: {"id": id},
       );
-      final data = jsonDecode(res.data)["data"];
+      final data = (res.data)["data"];
       return Employee.fromJson(data);
     } catch (e) {
       return null;
@@ -24,7 +22,7 @@ class UserApi {
   Future<List<String>> getDepartments() async {
     try {
       final res = await dio.get("get_departments.php");
-      final data = jsonDecode(res.data)["data"];
+      final data = res.data["data"];
       return (data as List<dynamic>).map((e) => e.toString()).toList();
     } catch (e) {
       print("[Error] getting Department data: $e");
@@ -38,7 +36,7 @@ class UserApi {
         "get_employees.php",
         queryParameters: {"department": department},
       );
-      Map<String, dynamic> jsonData = jsonDecode(res.data);
+      Map<String, dynamic> jsonData = res.data;
       final result = (jsonData['data'] as Map<String, dynamic>)
           .entries
           .map((entry) => (entry.key, entry.value as String))
@@ -56,7 +54,7 @@ class UserApi {
         "employee_by_id.php",
         queryParameters: {"id": id},
       );
-      return Profile.fromApiJson(jsonDecode(res.data));
+      return Profile.fromApiJson(res.data);
     } catch (e) {
       print("[Error] getting Profile data: $e");
       return null;

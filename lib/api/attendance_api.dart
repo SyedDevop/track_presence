@@ -24,7 +24,7 @@ class AttendanceApi {
         "get_attendance.php",
         queryParameters: {"id": id, "date": getDate},
       );
-      return Attendance.fromMap(jsonDecode(res.data));
+      return Attendance.fromMap(res.data);
     } catch (e) {
       print("[Error] getting Profile data: $e");
       return null;
@@ -38,7 +38,7 @@ class AttendanceApi {
         "get_attendance_ot.php",
         queryParameters: {"id": id, "date": getDate},
       );
-      return ExtraHours.fromArrayMap(jsonDecode(res.data));
+      return ExtraHours.fromArrayMap(res.data);
     } catch (e) {
       print("[Error] getting OverTime data: $e");
       return [];
@@ -59,7 +59,7 @@ class AttendanceApi {
         "id": id,
         "clock": clockType,
         "location": location,
-        "auhtType": authType
+        "authType": authType
       },
       data: reas == null ? null : json.encode({"reason": reason}),
       options: Options(contentType: "application/json"),
@@ -83,9 +83,9 @@ class AttendanceApi {
             .encode({"employee_id": employee, "month": month, "year": year}),
         options: Options(contentType: "application/json"),
       );
-      return Report.fromRawJson(res.data);
+      return Report.fromJson(res.data);
     } catch (e) {
-      print("[Error] getting Profile data: $e");
+      print("[Error] getting Report data: $e");
       return null;
     }
   }

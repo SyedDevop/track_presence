@@ -11,7 +11,7 @@ class AccountApi {
       data: json.encode({"user-id": userId, "password": password}),
       options: Options(contentType: "application/json"),
     );
-    return jsonDecode(res.data);
+    return res.data;
   }
 
   Future<void> changePassword(

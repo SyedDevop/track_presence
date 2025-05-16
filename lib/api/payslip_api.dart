@@ -20,7 +20,7 @@ class PayslipApi {
   ) async {
     final query = {"id": userId, "month": month, "year": year};
     final response = await dio.get(url, queryParameters: query);
-    return Payslip.fromRawJson(response.data);
+    return Payslip.fromJson(response.data);
   }
 
   // TODO: Use Dio downloads method.
@@ -62,9 +62,9 @@ class PayslipApi {
 
   Future<PayrollRaw?> getRawPayroll(String id, String date) async {
     try {
-      final query = {"id": id, "date": date};
+      final query = {"id": id, "day": date};
       final res = await dio.get("payslip.php", queryParameters: query);
-      return PayrollRaw.fromRawJson(res.data);
+      return PayrollRaw.fromJson(res.data);
     } catch (e) {
       return null;
     }
@@ -78,7 +78,7 @@ class PayslipApi {
     try {
       final query = {"id": id, "month": month, "year": year};
       final res = await dio.get("payslip.php", queryParameters: query);
-      return PayrollRaw.fromRawJson(res.data);
+      return PayrollRaw.fromJson(res.data);
     } catch (e) {
       return null;
     }

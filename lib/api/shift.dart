@@ -23,7 +23,7 @@ class ShiftApi {
         data: json.encode({"id": id, "from-date": fromDate, "to-date": toDate}),
         options: Options(contentType: "application/json"),
       );
-      return ShiftReport.fromRawJson(res.data);
+      return ShiftReport.fromJson(res.data);
     } catch (e) {
       print("[Error] Getting Shifts data: $e");
       return null;
@@ -37,7 +37,7 @@ class ShiftApi {
         shiftTimeUrl,
         queryParameters: {"id": id, "date": toDay},
       );
-      return ShiftTime.fromMap(jsonDecode(res.data));
+      return ShiftTime.fromMap(res.data);
     } catch (e) {
       print("[Error] Api shift getting shiftTime data: $e");
       return null;

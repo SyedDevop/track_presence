@@ -11,14 +11,14 @@ class LoanApi {
   Future<List<Loan>> getLeaves(String userId) async {
     final res = await dio.get(url, queryParameters: {"id": userId});
     if (res.statusCode != 200) return [];
-    return LoanReport.formRawJson(res.data).data;
+    return LoanReport.fromJson(res.data).data;
   }
 
   Future<LoanFullReport?> getLoanReport(String userId, String loanId) async {
     try {
       final query = {"id": userId, "loan_id": loanId};
       final res = await dio.get(url, queryParameters: query);
-      return LoanFullReport.formRawJson(res.data);
+      return LoanFullReport.fromJson(res.data);
     } catch (e) {
       return null;
     }

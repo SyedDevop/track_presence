@@ -10,7 +10,7 @@ class LeaveApi {
 
   Future<List<Leave>> getLeaves(String userId) async {
     final res = await dio.get("leaves.php", queryParameters: {"id": userId});
-    return LeaveReport.fromRawJson(res.data).data;
+    return LeaveReport.fromJson(res.data).data;
   }
 
   Future<void> postLeaves({
