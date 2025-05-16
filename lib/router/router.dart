@@ -141,10 +141,9 @@ final router = GoRouter(
     final asSr = getIt<AppStore>();
     asSr.setToken(token);
 
-    DeviceInfoPlugin df = DeviceInfoPlugin();
-    final af = await df.androidInfo;
-    final isEmu = await af.isPhysicalDevice;
-    if (isEmu) {
+    final DB db = DB.instance;
+    final user = await db.queryAllUsers();
+    if (user.isEmpty) {
       if (urlPath == RouteNames.registerScanPath ||
           urlPath == RouteNames.registerPath) return null;
       return RouteNames.registerPath;

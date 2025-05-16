@@ -38,6 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
         final resp = await _accApi.login(_userCT.text, _passwordCT.text);
         final access = resp['access_token'] as String;
         final refresh = resp['refresh_token'] as String;
+        await storage.clear();
         await storage.save(access: access, refresh: refresh);
         if (!context.mounted) return;
         context.goNamed(RouteNames.home);
