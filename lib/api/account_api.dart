@@ -5,6 +5,13 @@ class AccountApi {
   Dio dio;
   AccountApi({required this.dio});
 
+  Future<void> authState() async {
+    await dio.post(
+      "auth_state.php",
+      options: Options(contentType: "application/json"),
+    );
+  }
+
   Future<Map<String, dynamic>> login(String userId, String password) async {
     final res = await dio.post(
       "login.php",
