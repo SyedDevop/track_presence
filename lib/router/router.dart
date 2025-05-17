@@ -1,9 +1,6 @@
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vcare_attendance/db/databse_helper.dart';
-import 'package:vcare_attendance/db/profile_db.dart';
-import 'package:vcare_attendance/getit.dart';
 
 import 'package:vcare_attendance/router/router_name.dart';
 import 'package:vcare_attendance/screens/loan/loan.dart';
@@ -11,9 +8,6 @@ import 'package:vcare_attendance/screens/loan/loan_summery.dart';
 import 'package:vcare_attendance/screens/payroll/payroll_day.dart';
 import 'package:vcare_attendance/screens/payroll/payroll_month.dart';
 import 'package:vcare_attendance/screens/screen.dart';
-import 'package:vcare_attendance/services/app_state.dart';
-import 'package:vcare_attendance/services/state.dart';
-import 'package:vcare_attendance/utils/jwtToken.dart';
 import 'package:vcare_attendance/utils/token_storage.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey =
@@ -123,23 +117,6 @@ final router = GoRouter(
       }
       return RouteNames.loginPath;
     }
-    // Try to parse & validate expiry
-    JwtToken token;
-    try {
-      token = JwtToken.fromRawToken(rawToken);
-    } catch (e) {
-      // Malformed token → force login
-      await storage.clear();
-      return RouteNames.loginPath;
-    }
-    // If token expired → clear and send to login
-    if (token.isExpired()) {
-      await storage.clearAccess();
-      return RouteNames.loginPath;
-    }
-
-    final asSr = getIt<AppStore>();
-    asSr.setToken(token);
 
     final DB db = DB.instance;
     final user = await db.queryAllUsers();
