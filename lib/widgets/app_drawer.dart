@@ -103,9 +103,10 @@ class _AppDrawerState extends State<AppDrawer> {
             title: const Text('Log Out'),
             onTap: () async {
               final storage = TokenStorage();
-              final udb = DB.instance;
-              await storage.clear();
-              await udb.deleteAll();
+              // final udb = DB.instance;
+              // await storage.clear();
+              await storage.clearAccess();
+              // await udb.deleteAll();
 
               if (mounted) context.pushNamed(RouteNames.login);
             },

@@ -30,7 +30,11 @@ final dioLoggerInterceptor = InterceptorsWrapper(
     print('┃ ─ Data   : ${prettyJson(options.data)}');
     print('┃ ─ Headers:');
     options.headers.forEach((key, value) {
-      print('┃    • $key: $value');
+      if (key == "Authorization") {
+        print("┃    • $key: ${value.toString().substring(0, 20)}...");
+      } else {
+        print('┃    • $key: $value');
+      }
     });
     print("┃");
     print('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\x1B[0m');

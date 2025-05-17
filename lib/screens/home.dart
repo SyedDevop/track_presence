@@ -28,6 +28,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final _attendanceApi = Api.attendance;
   final _shiftApi = Api.shift;
+  final _accountApi = Api.account;
 
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   final local.AppState _asSr = getIt<local.AppState>();
@@ -51,6 +52,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _getTimes() async {
     try {
       setState(() => _initializing = true);
+      await _accountApi.authState();
+      await _astSr.setTokenFromStorage();
       final userId = _astSr.token.id;
       final gotsShiftTime = await _shiftApi.getShifttime(userId);
       final gotClockedTime = await _attendanceApi.getColockedtime(userId);

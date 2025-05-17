@@ -39,9 +39,10 @@ class _LoginScreenState extends State<LoginScreen> {
         final refresh = resp['refresh_token'] as String;
         await storage.clear();
         await storage.save(access: access, refresh: refresh);
-        if (!context.mounted) return;
-        context.goNamed(RouteNames.home);
-        snackbarSuccess(context, message: "Login successful..🎉🎉🎉..");
+        if (context.mounted) {
+          context.goNamed(RouteNames.home);
+          snackbarSuccess(context, message: "Login successful..🎉🎉🎉..");
+        }
       } on DioException catch (e) {
         snackbarError(context, message: "${e.message}  😭");
       } catch (e) {

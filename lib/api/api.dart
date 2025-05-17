@@ -7,9 +7,9 @@ import 'package:vcare_attendance/api/loan_api.dart';
 import 'package:vcare_attendance/api/payslip_api.dart';
 import 'package:vcare_attendance/api/shift.dart';
 import 'package:vcare_attendance/api/user_api.dart';
+import 'package:vcare_attendance/interceptor/auth.dart';
 import 'package:vcare_attendance/interceptor/error.dart';
 import 'package:vcare_attendance/interceptor/logger.dart';
-import 'package:vcare_attendance/utils/auth_interceptor.dart';
 import 'package:vcare_attendance/utils/token_storage.dart';
 
 const kBaseApi = "http://192.168.1.120:6969/api/";
@@ -27,8 +27,8 @@ Dio dioConfig() {
     ),
   );
   dioConf.interceptors.add(customErrorInterceptor);
-  if (kDebugMode) dioConf.interceptors.add(dioLoggerInterceptor);
   dioConf.interceptors.add(AuthInterceptor(dioConf, tokenStorage));
+  if (kDebugMode) dioConf.interceptors.add(dioLoggerInterceptor);
   return dioConf;
 }
 
