@@ -99,8 +99,9 @@ class Loan {
   }
 }
 
-List<LoanPayment> loanPaymentListFromJson(String str) => List<LoanPayment>.from(
-      json.decode(str)["data"].map((x) => LoanPayment.fromJson(x)),
+List<LoanPayment> loanPaymentListFromJson(Map<String, dynamic> json) =>
+    List<LoanPayment>.from(
+      json["data"].map((x) => LoanPayment.fromJson(x)),
     );
 
 class LoanPayment {

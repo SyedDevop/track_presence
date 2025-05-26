@@ -1,5 +1,3 @@
-import 'dart:developer' as dev;
-
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
@@ -8,11 +6,10 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/constant/department.dart';
 import 'package:vcare_attendance/constant/location.dart';
-import 'package:vcare_attendance/db/profile_db.dart';
 import 'package:vcare_attendance/getit.dart';
-import 'package:vcare_attendance/models/profile_model.dart';
 import 'package:vcare_attendance/models/time.dart';
 import 'package:vcare_attendance/router/router_name.dart';
+import 'package:vcare_attendance/services/app_state.dart';
 import 'package:vcare_attendance/services/state.dart' as local;
 import 'package:vcare_attendance/snackbar/snackbar.dart';
 import 'package:vcare_attendance/utils/utils.dart';
@@ -34,6 +31,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   final local.AppState _asSr = getIt<local.AppState>();
+  final _astSr = getIt<AppStore>();
 
   bool _initializing = false;
   ShiftTime? shiftTime;
@@ -53,9 +51,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _getTimes() async {
     try {
       setState(() => _initializing = true);
-      ProfileDB pdb = ProfileDB.instance;
-      List<Profile> profile = await pdb.queryAllProfile();
-      final userId = profile.first.userId;
+      await _astSr.setTokenFromStorage();
+      final userId = _astSr.token.id;
       final gotsShiftTime = await _shiftApi.getShifttime(userId);
       final gotClockedTime = await _attendanceApi.getColockedtime(userId);
       final gotOt = await _attendanceApi.getOvertime(userId);

@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vcare_attendance/db/databse_helper.dart';
-import 'package:vcare_attendance/db/profile_db.dart';
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/router/router_name.dart';
 import 'package:vcare_attendance/services/state.dart';
+import 'package:vcare_attendance/utils/token_storage.dart';
 
 class AppDrawer extends StatefulWidget {
   const AppDrawer({super.key});
@@ -102,11 +102,11 @@ class _AppDrawerState extends State<AppDrawer> {
             leading: const Icon(Icons.logout_rounded),
             title: const Text('Log Out'),
             onTap: () async {
-              final pdb = ProfileDB.instance;
-              final udb = DB.instance;
-
-              await pdb.deleteAll();
-              await udb.deleteAll();
+              final storage = TokenStorage();
+              // final udb = DB.instance;
+              // await storage.clear();
+              await storage.clearAccess();
+              // await udb.deleteAll();
 
               if (mounted) context.pushNamed(RouteNames.login);
             },

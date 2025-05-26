@@ -1,7 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vcare_attendance/api/api.dart';
-import 'package:vcare_attendance/api/error.dart';
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/loan_model.dart';
 import 'package:vcare_attendance/router/router_name.dart';
@@ -101,7 +101,7 @@ class _LoanScreenState extends State<LoanScreen> {
       );
       snackbarSuccess(context, message: "Loan Applied Successfully");
       await _getLoans();
-    } on ApiException catch (e) {
+    } on DioException catch (e) {
       snackbarError(context, message: "${e.message}  😭");
     } catch (e) {
       snackbarError(context, message: "Failed to apply loan");

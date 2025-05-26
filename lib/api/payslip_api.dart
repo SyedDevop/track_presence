@@ -1,22 +1,16 @@
 import 'dart:io';
 
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:vcare_attendance/models/payroll_model.dart';
 import 'package:vcare_attendance/models/payslip_model.dart';
 
 class PayslipApi {
-  String baseUrl;
-  late String url;
-  PayslipApi({required this.baseUrl}) {
-    url = "$baseUrl/payroll.php";
-  }
+  Dio dio;
+  static const String url = "payroll.php";
+  PayslipApi({required this.dio});
 
   Future<void> deletePayslip(int id) async {
-    final response = await http.delete(Uri.parse('$url/$id'));
-
-    if (response.statusCode != 200) {
-      throw Exception('Failed to delete payslip');
-    }
+    await dio.delete("$url/$id");
   }
 
   Future<Payslip?> fetchPayslipsByMonthAndYear(
@@ -24,19 +18,23 @@ class PayslipApi {
     String month,
     int year,
   ) async {
-    final payslipUrl = '$url?id=$userId&month=$month&year=$year';
-    final response = await http.get(Uri.parse(payslipUrl));
-    if (response.statusCode != 200) return null;
-    return Payslip.fromRawJson(response.body);
+    final query = {"id": userId, "month": month, "year": year};
+    final response = await dio.get(url, queryParameters: query);
+    return Payslip.fromJson(response.data);
   }
 
+  // TODO: Use Dio downloads method.
   Future<String?> downloadPayslip(int payslipId) async {
     try {
-      final res = await http
-          .get(Uri.parse("$baseUrl/../generate/payslip_pdf.php?id=$payslipId"));
+      final res = await dio.get("../generate/payslip_pdf.php",
+          queryParameters: {"id": payslipId},
+          options: Options(
+            responseType: ResponseType.bytes,
+            followRedirects: true,
+          ));
       if (res.statusCode != 200) throw "Error: Failed to download the payslip";
 
-      String? contentDisposition = res.headers['content-disposition'];
+      String? contentDisposition = res.headers.value('content-disposition');
       String filename = "payslip_$payslipId.pdf";
       if (contentDisposition != null &&
           contentDisposition.contains('filename=')) {
@@ -52,7 +50,7 @@ class PayslipApi {
         String filePath = "/storage/emulated/0/Download/$filename";
         File file = File(filePath);
 
-        await file.writeAsBytes(res.bodyBytes);
+        await file.writeAsBytes(res.data);
         return "Your payslip '$filename' is ready! Find it at: $filePath.";
       }
     } catch (e) {
@@ -63,11 +61,13 @@ class PayslipApi {
   }
 
   Future<PayrollRaw?> getRawPayroll(String id, String date) async {
-    final res = await http.get(
-      Uri.parse('$baseUrl/payslip.php?id=$id&day=$date'),
-    );
-    if (res.statusCode != 200) return null;
-    return PayrollRaw.fromRawJson(res.body);
+    try {
+      final query = {"id": id, "day": date};
+      final res = await dio.get("payslip.php", queryParameters: query);
+      return PayrollRaw.fromJson(res.data);
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<PayrollRaw?> getRawPayrolls(
@@ -75,10 +75,12 @@ class PayslipApi {
     String month,
     int year,
   ) async {
-    final res = await http.get(
-      Uri.parse('$baseUrl/payslip.php?id=$id&month=$month&year=$year'),
-    );
-    if (res.statusCode != 200) return null;
-    return PayrollRaw.fromRawJson(res.body);
+    try {
+      final query = {"id": id, "month": month, "year": year};
+      final res = await dio.get("payslip.php", queryParameters: query);
+      return PayrollRaw.fromJson(res.data);
+    } catch (e) {
+      return null;
+    }
   }
 }

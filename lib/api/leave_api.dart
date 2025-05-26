@@ -1,21 +1,16 @@
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
-import 'package:vcare_attendance/api/error.dart';
-
+import 'package:dio/dio.dart';
 import 'package:vcare_attendance/models/leave_model.dart';
 
 class LeaveApi {
-  String baseUrl;
-  late String url;
-  LeaveApi({required this.baseUrl}) {
-    url = "$baseUrl/leaves.php";
-  }
+  late String baseUrl;
+  Dio dio;
+  LeaveApi({required this.dio});
 
   Future<List<Leave>> getLeaves(String userId) async {
-    final res = await http.get(Uri.parse('$url?id=$userId'));
-    if (res.statusCode != 200) return [];
-    return LeaveReport.fromRawJson(res.body).data;
+    final res = await dio.get("leaves.php", queryParameters: {"id": userId});
+    return LeaveReport.fromJson(res.data).data;
   }
 
   Future<void> postLeaves({
@@ -27,9 +22,9 @@ class LeaveApi {
     required String leaveType,
     required String department,
   }) async {
-    final res = await http.post(
-      Uri.parse(url),
-      body: json.encode({
+    await dio.post(
+      "leaves.php",
+      data: json.encode({
         "id": userId,
         "name": name,
         "from-date": fromDate,
@@ -38,21 +33,17 @@ class LeaveApi {
         "department": department,
         "leave_type": leaveType,
       }),
-      headers: {"Content-Type": "application/json"},
+      options: Options(contentType: "application/json"),
     );
-    if (res.statusCode >= 400 && res.statusCode < 500) {
-      throw ApiException(ApiError.fromJson(jsonDecode(res.body)));
-    }
   }
 
-  Future<void> deletLeaves({
+  Future<void> deleteLeaves({
     required String userId,
     required String leaveId,
   }) async {
-    final res =
-        await http.delete(Uri.parse("$url?user_id=$userId&leave_id$leaveId"));
-    if (res.statusCode >= 400 && res.statusCode < 500) {
-      throw ApiException(ApiError.fromJson(jsonDecode(res.body)));
-    }
+    await dio.delete(
+      "leaves.php",
+      queryParameters: {"user_id": userId, "leave_id": leaveId},
+    );
   }
 }

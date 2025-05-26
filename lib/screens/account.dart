@@ -1,6 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+
 import 'package:vcare_attendance/api/api.dart';
-import 'package:vcare_attendance/api/error.dart';
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/services/state.dart';
 import 'package:vcare_attendance/snackbar/snackbar.dart';
@@ -56,7 +57,7 @@ class _AccountScreenState extends State<AccountScreen> {
           );
         }
         _reset();
-      } on ApiException catch (e) {
+      } on DioException catch (e) {
         snackbarError(context, message: "${e.message}  😭");
       } catch (e) {
         print("[Error]: changePassword error :: $e");

@@ -67,7 +67,7 @@ class AttendanceRecord {
             ? null
             : Attendance.fromJson(json["attendance"]),
         extraHour: List<ExtraHour>.from(
-          json["overtime"].map((x) => ExtraHour.fromJson(x)),
+          json["extratime"].map((x) => ExtraHour.fromJson(x)),
         ),
       );
 

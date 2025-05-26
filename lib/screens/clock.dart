@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:local_auth/local_auth.dart';
@@ -264,13 +265,13 @@ class _AttendanceBottomSheetState extends State<AttendanceBottomSheet> {
                 widget.location,
                 widget.authType,
               );
-            } on ApiException catch (e) {
+            } on DioException catch (e) {
               if (mounted) {
                 await showDialog(
                   context: context,
                   builder: (context) {
                     return AlertDialog(
-                      content: Text(e.message),
+                      content: Text(e.message ?? ""),
                     );
                   },
                 );
@@ -309,12 +310,12 @@ class _AttendanceBottomSheetState extends State<AttendanceBottomSheet> {
                 widget.location,
                 widget.authType,
               );
-            } on ApiException catch (e) {
+            } on DioException catch (e) {
               await showDialog(
                 context: context,
                 builder: (context) {
                   return AlertDialog(
-                    content: Text(e.message),
+                    content: Text(e.message ?? ""),
                   );
                 },
               );

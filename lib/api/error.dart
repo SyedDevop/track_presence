@@ -23,6 +23,11 @@ const kuserNotFound = "user-not-found";
 const kuserNotRegisterd = "user-not-registerd";
 const kuserInvalid = "user-invalid";
 
+const kTokenNotFound = "token-not-found";
+const kTokenExpired = "token-expired";
+const kTokenInvalid = "token-invalid";
+const kDeviceNotRecognized = "device-not-recognized";
+
 class ApiException implements Exception {
   final int status;
   final String error;

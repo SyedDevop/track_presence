@@ -1,43 +1,44 @@
 import 'dart:convert';
-
-import 'package:http/http.dart' as http;
-import 'package:vcare_attendance/api/error.dart';
-
-import 'package:vcare_attendance/models/profile_model.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:dio/dio.dart';
 
 class AccountApi {
-  String baseUrl;
-  late String url;
-  AccountApi({required this.baseUrl}) {
-    url = "$baseUrl/account.php";
+  Dio dio;
+  AccountApi({required this.dio});
+
+  Future<void> authState() async {
+    await dio.post(
+      "auth_state.php",
+      options: Options(contentType: "application/json"),
+    );
   }
 
-  Future<Profile?> login(String userId, String password) async {
-    final res = await http.post(
-      Uri.parse("$url?action=login"),
-      body: json.encode({"user-id": userId, "password": password}),
-      headers: {"Content-Type": "application/json"},
+  Future<Map<String, dynamic>> login(String userId, String password) async {
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+    final res = await dio.post(
+      "login.php",
+      data: json.encode({
+        "user-id": userId,
+        "password": password,
+        "device_name": androidInfo.model,
+        "device_id": androidInfo.id
+      }),
+      options: Options(contentType: "application/json"),
     );
-    if (res.statusCode >= 400 && res.statusCode < 500) {
-      throw ApiException(ApiError.fromJson(jsonDecode(res.body)));
-    }
-    final jsBody = jsonDecode(res.body);
-    return Profile.fromApiJson(jsBody["profile"]);
+    return res.data;
   }
 
   Future<void> changePassword(
       String userId, String currPassword, String password) async {
-    final res = await http.post(
-      Uri.parse("$url?action=change_password"),
-      body: json.encode({
+    await dio.post(
+      "forgot_password.php",
+      data: json.encode({
         "user-id": userId,
         "curr-password": currPassword,
         "password": password
       }),
-      headers: {"Content-Type": "application/json"},
+      options: Options(contentType: "application/json"),
     );
-    if (res.statusCode >= 400 && res.statusCode < 500) {
-      throw ApiException(ApiError.fromJson(jsonDecode(res.body)));
-    }
   }
 }
