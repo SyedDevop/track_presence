@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 
 class AccountApi {
@@ -13,9 +14,16 @@ class AccountApi {
   }
 
   Future<Map<String, dynamic>> login(String userId, String password) async {
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
     final res = await dio.post(
       "login.php",
-      data: json.encode({"user-id": userId, "password": password}),
+      data: json.encode({
+        "user-id": userId,
+        "password": password,
+        "device_name": androidInfo.model,
+        "device_id": androidInfo.id
+      }),
       options: Options(contentType: "application/json"),
     );
     return res.data;

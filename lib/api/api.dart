@@ -12,8 +12,8 @@ import 'package:vcare_attendance/interceptor/error.dart';
 import 'package:vcare_attendance/interceptor/logger.dart';
 import 'package:vcare_attendance/utils/token_storage.dart';
 
-const kBaseApi = "http://192.168.1.120:6969/api/";
-//const kBaseApi = "http://192.168.1.2:6969/api";
+//const kBaseApi = "http://192.168.1.120:6969/api/";
+const kBaseApi = "http://192.168.1.2:6969/api";
 //const kBaseApi = "https://vcarehospital.in/hmsversion8.2/payroll/api";
 
 final tokenStorage = TokenStorage();
