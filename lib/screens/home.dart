@@ -59,7 +59,7 @@ Future<void> initPlatformState() async {
 
   bool hasServiceStarted =
       await GeofenceForegroundService().startGeofencingService(
-    contentTitle: 'Test app is running in the background',
+    contentTitle: 'Vcare Attendance',
     contentText:
         'Test app will be running to ensure seamless integration with ops team',
     notificationChannelId: 'com.app.geofencing_notifications_channel',
@@ -68,18 +68,20 @@ Future<void> initPlatformState() async {
   );
 
   if (hasServiceStarted) {
+    print('Service has been started');
     await GeofenceForegroundService().addGeofenceZone(
       zone: Zone(
         id: 'zone#1_id',
-        radius: 25, // measured in meters
+        radius: 10000, // measured in meters
         coordinates: timesSquarePolygon,
+        notificationResponsivenessMs: 15 * 1000,
         triggers: [
           GeofenceEventType.dwell,
           GeofenceEventType.enter,
           GeofenceEventType.exit
         ], // Currently, only available on Android
-        expirationDuration:
-            const Duration(seconds: 30), // Currently, only available on Android
+        // expirationDuration:
+        //     const Duration(seconds: 30), // Currently, only available on Android
         dwellLoiteringDelay:
             const Duration(minutes: 1), // Currently, only available on Android
         initialTrigger:

@@ -60,6 +60,7 @@ dependencies:
   flutter_secure_storage: ^9.2.4
   geofence_foreground_service:
     git: https://github.com/SyedDevop/geofence_foreground_service.git
+  permission_handler: ^12.0.1
 
 dev_dependencies:
   flutter_test:
