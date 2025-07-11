@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:geofence_foreground_service/constants/geofence_event_type.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -15,8 +18,76 @@ import 'package:vcare_attendance/snackbar/snackbar.dart';
 import 'package:vcare_attendance/utils/utils.dart';
 
 import 'package:vcare_attendance/widgets/widget.dart';
+import 'package:geofence_foreground_service/exports.dart';
+import 'package:geofence_foreground_service/geofence_foreground_service.dart';
+import 'package:geofence_foreground_service/models/zone.dart';
 
 const gap = 15.0;
+
+// This method is a top level method
+
+@pragma('vm:entry-point')
+void callbackDispatcher() async {
+  GeofenceForegroundService().handleTrigger(
+    backgroundTriggerHandler: (zoneID, triggerType) {
+      log(zoneID, name: 'zoneID');
+
+      if (triggerType == GeofenceEventType.enter) {
+        log('enter', name: 'triggerType');
+      } else if (triggerType == GeofenceEventType.exit) {
+        log('exit', name: 'triggerType');
+      } else if (triggerType == GeofenceEventType.dwell) {
+        log('dwell', name: 'triggerType');
+      } else {
+        log('unknown', name: 'triggerType');
+      }
+
+      return Future.value(true);
+    },
+  );
+}
+
+final List<LatLng> timesSquarePolygon = [
+  LatLng.degree(40.758078, -73.985640),
+  LatLng.degree(40.757983, -73.985417),
+  LatLng.degree(40.757881, -73.985493),
+  LatLng.degree(40.757956, -73.985688),
+];
+
+Future<void> initPlatformState() async {
+  // Remember to handle permissions before initiating the plugin
+
+  bool hasServiceStarted =
+      await GeofenceForegroundService().startGeofencingService(
+    contentTitle: 'Test app is running in the background',
+    contentText:
+        'Test app will be running to ensure seamless integration with ops team',
+    notificationChannelId: 'com.app.geofencing_notifications_channel',
+    serviceId: 525600,
+    callbackDispatcher: callbackDispatcher,
+  );
+
+  if (hasServiceStarted) {
+    await GeofenceForegroundService().addGeofenceZone(
+      zone: Zone(
+        id: 'zone#1_id',
+        radius: 25, // measured in meters
+        coordinates: timesSquarePolygon,
+        triggers: [
+          GeofenceEventType.dwell,
+          GeofenceEventType.enter,
+          GeofenceEventType.exit
+        ], // Currently, only available on Android
+        expirationDuration:
+            const Duration(seconds: 30), // Currently, only available on Android
+        dwellLoiteringDelay:
+            const Duration(minutes: 1), // Currently, only available on Android
+        initialTrigger:
+            GeofenceEventType.enter, // Currently, only available on Android
+      ),
+    );
+  }
+}
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -49,6 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _getTimes() async {
+    await initPlatformState();
     try {
       setState(() => _initializing = true);
       await _astSr.setTokenFromStorage();
