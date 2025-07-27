@@ -14,6 +14,7 @@ import 'package:vcare_attendance/models/time.dart';
 import 'package:vcare_attendance/router/router_name.dart';
 import 'package:vcare_attendance/services/app_state.dart';
 import 'package:vcare_attendance/snackbar/snackbar.dart';
+import 'package:vcare_attendance/utils/handle_location.dart';
 import 'package:vcare_attendance/utils/utils.dart';
 
 import 'package:vcare_attendance/widgets/widget.dart';
@@ -120,6 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _getTimes() async {
+    await handleLocationPermission(context);
     await initPlatformState();
     try {
       setState(() => _initializing = true);
