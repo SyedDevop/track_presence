@@ -360,14 +360,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.1"
-  geofence_foreground_service:
-    dependency: "direct main"
-    description:
-      name: geofence_foreground_service
-      sha256: "1a57b9b3e33faab2eca550e30b3765bfbc2d7267baea799caa8297629a438dbe"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.5"
   geolocator:
     dependency: "direct main"
     description:
@@ -520,14 +512,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.9.0"
-  latlng:
-    dependency: transitive
-    description:
-      name: latlng
-      sha256: a324c80073ef959d67ead88b57a717b7b87f182da1b980ccae92b3555ac82712
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.7"
   leak_tracker:
     dependency: transitive
     description:
