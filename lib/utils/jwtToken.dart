@@ -132,9 +132,12 @@ class JwtToken {
 
   @override
   String toString() {
-    return 'JwtToken(sub: $sub, id: $id, type: $type, '
-        'name: $name, department: $department, '
-        'designation: $designation, iss: $iss, '
-        'iat: $iat, exp: $exp)';
+    final iat_local = DateTime.fromMillisecondsSinceEpoch(iat * 1000);
+    final exp_local = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
+    return '''JwtToken(sub: $sub, id: $id, type: $type,
+        name: $name, department: $department, designation: $designation,
+        iss: $iss, iat: $iat, exp: $exp
+        iat: ${iat_local.toLocal()}, exp: ${exp_local.toLocal()}
+        )''';
   }
 }

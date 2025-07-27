@@ -41,6 +41,13 @@ class AppStore {
     _token = JwtToken.fromRawToken(token);
   }
 
+  /// This will clear all tokens from storage.
+  /// Including refresh token and access token.
+  Future<void> clearAllTokens() async {
+    final storage = TokenStorage();
+    await storage.clear();
+  }
+
   Future<void> printToken() async {
     if (!kDebugMode) return;
     final storage = TokenStorage();

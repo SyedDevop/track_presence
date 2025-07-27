@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:vcare_attendance/db/databse_helper.dart';
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/user_model.dart';
+import 'package:vcare_attendance/router/router_name.dart';
 import 'package:vcare_attendance/services/service.dart';
 import 'package:vcare_attendance/snackbar/snackbar.dart';
 
@@ -103,14 +104,9 @@ class _RegisterScanState extends State<RegisterScan> {
     await onShot();
 
     if (!_appSR.token.isValid()) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return const AlertDialog(
-            content: Text('User Not Found! Please login again'),
-          );
-        },
-      );
+      await _appSR.clearAllTokens();
+      snackbarError(context, message: "User Not Found! Please login again");
+      context.goNamed(RouteNames.login);
       return false;
     }
 
@@ -132,7 +128,7 @@ class _RegisterScanState extends State<RegisterScan> {
     return true;
   }
 
-  Future onCapture(BuildContext context) async {
+  Future<void> onCapture(BuildContext context) async {
     _saving = true;
     final isDataSaved = await saveData();
 
@@ -146,7 +142,7 @@ class _RegisterScanState extends State<RegisterScan> {
         context.go("/");
       }
     }
-    return false;
+    return;
   }
 
   Future onShot() async {
