@@ -1,7 +1,8 @@
 import 'dart:io';
 import 'dart:math';
-import 'dart:typed_data';
+import 'dart:math' as math;
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:vcare_attendance/db/databse_helper.dart';
 
@@ -9,7 +10,6 @@ import 'package:vcare_attendance/db/databse_helper.dart';
 import 'package:vcare_attendance/models/user_model.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 // ignore: implementation_imports
-import 'package:tflite_flutter/src/bindings/tensorflow_lite_bindings_generated.dart';
 import 'package:image/image.dart' as imglib;
 
 import 'image_converter.dart';
@@ -19,65 +19,76 @@ int getGreen(int color) => (color >> 8) & 0xff;
 int getBlue(int color) => (color >> 16) & 0xff;
 
 class MLService {
-  Interpreter? _interpreter;
+  late Interpreter _interpreter;
   double threshold = 0.5;
   List<int> inputShapList = [1, 112, 112, 3];
   int inputShapSize = 1 * 112 * 112 * 3;
 
+  late List<int> _inputShape;
+  late List<int> _outputShape;
+
   List<List> _predictedDataList = [];
   List<List> get predictedDataList => _predictedDataList;
-  List _predictedData = [];
+  List<double> _predictedData = [];
   List get predictedData => _predictedData;
 
   Future initialize() async {
-    late Delegate delegate;
+    // late Delegate delegate;
     try {
-      if (Platform.isAndroid) {
-        delegate = GpuDelegateV2(
-          options: GpuDelegateOptionsV2(
-            isPrecisionLossAllowed: false,
-            inferencePreference: TfLiteGpuInferenceUsage
-                .TFLITE_GPU_INFERENCE_PREFERENCE_FAST_SINGLE_ANSWER,
-            inferencePriority1: TfLiteGpuInferencePriority
-                .TFLITE_GPU_INFERENCE_PRIORITY_MIN_LATENCY,
-            inferencePriority2:
-                TfLiteGpuInferencePriority.TFLITE_GPU_INFERENCE_PRIORITY_AUTO,
-            inferencePriority3:
-                TfLiteGpuInferencePriority.TFLITE_GPU_INFERENCE_PRIORITY_AUTO,
-          ),
-        );
-      } else if (Platform.isIOS) {
-        delegate = GpuDelegate(
-          options: GpuDelegateOptions(
-              allowPrecisionLoss: true,
-              waitType: TFLGpuDelegateWaitType.TFLGpuDelegateWaitTypeActive),
-        );
-      }
-      var interpreterOptions = InterpreterOptions()..addDelegate(delegate);
+      // if (Platform.isAndroid) {
+      //   delegate = GpuDelegateV2(
+      //     options: GpuDelegateOptionsV2(
+      //       isPrecisionLossAllowed: false,
+      //       inferencePreference: TfLiteGpuInferenceUsage
+      //           .TFLITE_GPU_INFERENCE_PREFERENCE_FAST_SINGLE_ANSWER,
+      //       inferencePriority1: TfLiteGpuInferencePriority
+      //           .TFLITE_GPU_INFERENCE_PRIORITY_MIN_LATENCY,
+      //       inferencePriority2:
+      //           TfLiteGpuInferencePriority.TFLITE_GPU_INFERENCE_PRIORITY_AUTO,
+      //       inferencePriority3:
+      //           TfLiteGpuInferencePriority.TFLITE_GPU_INFERENCE_PRIORITY_AUTO,
+      //     ),
+      //   );
+      // } else if (Platform.isIOS) {
+      //   delegate = GpuDelegate(
+      //     options: GpuDelegateOptions(
+      //         allowPrecisionLoss: true,
+      //         waitType: TFLGpuDelegateWaitType.TFLGpuDelegateWaitTypeActive),
+      //   );
+      // }
+      // var interpreterOptions = InterpreterOptions()..addDelegate(delegate);
 
-      _interpreter = await Interpreter.fromAsset(
-        'assets/mobilefacenet.tflite',
-        options: interpreterOptions,
-      );
+      _interpreter = await Interpreter.fromAsset('assets/mobilefacenet.tflite');
+      _interpreter.allocateTensors();
+      var inputTensor = _interpreter.getInputTensor(0);
+      _inputShape = inputTensor.shape;
+      _outputShape = _interpreter.getOutputTensor(0).shape;
+      debugPrint("Model loaded. Input: $_inputShape, Output: $_outputShape");
+      debugPrint('Model loaded Input type: ${inputTensor.type}');
+      debugPrint(
+          'Model loaded. Quantization params: ${inputTensor.params.toString()}');
     } catch (e) {
-      print('Failed to load model.');
-      print(e);
+      debugPrint('Failed to load model.');
+      debugPrint(e.toString());
     }
   }
 
   void setCurrentPrediction(CameraImage cameraImage, Face? face) {
-    if (_interpreter == null) throw Exception('Interpreter is null');
     if (face == null) throw Exception('Face is null');
-    List input = _preProcess(cameraImage, face);
+    Float32List input = _preProcess(cameraImage, face);
+    var output =
+        List.filled(_outputShape[1], 0.0).reshape([1, _outputShape[1]]);
+    debugPrint(
+        "Data Input-shape: ${input.shape} :: Output-shape: ${output.shape}");
+    debugPrint("Model loaded. Input: $_inputShape, Output: $_outputShape");
 
-    input = input.reshape(inputShapList);
-    List output = List.generate(1, (index) => List.filled(192, 0));
-
-    _interpreter?.run(input, output);
+    _interpreter.run(input.reshape([1, 112, 112, 3]), output);
     output = output.reshape([192]);
-
+    debugPrint(
+        "After Data Input-shape: ${input.shape} :: Output-shape: ${output.shape}");
     _predictedData = List.from(output);
     _predictedDataList.add(_predictedData);
+    return;
   }
 
   void addCaptures() {
@@ -98,12 +109,10 @@ class MLService {
     return imglib.copyResizeCropSquare(croppedImage, size: 112);
   }
 
-  List _preProcess(CameraImage image, Face faceDetected) {
+  Float32List _preProcess(CameraImage image, Face faceDetected) {
     imglib.Image croppedImage = _cropFace(image, faceDetected);
     imglib.Image img = imglib.copyResizeCropSquare(croppedImage, size: 112);
-
-    Float32List imageAsList = imageToByteListFloat32(img);
-    return imageAsList;
+    return imageToByteListFloat32(img);
   }
 
   imglib.Image _cropFace(CameraImage image, Face faceDetected) {
@@ -118,25 +127,22 @@ class MLService {
 
   imglib.Image _convertCameraImage(CameraImage image) {
     var img = convertToImage(image);
-    var img1 = imglib.copyRotate(img, angle: -90);
-    return img1;
+    return imglib.copyRotate(img, angle: -90);
   }
 
   Float32List imageToByteListFloat32(imglib.Image image) {
-    var convertedBytes = Float32List(inputShapSize);
-    var buffer = Float32List.view(convertedBytes.buffer);
-    int pixelIndex = 0;
+    var buffer = Float32List(inputShapSize);
+    int index = 0;
 
-    for (var i = 0; i < 112; i++) {
-      for (var j = 0; j < 112; j++) {
-        var pixel = image.getPixel(j, i);
-        // Normalize to range [-1, 1]
-        buffer[pixelIndex++] = (pixel.r - 128) / 128;
-        buffer[pixelIndex++] = (pixel.g - 128) / 128;
-        buffer[pixelIndex++] = (pixel.b - 128) / 128;
+    for (int y = 0; y < 112; y++) {
+      for (int x = 0; x < 112; x++) {
+        final pixel = image.getPixelSafe(x, y);
+        buffer[index++] = (pixel.r - 127.5) / 128;
+        buffer[index++] = (pixel.g - 127.5) / 128;
+        buffer[index++] = (pixel.b - 127.5) / 128;
       }
     }
-    return convertedBytes.buffer.asFloat32List();
+    return buffer;
   }
 
   Future<User?> _searchResult(List predictedData) async {
@@ -169,12 +175,28 @@ class MLService {
     return sqrt(sum);
   }
 
+  /// double similarity = cosineSimilarity(storedEmbeddingsList, newEmbeddings);
+  /// debugPrint("Face similarity score: $similarity");
+  ///
+  /// return similarity > 0.6717;
+  double cosineSimilarity(List<double> a, List<double> b) {
+    double dotProduct = 0, normA = 0, normB = 0;
+    for (int i = 0; i < a.length; i++) {
+      dotProduct += a[i] * b[i];
+      normA += a[i] * a[i];
+      normB += b[i] * b[i];
+    }
+    return normA == 0 || normB == 0
+        ? 0
+        : dotProduct / (sqrt(normA) * sqrt(normB));
+  }
+
   void setPredictedData(value) {
     _predictedData = value;
   }
 
-  dispose() {
-    _interpreter?.close();
+  void dispose() {
+    _interpreter.close();
     _predictedData = [];
   }
 }
