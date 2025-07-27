@@ -45,7 +45,7 @@ void showPermissionDialog(BuildContext context) {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 12),
-            Text('📱 Steps to enable:'),
+            Text('Steps to enable:'),
             SizedBox(height: 8),
             Text('1. Tap "Settings" below'),
             Text('2. Find this app in the list'),
