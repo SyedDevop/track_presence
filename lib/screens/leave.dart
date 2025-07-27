@@ -8,7 +8,7 @@ import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/constant/holidays.dart';
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/leave_model.dart';
-import 'package:vcare_attendance/services/state.dart';
+import 'package:vcare_attendance/services/service.dart';
 import 'package:vcare_attendance/snackbar/snackbar.dart';
 import 'package:vcare_attendance/utils/utils.dart';
 
@@ -26,8 +26,8 @@ class _LeaveScreenState extends State<LeaveScreen> {
   bool _loading = false;
 
   List<Leave> leaves = [];
-  final profile = getIt<AppState>().profile;
-
+  final _appSr = getIt<AppStore>();
+  String _userId = "";
   PickerDateRange? range;
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
@@ -51,7 +51,7 @@ class _LeaveScreenState extends State<LeaveScreen> {
 
   Future<void> _fetchLeaves() async {
     try {
-      final leav = await apiL.getLeaves(profile?.userId ?? " ");
+      final leav = await apiL.getLeaves(_userId);
       setState(() => leaves = leav);
     } catch (e) {
       setState(() => leaves = []);
@@ -61,6 +61,7 @@ class _LeaveScreenState extends State<LeaveScreen> {
 
   Future<void> _start() async {
     _loading = true;
+    _userId = _appSr.token.sub;
     await _fetchLeaves();
     setState(() {
       _loading = false;
@@ -101,12 +102,6 @@ class _LeaveScreenState extends State<LeaveScreen> {
   }
 
   Future<void> _submit() async {
-    if (profile == null) {
-      snackbarError(context, message: "User profile is not Set 😭");
-      if (mounted) context.pop();
-      return;
-    }
-
     if (range == null || range?.startDate == null || range?.endDate == null) {
       snackbarError(context, message: "Dates not selected for leave 😭");
       if (mounted) context.pop();
@@ -118,13 +113,13 @@ class _LeaveScreenState extends State<LeaveScreen> {
         final fDate = dateFmt.format(range!.startDate!);
         final tDate = dateFmt.format(range!.endDate!);
         await apiL.postLeaves(
-          userId: profile!.userId,
-          name: profile!.name,
+          userId: _userId,
+          name: _appSr.token.name,
           fromDate: fDate,
           toDate: tDate,
           reason: _reasonCT.text,
           leaveType: _leaveTypeKey.currentState?.getSelectedItem as String,
-          department: profile!.department ?? " None ",
+          department: _appSr.token.department,
         );
 
         await _fetchLeaves();
@@ -267,7 +262,7 @@ class LeaveCard extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: leave.statusColor?.withOpacity(0.2),
+            color: leave.statusColor?.withValues(alpha: 0.2),
           ),
           child: Padding(
             padding: const EdgeInsets.all(8.0),

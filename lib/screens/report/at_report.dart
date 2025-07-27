@@ -7,9 +7,8 @@ import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/attendance_model.dart';
 import 'package:vcare_attendance/models/extra_hour_modeal.dart';
 import 'package:vcare_attendance/models/leave_model.dart';
-import 'package:vcare_attendance/models/profile_model.dart';
 import 'package:vcare_attendance/models/report_model.dart';
-import 'package:vcare_attendance/services/state.dart';
+import 'package:vcare_attendance/services/app_state.dart';
 import 'package:vcare_attendance/utils/utils.dart';
 
 import 'package:vcare_attendance/widgets/widget.dart';
@@ -27,8 +26,7 @@ typedef Empolye = (String, String);
 class _AtReportScreenState extends State<AtReportScreen> {
   final _attendanceApi = Api.attendance;
 
-  final _stateSR = getIt<AppState>();
-  Profile? _profile;
+  final _appSr = getIt<AppStore>();
 
   int currYear = DateTime.now().year;
   int yearLinit = 10;
@@ -66,7 +64,6 @@ class _AtReportScreenState extends State<AtReportScreen> {
       currentDate.month,
       currentDate.day,
     );
-    _profile = _stateSR.profile;
   }
 
   final _monthDP = GlobalKey<DropdownSearchState<String>>();
@@ -249,7 +246,7 @@ class _AtReportScreenState extends State<AtReportScreen> {
       });
       try {
         _resetSummery();
-        final emp = "${_profile?.name ?? " "}-${_profile?.userId ?? " "}";
+        final emp = "${_appSr.token.name}-${_appSr.token.id}";
         final rep = await _attendanceApi.getReport(emp, month, year);
         setState(() => report = rep);
         calculateTimes(rep);

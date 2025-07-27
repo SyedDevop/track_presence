@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
-import 'package:flutter/rendering.dart';
 import 'package:vcare_attendance/api/error.dart';
 import 'package:vcare_attendance/interceptor/logger.dart';
 import 'package:vcare_attendance/router/router_name.dart';

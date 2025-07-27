@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/getit.dart';
-import 'package:vcare_attendance/services/state.dart';
+import 'package:vcare_attendance/services/service.dart';
 import 'package:vcare_attendance/snackbar/snackbar.dart';
 import 'package:vcare_attendance/widgets/report/report_widget.dart';
 
@@ -15,7 +15,7 @@ class AccountScreen extends StatefulWidget {
 
 class _AccountScreenState extends State<AccountScreen> {
   final _accApi = Api.account;
-  final profile = getIt<AppState>().profile;
+  final token = getIt<AppStore>().token;
   bool _loading = false;
 
   final _conformPassCT = TextEditingController(text: '');
@@ -31,22 +31,18 @@ class _AccountScreenState extends State<AccountScreen> {
     _currPassCT.dispose();
   }
 
-  _reset() {
+  void _reset() {
     _conformPassCT.clear();
     _passCT.clear();
     _currPassCT.clear();
   }
 
   Future<void> _submit() async {
-    if (profile == null) {
-      snackbarError(context, message: "User profile is not Set 😭");
-      return;
-    }
     if (_formKey.currentState!.validate()) {
       setState(() => _loading = true);
       try {
         await _accApi.changePassword(
-          profile!.userId,
+          token.sub,
           _currPassCT.text,
           _passCT.text,
         );

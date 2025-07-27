@@ -1,15 +1,34 @@
 import 'dart:convert';
 
 class JwtToken {
-  final String raw; // the full JWT string
+  /// The original JWT string
+  final String raw;
+
+  /// User ID (standard JWT claim)
   final String sub;
+
+  /// Internal ID
   final String id;
+
+  /// User type/role
   final String type;
+
+  /// User's display name
   final String name;
+
+  /// User's department
   final String department;
+
+  /// User's job title
   final String designation;
+
+  /// Who issued this token (standard JWT claim)
   final String iss;
+
+  /// When token was created (timestamp)
   final int iat;
+
+  /// When token expires (timestamp)
   final int exp;
 
   JwtToken._({

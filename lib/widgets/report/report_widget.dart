@@ -286,7 +286,7 @@ class HolidayCard extends StatelessWidget {
       elevation: 2.5,
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: statusColor.withOpacity(0.2),
+          backgroundColor: statusColor.withValues(alpha: 0.2),
           child: Text(
             "H",
             style: TextStyle(
@@ -321,7 +321,7 @@ class LeaveCard extends StatelessWidget {
       elevation: 2.5,
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: statusColor.withOpacity(0.2),
+          backgroundColor: statusColor.withValues(alpha: 0.2),
           child: Text(
             "L",
             style: TextStyle(
@@ -356,7 +356,7 @@ class AbsentCard extends StatelessWidget {
       elevation: 2.5,
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: statusColor.withOpacity(0.2),
+          backgroundColor: statusColor.withValues(alpha: 0.2),
           child: Text(
             "A",
             style: TextStyle(
@@ -396,7 +396,7 @@ class AttendanceCard extends StatelessWidget {
       elevation: 2.5,
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: statusColor.withOpacity(0.2),
+          backgroundColor: statusColor.withValues(alpha: 0.2),
           child: Text(
             "P",
             style: TextStyle(
@@ -437,7 +437,7 @@ class ExtraHourCard extends StatelessWidget {
       elevation: 2.5,
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: statusColor.withOpacity(0.2),
+          backgroundColor: statusColor.withValues(alpha: 0.2),
           child: Text(
             "E",
             style: TextStyle(

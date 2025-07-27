@@ -1,6 +1,4 @@
-import 'dart:io';
 import 'dart:math';
-import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
@@ -191,7 +189,7 @@ class MLService {
         : dotProduct / (sqrt(normA) * sqrt(normB));
   }
 
-  void setPredictedData(value) {
+  void setPredictedData(List<double> value) {
     _predictedData = value;
   }
 

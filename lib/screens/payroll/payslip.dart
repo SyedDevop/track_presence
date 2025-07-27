@@ -6,7 +6,7 @@ import 'package:vcare_attendance/constant/main.dart';
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/loan_model.dart';
 import 'package:vcare_attendance/models/payslip_model.dart';
-import 'package:vcare_attendance/services/state.dart';
+import 'package:vcare_attendance/services/service.dart';
 import 'package:vcare_attendance/snackbar/snackbar.dart';
 import 'package:vcare_attendance/utils/utils.dart';
 import 'package:vcare_attendance/widgets/chart/piechart.dart';
@@ -30,7 +30,8 @@ class _PayrollMonthScreenState extends State<PayrollMonthScreen> {
   List<LoanPayment> loanCr = [];
   List<LoanPayment> loanDr = [];
   Payslip? payslip;
-  final profile = getIt<AppState>().profile;
+
+  final _appSR = getIt<AppStore>();
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   int selectedYear = DateTime.now().year;
@@ -50,7 +51,7 @@ class _PayrollMonthScreenState extends State<PayrollMonthScreen> {
   String month = kMonths[DateTime.now().month - 1];
 
   Future<void> fetchData(String month, int year) async {
-    final userId = profile?.userId ?? "";
+    final userId = _appSR.token.id;
     setState(() {
       _loading = true;
     });
@@ -259,7 +260,7 @@ class PayslipBreakDown extends StatelessWidget {
             children: [
               Container(
                 width: double.infinity,
-                color: Colors.greenAccent.withOpacity(0.2),
+                color: Colors.greenAccent.withValues(alpha: 0.2),
                 child: Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -325,7 +326,7 @@ class PayslipBreakDown extends StatelessWidget {
             children: [
               Container(
                 width: double.infinity,
-                color: Colors.redAccent.withOpacity(0.2),
+                color: Colors.redAccent.withValues(alpha: 0.2),
                 child: Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -486,7 +487,7 @@ class PayslipSummery extends StatelessWidget {
           ),
           const Divider(),
           Container(
-            color: Colors.yellowAccent.withOpacity(0.2),
+            color: Colors.yellowAccent.withValues(alpha: 0.2),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               child: Row(

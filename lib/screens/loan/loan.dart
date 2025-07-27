@@ -5,7 +5,7 @@ import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/loan_model.dart';
 import 'package:vcare_attendance/router/router_name.dart';
-import 'package:vcare_attendance/services/state.dart';
+import 'package:vcare_attendance/services/service.dart';
 import 'package:vcare_attendance/snackbar/snackbar.dart';
 
 class LoanScreen extends StatefulWidget {
@@ -20,7 +20,7 @@ class _LoanScreenState extends State<LoanScreen> {
   bool _loading = false;
 
   List<Loan> loans = [];
-  final profile = getIt<AppState>().profile;
+  final _appSr = getIt<AppStore>();
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   final _reasonCt = TextEditingController(text: "");
@@ -28,7 +28,7 @@ class _LoanScreenState extends State<LoanScreen> {
   final _loanAmountCt = TextEditingController(text: "");
 
   Future<void> _getLoans() async {
-    final res = await apiL.getLeaves(profile?.userId ?? "");
+    final res = await apiL.getLeaves(_appSr.token.sub);
     setState(() => loans = res);
   }
 
@@ -82,11 +82,6 @@ class _LoanScreenState extends State<LoanScreen> {
   }
 
   Future<void> _submit() async {
-    if (profile == null) {
-      snackbarError(context, message: "User profile is not Set 😭");
-      if (mounted) context.pop();
-      return;
-    }
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -94,10 +89,10 @@ class _LoanScreenState extends State<LoanScreen> {
       final reason = _reasonCt.text;
       final amount = _loanAmountCt.text;
       await apiL.postLoan(
-        userId: profile!.userId,
+        userId: _appSr.token.sub,
         loanType: reason,
         amount: double.tryParse(amount) ?? 0.0,
-        department: profile!.department ?? "None",
+        department: _appSr.token.department,
       );
       snackbarSuccess(context, message: "Loan Applied Successfully");
       await _getLoans();
@@ -122,7 +117,7 @@ class _LoanScreenState extends State<LoanScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 10,
             spreadRadius: 5,
           ),
@@ -175,7 +170,8 @@ class _LoanScreenState extends State<LoanScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       filled: true,
-                      fillColor: Theme.of(context).colorScheme.surfaceVariant,
+                      fillColor:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -206,7 +202,8 @@ class _LoanScreenState extends State<LoanScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       filled: true,
-                      fillColor: Theme.of(context).colorScheme.surfaceVariant,
+                      fillColor:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {

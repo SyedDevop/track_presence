@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class FTTheme {
-  static get light => FlexThemeData.light(
+  static ThemeData get light => FlexThemeData.light(
         scheme: FlexScheme.flutterDash,
         subThemesData: const FlexSubThemesData(
           interactionEffects: true,
@@ -24,7 +24,7 @@ class FTTheme {
         visualDensity: FlexColorScheme.comfortablePlatformDensity,
         cupertinoOverrideTheme: const CupertinoThemeData(applyThemeToAll: true),
       );
-  static get dark => FlexThemeData.dark(
+  static ThemeData get dark => FlexThemeData.dark(
         scheme: FlexScheme.flutterDash,
         subThemesData: const FlexSubThemesData(
           interactionEffects: true,

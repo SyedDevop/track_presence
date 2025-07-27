@@ -78,7 +78,7 @@ class _ClockScreenState extends State<ClockScreen> {
     _frameFaces();
   }
 
-  _frameFaces() async {
+  Future<void> _frameFaces() async {
     _camSR.cameraController!.startImageStream((CameraImage image) async {
       if (_camSR.cameraController != null) {
         if (_detectingFaces) return; // prevents unnecessary over processing.
@@ -151,7 +151,7 @@ class _ClockScreenState extends State<ClockScreen> {
     return CameraPreviewBody();
   }
 
-  _onBackPressed() {
+  void _onBackPressed() {
     Navigator.of(context).pop();
   }
 
@@ -182,7 +182,7 @@ class _ClockScreenState extends State<ClockScreen> {
     );
   }
 
-  attendSheet(User user, String authType) {
+  Container attendSheet(User user, String authType) {
     return Container(
       padding: const EdgeInsets.all(20),
       child: AttendanceBottomSheet(

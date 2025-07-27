@@ -5,15 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:sqflite/sqflite.dart';
 
 import 'package:vcare_attendance/db/databse_helper.dart';
-import 'package:vcare_attendance/db/profile_db.dart';
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/user_model.dart';
-import 'package:vcare_attendance/services/camera_service.dart';
-import 'package:vcare_attendance/services/face_detector_service.dart';
-import 'package:vcare_attendance/services/ml_service.dart';
+import 'package:vcare_attendance/services/service.dart';
 import 'package:vcare_attendance/snackbar/snackbar.dart';
 
 import 'package:vcare_attendance/widgets/widget.dart';
@@ -29,6 +25,7 @@ class _RegisterScanState extends State<RegisterScan> {
   final MLService _mlSR = getIt<MLService>();
   final CameraService _camSR = getIt<CameraService>();
   final FaceDetectorService _faceSR = getIt<FaceDetectorService>();
+  final AppStore _appSR = getIt<AppStore>();
 
   int captureCount = 0;
   final captureLimit = 6;
@@ -73,7 +70,7 @@ class _RegisterScanState extends State<RegisterScan> {
     _frameFaces();
   }
 
-  _frameFaces() async {
+  Future<void> _frameFaces() async {
     _camSR.cameraController?.startImageStream((image) async {
       if (_camSR.cameraController != null) {
         if (_detectingFaces) return; // If image is in process return;
@@ -105,34 +102,27 @@ class _RegisterScanState extends State<RegisterScan> {
     if (!(captureCount >= captureLimit - 1)) return false;
     await onShot();
 
-    //TODO: Save the Captured photo to server and locally.
-    DB udb = DB.instance;
-    ProfileDB pdb = ProfileDB.instance;
-
-    final pros = await pdb.queryAllProfile();
-
-    if (pros.isEmpty) {
+    if (!_appSR.token.isValid()) {
       showDialog(
         context: context,
         builder: (context) {
           return const AlertDialog(
-            content: Text('User Profile not found'),
+            content: Text('User Not Found! Please login again'),
           );
         },
       );
       return false;
     }
-    final pro = pros[0];
-    final Database db = await pdb.database;
+
     print("Image Path => :: $imagePath");
     print("Image Saved Path => :: $imgSavedPath");
-    db.rawUpdate(
-      'UPDATE ${ProfileDB.table} SET img_path = "${imgSavedPath ?? ""}" WHERE user_id = "${pro.userId}"',
-    );
+    final userToken = _appSR.token;
+    await _appSR.setProfileImagePath(imgSavedPath!);
+    DB udb = DB.instance;
     for (var data in _mlSR.predictedDataList) {
       User userToSave = User(
-        userId: pro.userId,
-        userName: pro.name,
+        userId: userToken.id,
+        userName: userToken.name,
         modelData: data,
       );
       await udb.insert(userToSave);
@@ -172,11 +162,11 @@ class _RegisterScanState extends State<RegisterScan> {
     });
   }
 
-  _onBackPressed() {
+  void _onBackPressed() {
     Navigator.of(context).pop();
   }
 
-  _reload() {
+  void _reload() {
     setState(() {
       pictureTaken = false;
     });

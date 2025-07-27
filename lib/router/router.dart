@@ -125,7 +125,9 @@ final router = GoRouter(
     final user = await db.queryAllUsers();
     if (user.isEmpty && androidInfo.isPhysicalDevice) {
       if (urlPath == RouteNames.registerScanPath ||
-          urlPath == RouteNames.registerPath) return null;
+          urlPath == RouteNames.registerPath) {
+        return null;
+      }
       return RouteNames.registerPath;
     }
     return null;

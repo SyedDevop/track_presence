@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as imglib;
 import 'package:camera/camera.dart';
 

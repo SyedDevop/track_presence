@@ -13,7 +13,6 @@ import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/time.dart';
 import 'package:vcare_attendance/router/router_name.dart';
 import 'package:vcare_attendance/services/app_state.dart';
-import 'package:vcare_attendance/services/state.dart' as local;
 import 'package:vcare_attendance/snackbar/snackbar.dart';
 import 'package:vcare_attendance/utils/utils.dart';
 
@@ -103,8 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final _shiftApi = Api.shift;
 
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
-  final local.AppState _asSr = getIt<local.AppState>();
-  final _astSr = getIt<AppStore>();
+  final _appSr = getIt<AppStore>();
 
   bool _initializing = false;
   ShiftTime? shiftTime;
@@ -125,12 +123,11 @@ class _MyHomePageState extends State<MyHomePage> {
     await initPlatformState();
     try {
       setState(() => _initializing = true);
-      await _astSr.setTokenFromStorage();
-      final userId = _astSr.token.id;
+      await _appSr.initialize();
+      final userId = _appSr.token.id;
       final gotsShiftTime = await _shiftApi.getShifttime(userId);
       final gotClockedTime = await _attendanceApi.getColockedtime(userId);
       final gotOt = await _attendanceApi.getOvertime(userId);
-      await _asSr.initProfile(userId);
 
       setState(() {
         shiftTime = gotsShiftTime;
@@ -186,8 +183,8 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() => _initializing = true);
     try {
       final currPoss = await _determinePosition();
-      final dep = _asSr.employee?.companyDetails?.department;
-      final id = _asSr.employee?.personalDetails?.empId;
+      final dep = _appSr.token.department;
+      final id = _appSr.token.id;
 
       // 1) Exempt users always allowed
       if (_isExempt(dep, id)) {
@@ -328,7 +325,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 if (_initializing)
                   Container(
-                    color: Colors.black.withOpacity(0.75),
+                    color: Colors.black.withValues(alpha: 0.75),
                     child: const Center(
                       child: CircularProgressIndicator(),
                     ),
@@ -457,7 +454,7 @@ class StatBlock extends StatelessWidget {
             ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10.0),
-              color: Theme.of(context).dialogBackgroundColor,
+              color: Theme.of(context).dialogTheme.backgroundColor,
             ),
             child: Text(statValue),
           ),
@@ -526,7 +523,7 @@ class TimeInfo extends StatelessWidget {
         padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: Theme.of(context).dialogBackgroundColor,
+          color: Theme.of(context).dialogTheme.backgroundColor,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -634,7 +631,7 @@ class TimeView extends StatelessWidget {
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: Theme.of(context).dialogBackgroundColor,
+        color: Theme.of(context).dialogTheme.backgroundColor,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

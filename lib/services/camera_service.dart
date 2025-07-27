@@ -94,7 +94,7 @@ class CameraService {
     );
   }
 
-  dispose() async {
+  Future<void> dispose() async {
     await _cameraController?.dispose();
     _cameraController = null;
   }

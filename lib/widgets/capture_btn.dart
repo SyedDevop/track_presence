@@ -13,7 +13,7 @@ class CaptureBtn extends StatelessWidget {
           color: Colors.blue[200],
           boxShadow: <BoxShadow>[
             BoxShadow(
-              color: Colors.blue.withOpacity(0.1),
+              color: Colors.blue.withValues(alpha: 0.1),
               blurRadius: 1,
               offset: const Offset(0, 2),
             ),
