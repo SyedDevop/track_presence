@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:geolocator/geolocator.dart' hide ActivityType;
 import 'package:go_router/go_router.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
@@ -17,6 +17,57 @@ import 'package:vcare_attendance/utils/handle_location.dart';
 import 'package:vcare_attendance/utils/utils.dart';
 
 import 'package:vcare_attendance/widgets/widget.dart';
+
+import 'package:background_location_tracker/background_location_tracker.dart';
+
+@pragma('vm:entry-point')
+void backgroundCallback() {
+  BackgroundLocationTrackerManager.handleBackgroundUpdated(
+    (data) async => Repo().update(data),
+  );
+}
+
+class Repo {
+  static Repo? _instance;
+
+  Repo._();
+
+  factory Repo() => _instance ??= Repo._();
+
+  Future<void> update(BackgroundLocationUpdateData data) async {
+    final text =
+        'Location Update: Lat: ${data.lat} Lon: ${data.lon} Course: ${data.course} Speed: ${data.speed}';
+    log(text); // ignore: avoid_print
+    // sendNotification(text);
+    // await LocationDao().saveLocation(data);
+  }
+}
+
+// void sendNotification(String text) {
+//   const settings = InitializationSettings(
+//     android: AndroidInitializationSettings('app_icon'),
+//     iOS: DarwinInitializationSettings(
+//       requestAlertPermission: false,
+//       requestBadgePermission: false,
+//       requestSoundPermission: false,
+//     ),
+//   );
+//   FlutterLocalNotificationsPlugin().initialize(
+//     settings,
+//     onDidReceiveNotificationResponse: (data) async {
+//       print('ON CLICK $data'); // ignore: avoid_print
+//     },
+//   );
+//   FlutterLocalNotificationsPlugin().show(
+//     math.Random().nextInt(9999),
+//     'Title',
+//     text,
+//     const NotificationDetails(
+//       android: AndroidNotificationDetails('test_notification', 'Test'),
+//       iOS: DarwinNotificationDetails(),
+//     ),
+//   );
+// }
 
 const gap = 15.0;
 
@@ -50,6 +101,24 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _getTimes() async {
+    await BackgroundLocationTrackerManager.initialize(
+      backgroundCallback,
+      config: const BackgroundLocationTrackerConfig(
+        loggingEnabled: true,
+        androidConfig: AndroidConfig(
+          notificationIcon: 'explore',
+          trackingInterval: Duration(seconds: 4),
+          distanceFilterMeters: null,
+          enableCancelTrackingAction: true,
+          cancelTrackingActionText: 'Stop Tracking',
+        ),
+        iOSConfig: IOSConfig(
+          activityType: ActivityType.FITNESS,
+          distanceFilterMeters: null,
+          restartAfterKill: true,
+        ),
+      ),
+    );
     await handleLocationPermission(context);
     try {
       setState(() => _initializing = true);
@@ -75,9 +144,15 @@ class _MyHomePageState extends State<MyHomePage> {
           overTime = null;
         }
       });
+
+      if (!(await BackgroundLocationTrackerManager.isTracking())) {
+        //TODO: Better way to start the tracking;
+        await BackgroundLocationTrackerManager.startTracking();
+      }
     } finally {
       setState(() => _initializing = false);
     }
+
     return;
   }
 

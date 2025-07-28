@@ -25,6 +25,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.13.0"
+  background_location_tracker:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: b256e995c77a606f4868e150936ab841e985024f
+      url: "https://github.com/RekanAnwar/flutter-background-location-tracker.git"
+    source: git
+    version: "1.5.9"
   boolean_selector:
     dependency: transitive
     description:
