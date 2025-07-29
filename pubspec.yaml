@@ -64,6 +64,8 @@ dependencies:
   background_location_tracker:
     git:
       url: "https://github.com/RekanAnwar/flutter-background-location-tracker.git"
+  awesome_notifications: ^0.10.1
+  awesome_notifications_core: ^0.10.1
 
 dev_dependencies:
   flutter_test:

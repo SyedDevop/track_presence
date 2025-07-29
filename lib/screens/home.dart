@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:background_location_tracker/background_location_tracker.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart' hide ActivityType;
 import 'package:go_router/go_router.dart';
@@ -12,62 +13,12 @@ import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/time.dart';
 import 'package:vcare_attendance/router/router_name.dart';
 import 'package:vcare_attendance/services/app_state.dart';
+import 'package:vcare_attendance/services/track_service.dart';
 import 'package:vcare_attendance/snackbar/snackbar.dart';
 import 'package:vcare_attendance/utils/handle_location.dart';
 import 'package:vcare_attendance/utils/utils.dart';
 
 import 'package:vcare_attendance/widgets/widget.dart';
-
-import 'package:background_location_tracker/background_location_tracker.dart';
-
-@pragma('vm:entry-point')
-void backgroundCallback() {
-  BackgroundLocationTrackerManager.handleBackgroundUpdated(
-    (data) async => Repo().update(data),
-  );
-}
-
-class Repo {
-  static Repo? _instance;
-
-  Repo._();
-
-  factory Repo() => _instance ??= Repo._();
-
-  Future<void> update(BackgroundLocationUpdateData data) async {
-    final text =
-        'Location Update: Lat: ${data.lat} Lon: ${data.lon} Course: ${data.course} Speed: ${data.speed}';
-    log(text); // ignore: avoid_print
-    // sendNotification(text);
-    // await LocationDao().saveLocation(data);
-  }
-}
-
-// void sendNotification(String text) {
-//   const settings = InitializationSettings(
-//     android: AndroidInitializationSettings('app_icon'),
-//     iOS: DarwinInitializationSettings(
-//       requestAlertPermission: false,
-//       requestBadgePermission: false,
-//       requestSoundPermission: false,
-//     ),
-//   );
-//   FlutterLocalNotificationsPlugin().initialize(
-//     settings,
-//     onDidReceiveNotificationResponse: (data) async {
-//       print('ON CLICK $data'); // ignore: avoid_print
-//     },
-//   );
-//   FlutterLocalNotificationsPlugin().show(
-//     math.Random().nextInt(9999),
-//     'Title',
-//     text,
-//     const NotificationDetails(
-//       android: AndroidNotificationDetails('test_notification', 'Test'),
-//       iOS: DarwinNotificationDetails(),
-//     ),
-//   );
-// }
 
 const gap = 15.0;
 
@@ -84,8 +35,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   final _appSr = getIt<AppStore>();
+  final _trackSr = getIt<TrackingService>();
 
   bool _initializing = false;
+
   ShiftTime? shiftTime;
   String strSiftTime = "---:--- / ---:---";
   String strSiftdate = "--:--:---- / --:--:----";
@@ -101,24 +54,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _getTimes() async {
-    await BackgroundLocationTrackerManager.initialize(
-      backgroundCallback,
-      config: const BackgroundLocationTrackerConfig(
-        loggingEnabled: true,
-        androidConfig: AndroidConfig(
-          notificationIcon: 'explore',
-          trackingInterval: Duration(seconds: 4),
-          distanceFilterMeters: null,
-          enableCancelTrackingAction: true,
-          cancelTrackingActionText: 'Stop Tracking',
-        ),
-        iOSConfig: IOSConfig(
-          activityType: ActivityType.FITNESS,
-          distanceFilterMeters: null,
-          restartAfterKill: true,
-        ),
-      ),
-    );
     await handleLocationPermission(context);
     try {
       setState(() => _initializing = true);
@@ -144,15 +79,11 @@ class _MyHomePageState extends State<MyHomePage> {
           overTime = null;
         }
       });
-
-      if (!(await BackgroundLocationTrackerManager.isTracking())) {
-        //TODO: Better way to start the tracking;
-        await BackgroundLocationTrackerManager.startTracking();
-      }
     } finally {
       setState(() => _initializing = false);
     }
 
+    // await BackgroundLocationTrackerManager.stopTracking();
     return;
   }
 
@@ -351,52 +282,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
 /// Determine the current position of the device.
 ///
-/// When the location services are not enabled or permissions
-/// are denied the `Future` will return an error.
 Future<Position> _determinePosition() async {
-  bool serviceEnabled;
-  LocationPermission permission;
-
-  // Test if location services are enabled.
-  serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  if (!serviceEnabled) {
-    serviceEnabled = await Geolocator.openLocationSettings();
-    if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
-      return Future.error('Location services are disabled.');
-    }
-  }
-
-  permission = await Geolocator.checkPermission();
-  if (permission == LocationPermission.denied) {
-    permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied) {
-      // Permissions are denied, next time you could try
-      // requesting permissions again (this is also where
-      // Android's shouldShowRequestPermissionRationale
-      // returned true. According to Android guidelines
-      // your App should show an explanatory UI now.
-      return Future.error('Location permissions are denied');
-    }
-  }
-
-  if (permission == LocationPermission.deniedForever) {
-    // Permissions are denied forever, handle appropriately.
-    return Future.error(
-        'Location permissions are permanently denied, we cannot request permissions.');
-  }
-
   const LocationSettings locationSettings = LocationSettings(
     accuracy: LocationAccuracy.best,
   );
-
-  // When we reach here, permissions are granted and we can
-  // continue accessing the position of the device.
   return await Geolocator.getCurrentPosition(
-    locationSettings: locationSettings,
-  );
+      locationSettings: locationSettings);
 }
 
 class StatBar extends StatelessWidget {

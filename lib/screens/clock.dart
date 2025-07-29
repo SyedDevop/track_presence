@@ -15,6 +15,7 @@ import 'package:vcare_attendance/models/user_model.dart';
 import 'package:vcare_attendance/services/camera_service.dart';
 import 'package:vcare_attendance/services/face_detector_service.dart';
 import 'package:vcare_attendance/services/ml_service.dart';
+import 'package:vcare_attendance/services/track_service.dart';
 
 import 'package:vcare_attendance/widgets/widget.dart';
 
@@ -220,13 +221,12 @@ class AttendanceBottomSheet extends StatefulWidget {
 
 class _AttendanceBottomSheetState extends State<AttendanceBottomSheet> {
   final _attendanceApi = Api.attendance;
-
+  final _trackingSr = getIt<TrackingService>();
   final _reasonController = TextEditingController();
   bool _showReason = false;
   @override
   void dispose() {
     super.dispose();
-
     _reasonController.dispose();
   }
 
@@ -265,6 +265,8 @@ class _AttendanceBottomSheetState extends State<AttendanceBottomSheet> {
                 widget.location,
                 widget.authType,
               );
+
+              await _trackingSr.startTracking();
             } on DioException catch (e) {
               if (mounted) {
                 await showDialog(
@@ -310,6 +312,7 @@ class _AttendanceBottomSheetState extends State<AttendanceBottomSheet> {
                 widget.location,
                 widget.authType,
               );
+              await _trackingSr.stopTracking();
             } on DioException catch (e) {
               await showDialog(
                 context: context,
