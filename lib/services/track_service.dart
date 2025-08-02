@@ -2,8 +2,13 @@ import 'dart:developer';
 
 import 'package:background_location_tracker/background_location_tracker.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vcare_attendance/api/location_api.dart';
 
 const knotificationClockOutKey = 'clock_out';
+
+const kattendanceTypeKey = "attendance-type-key";
+const kattendanceidKey = "attendance-id-key";
 
 class TrackingService {
   // Private constructor
@@ -18,8 +23,11 @@ class TrackingService {
     return _instance;
   }
 
-  Future<void> startTracking() async {
+  Future<void> startTracking(AttendanceType at, String attId) async {
     await BackgroundLocationTrackerManager.stopTracking();
+    final SharedPreferencesAsync asyncPrefs = SharedPreferencesAsync();
+    await asyncPrefs.setString(kattendanceTypeKey, at.name);
+    await asyncPrefs.setString(kattendanceidKey, attId);
     await BackgroundLocationTrackerManager.startTracking();
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
