@@ -8,6 +8,7 @@ import 'package:local_auth/local_auth.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/api/error.dart';
+import 'package:vcare_attendance/api/location_api.dart';
 import 'package:vcare_attendance/db/databse_helper.dart';
 
 import 'package:vcare_attendance/getit.dart';
@@ -258,15 +259,15 @@ class _AttendanceBottomSheetState extends State<AttendanceBottomSheet> {
           onPressed: () async {
             widget.onStateChange(true);
             try {
-              await _attendanceApi.postColock(
+              final data = await _attendanceApi.postColock(
                 widget.user.userId,
                 'in',
                 _reasonController.text,
                 widget.location,
                 widget.authType,
               );
-
-              await _trackingSr.startTracking();
+              if (data == null) return;
+              await _trackingSr.startTracking(data.type, data.attendanceId);
             } on DioException catch (e) {
               if (mounted) {
                 await showDialog(

@@ -16,9 +16,9 @@ Future<void> initTrackAndNotefication() async {
     config: const BackgroundLocationTrackerConfig(
       loggingEnabled: kDebugMode,
       androidConfig: AndroidConfig(
-        trackingInterval: Duration(seconds: 4),
-        distanceFilterMeters: null,
-        enableCancelTrackingAction: false,
+        trackingInterval: Duration(seconds: 300),
+        distanceFilterMeters: 0.0,
+        notificationIcon: 'ic_launcher',
       ),
       iOSConfig: IOSConfig(
         activityType: ActivityType.FITNESS,

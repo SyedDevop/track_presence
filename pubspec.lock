@@ -44,11 +44,9 @@ packages:
   background_location_tracker:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: b256e995c77a606f4868e150936ab841e985024f
-      url: "https://github.com/RekanAnwar/flutter-background-location-tracker.git"
-    source: git
+      path: "../flutter-background-location-tracker"
+      relative: true
+    source: path
     version: "1.5.9"
   boolean_selector:
     dependency: transitive

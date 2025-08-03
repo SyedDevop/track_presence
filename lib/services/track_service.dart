@@ -1,14 +1,15 @@
-import 'dart:developer';
-
-import 'package:background_location_tracker/background_location_tracker.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:background_location_tracker/background_location_tracker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/api/location_api.dart';
 
 const knotificationClockOutKey = 'clock_out';
 
 const kattendanceTypeKey = "attendance-type-key";
 const kattendanceidKey = "attendance-id-key";
+const knotificationId = 1;
 
 class TrackingService {
   // Private constructor
@@ -23,15 +24,16 @@ class TrackingService {
     return _instance;
   }
 
-  Future<void> startTracking(AttendanceType at, String attId) async {
+  Future<void> startTracking(AttendanceType at, int attId) async {
     await BackgroundLocationTrackerManager.stopTracking();
+    await AwesomeNotifications().cancel(knotificationId);
     final SharedPreferencesAsync asyncPrefs = SharedPreferencesAsync();
     await asyncPrefs.setString(kattendanceTypeKey, at.name);
-    await asyncPrefs.setString(kattendanceidKey, attId);
+    await asyncPrefs.setInt(kattendanceidKey, attId);
     await BackgroundLocationTrackerManager.startTracking();
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
-        id: 1,
+        id: knotificationId,
         channelKey: 'attandance_track',
         title: 'Clocked In – Tracking Started 🟢',
         body: 'Tracking of your shift has started.',
@@ -60,7 +62,7 @@ class TrackingService {
       await BackgroundLocationTrackerManager.stopTracking();
       await AwesomeNotifications().createNotification(
         content: NotificationContent(
-          id: 1,
+          id: knotificationId,
           channelKey: 'attandance_track',
           title: 'Clocked Out – Tracking Stopped 🔴',
           body: 'Background location tracking has stopped.',
@@ -69,41 +71,13 @@ class TrackingService {
           category: NotificationCategory.Service,
         ),
       );
-      await AwesomeNotifications().cancel(1);
+      await AwesomeNotifications().cancel(knotificationId);
     }
   }
 
   Future<bool> isTracking() async {
     return await BackgroundLocationTrackerManager.isTracking();
   }
-}
-
-class NotificationController {
-  /// Use this method to detect when a new notification or a schedule is created
-  // @pragma("vm:entry-point")
-  // static Future<void> onNotificationCreatedMethod(
-  //     ReceivedNotification receivedNotification) async {
-  //   // Your code goes here
-  // }
-
-  /// /// Use this method to detect every time that a new notification is displayed
-  /// @pragma("vm:entry-point")
-  /// static Future<void> onNotificationDisplayedMethod(
-  ///     ReceivedNotification receivedNotification) async {
-  ///   // Your code goes here
-  /// }
-
-  /// Use this method to detect if the user dismissed a notification
-  @pragma("vm:entry-point")
-  static Future<void> onDismissActionReceivedMethod(
-      ReceivedAction receivedAction) async {
-    // Your code goes here
-  }
-
-  /// Use this method to detect when the user taps on a notification or action button
-  @pragma("vm:entry-point")
-  static Future<void> onActionReceivedMethod(
-      ReceivedAction receivedAction) async {}
 }
 
 // Background callback must be a top-level or static function
@@ -115,14 +89,42 @@ void backgroundCallback() {
 
 class Repo {
   static Repo? _instance;
-
   Repo._();
 
   factory Repo() => _instance ??= Repo._();
 
   Future<void> update(BackgroundLocationUpdateData data) async {
-    final text =
-        'Location Update: Lat: ${data.lat} Lon: ${data.lon} Course: ${data.course} Speed: ${data.speed}';
-    log(text); // ignore: avoid_print
+    // final text =
+    //     'Location Update: Lat: ${data.lat} Lon: ${data.lon} Course: ${data.course} Speed: ${data.speed}';
+    // print(text);
+    final SharedPreferencesAsync asyncPrefs = SharedPreferencesAsync();
+    final attTypeStr = await asyncPrefs.getString(kattendanceTypeKey);
+    final anyAttId = await asyncPrefs.getInt(kattendanceidKey);
+    if (attTypeStr == null && anyAttId == null) return;
+    final attType = AttendanceType.values.byName(attTypeStr!);
+    final attId = attType == AttendanceType.attendance ? anyAttId : null;
+    final otAttId = attType == AttendanceType.otAttendance ? anyAttId : null;
+    final locApi = Api.location;
+    await locApi.postLocation(data.lat, data.lon, attId, otAttId, false);
   }
+}
+
+Future<void> reShowNotification() async {
+  final isShowing =
+      await AwesomeNotifications().isNotificationActiveOnStatusBar(id: 1);
+  if (!isShowing) return;
+
+  await AwesomeNotifications().createNotification(
+    content: NotificationContent(
+      id: knotificationId,
+      channelKey: 'attandance_track',
+      title: 'Clocked In – Tracking Started 🟢',
+      body: 'Tracking of your shift has started.',
+      locked: true,
+      autoDismissible: false,
+      displayOnForeground: true,
+      displayOnBackground: true,
+      category: NotificationCategory.Service,
+    ),
+  );
 }
