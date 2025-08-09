@@ -1,10 +1,8 @@
-import 'dart:developer';
-
-import 'package:background_location_tracker/background_location_tracker.dart';
+// import 'package:background_location_tracker/background_location_tracker.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart' hide ActivityType;
 import 'package:go_router/go_router.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+// import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/constant/department.dart';
@@ -13,7 +11,6 @@ import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/time.dart';
 import 'package:vcare_attendance/router/router_name.dart';
 import 'package:vcare_attendance/services/app_state.dart';
-import 'package:vcare_attendance/services/track_service.dart';
 import 'package:vcare_attendance/snackbar/snackbar.dart';
 import 'package:vcare_attendance/utils/handle_location.dart';
 import 'package:vcare_attendance/utils/utils.dart';
@@ -35,7 +32,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   final _appSr = getIt<AppStore>();
-  final _trackSr = getIt<TrackingService>();
+  // final _trackSr = getIt<TrackingService>();
 
   bool _initializing = false;
 
@@ -153,8 +150,8 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  BannerAd? _bannerAd;
-  final bool _isAdLoaded = false;
+  // BannerAd? _bannerAd;
+  // final bool _isAdLoaded = false;
   // final adUnitId = 'ca-app-pub-2791763544217577/3961842060';
   //
   // void loadAd() async {
@@ -187,15 +184,15 @@ class _MyHomePageState extends State<MyHomePage> {
       drawer: const AppDrawer(),
       body: Column(
         children: [
-          if (_bannerAd != null && _isAdLoaded)
-            Align(
-              alignment: Alignment.topCenter,
-              child: SizedBox(
-                width: double.infinity,
-                height: _bannerAd!.size.height.toDouble(),
-                child: AdWidget(ad: _bannerAd!),
-              ),
-            ),
+          // if (_bannerAd != null && _isAdLoaded)
+          //   Align(
+          //     alignment: Alignment.topCenter,
+          //     child: SizedBox(
+          //       width: double.infinity,
+          //       height: _bannerAd!.size.height.toDouble(),
+          //       child: AdWidget(ad: _bannerAd!),
+          //     ),
+          //   ),
           Expanded(
             child: Stack(
               children: [

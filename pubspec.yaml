@@ -47,25 +47,26 @@ dependencies:
   google_mlkit_face_detection: ^0.13.1
   tflite_flutter: ^0.11.0
   flutter_svg: ^2.0.10+1
-  http: ^1.2.2
+  # http: ^1.2.2
   intl: ^0.20.2
   dropdown_search: ^6.0.1
   readmore: ^3.0.0
   syncfusion_flutter_datepicker: ^30.1.39
   local_auth: ^2.3.0
   geolocator: ^14.0.2
-  google_mobile_ads: ^6.0.0
+  # google_mobile_ads: ^6.0.0
   fl_chart: ^1.0.0
   dio: ^5.8.0+1
   device_info_plus: ^11.3.0
   flutter_secure_storage: ^9.2.4
   permission_handler: ^12.0.1
   shared_preferences: ^2.5.3
-  background_location_tracker:
-    git:
-      url: "https://github.com/RekanAnwar/flutter-background-location-tracker.git"
-  awesome_notifications: ^0.10.1
-  awesome_notifications_core: ^0.10.1
+  # background_location_tracker:
+  #   path: ../flutter-background-location-tracker/
+  # git:
+  #   url: "https://github.com/RekanAnwar/flutter-background-location-tracker.git"
+  # awesome_notifications: ^0.10.1
+  # awesome_notifications_core: ^0.10.1
 
 dev_dependencies:
   flutter_test:
