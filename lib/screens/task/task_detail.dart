@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/models/task_model.dart';
 import 'package:vcare_attendance/router/router_name.dart';
@@ -466,13 +467,20 @@ class _TaskDetailScreenState extends State<TaskDetailScreen>
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Map integration coming soon!'),
-                      backgroundColor: theme.colorScheme.primary,
-                    ),
-                  );
+                onPressed: () async {
+                  final lat = _task!.latitude!;
+                  final long = _task!.longitude!;
+                  final googleMap =
+                      "https://www.google.com/maps/search/?api=1&query=$lat,$long";
+                  final mapUrl = Uri.parse(googleMap);
+                  if (!await launchUrl(mapUrl)) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('Coild not launch map'),
+                        backgroundColor: theme.colorScheme.primary,
+                      ),
+                    );
+                  }
                 },
                 icon: const Icon(Icons.map),
                 label: const Text('View on Map'),
