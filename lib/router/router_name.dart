@@ -58,4 +58,19 @@ class RouteNames {
   /// Login Screen path name no {Params || queryParams} required [login]
   static String login = "login";
   static String loginPath = "/$login";
+
+  /// Tasks Screen path name no {Params || queryParams} required [tasks]
+  static String tasks = "tasks";
+  static String tasksPath = "/tasks";
+
+  /// Task Detail Screen path name Params = {'id': '123'} no {queryParams} required [taskDetail]
+  static String taskDetail = "task-detail";
+  static String taskDetailPath = "/task/:id";
+
+  /// Task Complete Screen path name Params = {'id': '123'} no {queryParams} required [taskCompletion]
+  static String taskCompletion = "task-completion";
+  static String taskCompletionPath = "/task/:id/complete";
+
+  static String liveCamera = "live-camera";
+  static String liveCameraPath = "/live-camera";
 }
