@@ -4,11 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:vcare_attendance/db/databse_helper.dart';
 
 import 'package:vcare_attendance/router/router_name.dart';
+import 'package:vcare_attendance/screens/live_camera.dart';
 import 'package:vcare_attendance/screens/loan/loan.dart';
 import 'package:vcare_attendance/screens/loan/loan_summery.dart';
 import 'package:vcare_attendance/screens/payroll/payroll_day.dart';
 import 'package:vcare_attendance/screens/payroll/payroll_month.dart';
 import 'package:vcare_attendance/screens/screen.dart';
+import 'package:vcare_attendance/screens/task/main.dart';
 import 'package:vcare_attendance/utils/token_storage.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey =
@@ -20,12 +22,35 @@ final GlobalKey<NavigatorState> _shellNavigatorKey =
 final router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   debugLogDiagnostics: true,
-  // initialLocation: RouteNames.reportPath,
+  // initialLocation: RouteNames.tasksPath,
   routes: [
     GoRoute(
       path: RouteNames.homePath,
       name: RouteNames.home,
       builder: (_, __) => const MyHomePage(),
+    ),
+    GoRoute(
+      path: RouteNames.tasksPath,
+      name: RouteNames.tasks,
+      builder: (_, __) => const TasksScreen(),
+    ),
+    GoRoute(
+        path: RouteNames.taskDetailPath,
+        name: RouteNames.taskDetail,
+        builder: (_, state) {
+          return TaskDetailScreen(taskId: state.pathParameters['id']!);
+        }),
+    GoRoute(
+      path: RouteNames.taskCompletionPath,
+      name: RouteNames.taskCompletion,
+      builder: (context, state) {
+        return TaskCompletionScreen(taskId: state.pathParameters['id']!);
+      },
+    ),
+    GoRoute(
+      path: RouteNames.liveCameraPath,
+      name: RouteNames.liveCamera,
+      builder: (context, state) => const LiveCameraScreen(),
     ),
     GoRoute(
       path: RouteNames.leavePath,

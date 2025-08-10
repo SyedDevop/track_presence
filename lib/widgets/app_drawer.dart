@@ -53,6 +53,14 @@ class _AppDrawerState extends State<AppDrawer> {
                   },
                 ),
                 ListTile(
+                  leading: const Icon(Icons.task_rounded),
+                  title: const Text('Task\'s'),
+                  onTap: () {
+                    context.pop();
+                    context.pushNamed(RouteNames.tasks);
+                  },
+                ),
+                ListTile(
                   leading: const Icon(Icons.flight_rounded),
                   title: const Text('Leaves'),
                   onTap: () {

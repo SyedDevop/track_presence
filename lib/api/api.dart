@@ -7,6 +7,7 @@ import 'package:vcare_attendance/api/loan_api.dart';
 import 'package:vcare_attendance/api/location_api.dart';
 import 'package:vcare_attendance/api/payslip_api.dart';
 import 'package:vcare_attendance/api/shift.dart';
+import 'package:vcare_attendance/api/task_api.dart';
 import 'package:vcare_attendance/api/user_api.dart';
 import 'package:vcare_attendance/interceptor/auth.dart';
 import 'package:vcare_attendance/interceptor/error.dart';
@@ -46,4 +47,5 @@ class Api {
   static LoanApi loan = LoanApi(dio: rootDio);
   static PayslipApi payslip = PayslipApi(dio: rootDio);
   static LocationApi location = LocationApi(dio: rootDio);
+  static TaskApi task = TaskApi(dio: rootDio);
 }
