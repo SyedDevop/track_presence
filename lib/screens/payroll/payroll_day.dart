@@ -4,7 +4,7 @@ import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/payroll_model.dart';
-import 'package:vcare_attendance/services/state.dart';
+import 'package:vcare_attendance/services/service.dart';
 import 'package:vcare_attendance/utils/utils.dart';
 import 'package:vcare_attendance/widgets/ui/frost_glass.dart';
 
@@ -21,10 +21,10 @@ class _PayrollDayScreenState extends State<PayrollDayScreen> {
   String _selectedDate = "";
   PayrollRaw? payslipRaw;
 
-  final profile = getIt<AppState>().profile;
+  final _appSr = getIt<AppStore>();
 
   Future<void> _fetchData(String date) async {
-    final userId = profile?.userId ?? "";
+    final userId = _appSr.token.id;
     setState(() {
       _loading = true;
       _selectedDate = date;
@@ -45,7 +45,7 @@ class _PayrollDayScreenState extends State<PayrollDayScreen> {
           style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
-              color: Colors.greenAccent.withOpacity(0.7)),
+              color: Colors.greenAccent.withValues(alpha: 0.7)),
         ),
       );
     }
@@ -143,7 +143,7 @@ class PayrollDayRawBody extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           FrostedGlass(
-            borderColor: payrollColor.withOpacity(0.3),
+            borderColor: payrollColor.withValues(alpha: 0.3),
             child: Column(
               children: [
                 Text(

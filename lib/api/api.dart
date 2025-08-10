@@ -4,6 +4,7 @@ import 'package:vcare_attendance/api/account_api.dart';
 import 'package:vcare_attendance/api/attendance_api.dart';
 import 'package:vcare_attendance/api/leave_api.dart';
 import 'package:vcare_attendance/api/loan_api.dart';
+import 'package:vcare_attendance/api/location_api.dart';
 import 'package:vcare_attendance/api/payslip_api.dart';
 import 'package:vcare_attendance/api/shift.dart';
 import 'package:vcare_attendance/api/user_api.dart';
@@ -13,8 +14,8 @@ import 'package:vcare_attendance/interceptor/logger.dart';
 import 'package:vcare_attendance/utils/token_storage.dart';
 
 //const kBaseApi = "http://192.168.1.120:6969/api/";
-const kBaseApi = "http://192.168.1.2:6969/api";
-//const kBaseApi = "https://vcarehospital.in/hmsversion8.2/payroll/api";
+//const kBaseApi = "http://192.168.1.2:6969/api/";
+const kBaseApi = "https://vcarehospital.in/hmsversion8.2/payroll/api/";
 
 final tokenStorage = TokenStorage();
 
@@ -44,4 +45,5 @@ class Api {
   static UserApi user = UserApi(dio: rootDio);
   static LoanApi loan = LoanApi(dio: rootDio);
   static PayslipApi payslip = PayslipApi(dio: rootDio);
+  static LocationApi location = LocationApi(dio: rootDio);
 }

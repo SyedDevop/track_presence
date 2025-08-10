@@ -137,7 +137,8 @@ class PayrollRaw {
   ///
   /// Returns a [FormattedPayroll] object with detailed breakdowns
   /// of hours and salary components.
-  _formatPresent(Payroll payroll, PayrollTotal total, MonthlyPayrollInfo info) {
+  FormattedPayroll _formatPresent(
+      Payroll payroll, PayrollTotal total, MonthlyPayrollInfo info) {
     final attendance = payroll.attendance;
     double overtimePay = 0;
     String? approvedLateOutMin;

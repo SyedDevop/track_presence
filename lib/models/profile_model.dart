@@ -50,7 +50,7 @@ class Profile {
     );
   }
 
-  toMap() {
+  Map<String, String?> toMap() {
     return {
       'user_id': userId,
       'cloud_id': cloudId,

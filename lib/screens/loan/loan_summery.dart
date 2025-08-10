@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/loan_model.dart';
-import 'package:vcare_attendance/services/state.dart';
+import 'package:vcare_attendance/services/app_state.dart';
 
 class LoanSummeryScreen extends StatefulWidget {
   final String id;
@@ -18,11 +18,11 @@ class _LoanSummeryScreenState extends State<LoanSummeryScreen> {
   bool _loading = false;
 
   LoanFullReport? loans;
-  final profile = getIt<AppState>().profile;
+  final _appSr = getIt<AppStore>();
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   Future<void> _getLoans() async {
-    final res = await apiL.getLoanReport(profile?.userId ?? "", widget.id);
+    final res = await apiL.getLoanReport(_appSr.token.sub, widget.id);
     setState(() => loans = res);
   }
 

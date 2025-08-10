@@ -1,5 +1,6 @@
+import 'dart:io';
+
 import 'package:camera/camera.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 
@@ -31,22 +32,21 @@ class FaceDetectorService {
     CameraImage image,
     InputImageRotation rotation,
   ) async {
-    // final format = InputImageFormatValue.fromRawValue(image.format.raw);
-
-    final WriteBuffer allBytes = WriteBuffer();
-    for (Plane plane in image.planes) {
-      allBytes.putUint8List(plane.bytes);
-    }
-    final bytes = allBytes.done().buffer.asUint8List();
-
     final plane = image.planes.first;
 
+    final format = InputImageFormatValue.fromRawValue(image.format.raw);
+    if (format == null ||
+        (Platform.isAndroid && format != InputImageFormat.nv21) ||
+        (Platform.isIOS && format != InputImageFormat.bgra8888)) {
+      return;
+    }
+
     final img = InputImage.fromBytes(
-      bytes: bytes,
+      bytes: plane.bytes,
       metadata: InputImageMetadata(
         size: Size(image.width.toDouble(), image.height.toDouble()),
         rotation: rotation, // used only in Android
-        format: InputImageFormat.yuv420, // used only in iOS
+        format: format,
         bytesPerRow: plane.bytesPerRow, // used only in iOS
       ),
     );
@@ -55,7 +55,7 @@ class FaceDetectorService {
     // _faces = await _meshDetector.processImage(img);
   }
 
-  dispose() {
+  void dispose() {
     _faceDetector.close();
   }
 }

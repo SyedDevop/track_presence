@@ -1,3 +1,4 @@
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vcare_attendance/db/databse_helper.dart';
@@ -118,11 +119,15 @@ final router = GoRouter(
       return RouteNames.loginPath;
     }
 
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
     final DB db = DB.instance;
     final user = await db.queryAllUsers();
-    if (user.isEmpty) {
+    if (user.isEmpty && androidInfo.isPhysicalDevice) {
       if (urlPath == RouteNames.registerScanPath ||
-          urlPath == RouteNames.registerPath) return null;
+          urlPath == RouteNames.registerPath) {
+        return null;
+      }
       return RouteNames.registerPath;
     }
     return null;

@@ -3,7 +3,7 @@ import 'package:camera/camera.dart';
 
 imglib.Image convertToImage(CameraImage image) {
   try {
-    print('image.format.group=>${image.format.group}');
+    print('[Info] image.format.group=> ${image.format.group}');
     if (image.format.group == ImageFormatGroup.yuv420) {
       return _convertYUV420(image);
     } else if (image.format.group == ImageFormatGroup.nv21) {
@@ -79,7 +79,7 @@ imglib.Image nv21ToRgb(CameraImage image) {
       int R = (Y + 1.402 * V).round().clamp(0, 255);
       int G = (Y - 0.344136 * U - 0.714136 * V).round().clamp(0, 255);
       int B = (Y + 1.772 * U).round().clamp(0, 255);
-      img.setPixelRgb(x, y, R, G, B);
+      img.setPixelRgba(x, y, R, G, B, 255);
     }
   }
 

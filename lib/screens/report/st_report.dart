@@ -4,9 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/getit.dart';
-import 'package:vcare_attendance/models/profile_model.dart';
 import 'package:vcare_attendance/models/shift_report_modeal.dart';
-import 'package:vcare_attendance/services/state.dart';
+import 'package:vcare_attendance/services/app_state.dart';
 import 'package:vcare_attendance/utils/utils.dart';
 import 'package:vcare_attendance/widgets/report/report_widget.dart';
 
@@ -20,8 +19,7 @@ class StReportScreen extends StatefulWidget {
 
 class _StReportScreenState extends State<StReportScreen> {
   final _shiftApi = Api.shift;
-  final _stateSR = getIt<AppState>();
-  Profile? _profile;
+  final _appSr = getIt<AppStore>();
 
   bool _loading = false;
   PickerDateRange? range;
@@ -31,11 +29,6 @@ class _StReportScreenState extends State<StReportScreen> {
   @override
   void initState() {
     super.initState();
-    _start();
-  }
-
-  Future<void> _start() async {
-    _profile = _stateSR.profile;
   }
 
   @override
@@ -149,7 +142,6 @@ class _StReportScreenState extends State<StReportScreen> {
 
   Future<void> _fetchShifts() async {
     setState(() => _loading = true);
-    if (_profile == null) return;
     if (range == null) return;
     final fromDate = range!.startDate;
     final toDate = range!.endDate;
@@ -157,7 +149,7 @@ class _StReportScreenState extends State<StReportScreen> {
     if (fromDate == null || toDate == null) return;
     final fdStr = dateFmtDMY.format(fromDate);
     final tdStr = dateFmtDMY.format(toDate);
-    final sh = await _shiftApi.getShifts(_profile!.userId, fdStr, tdStr);
+    final sh = await _shiftApi.getShifts(_appSr.token.sub, fdStr, tdStr);
     if (sh != null) {
       setState(() => shiftReport = sh);
     }

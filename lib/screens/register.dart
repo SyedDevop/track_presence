@@ -4,9 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/router/router_name.dart';
-import 'package:vcare_attendance/services/camera_service.dart';
-import 'package:vcare_attendance/services/face_detector_service.dart';
-import 'package:vcare_attendance/services/ml_service.dart';
+import 'package:vcare_attendance/services/service.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -19,6 +17,7 @@ class _RegisterState extends State<Register> {
   final MLService _mlSR = getIt<MLService>();
   final CameraService _camSR = getIt<CameraService>();
   final FaceDetectorService _faceSR = getIt<FaceDetectorService>();
+  final AppStore _appSr = getIt<AppStore>();
 
   @override
   void initState() {
@@ -26,6 +25,7 @@ class _RegisterState extends State<Register> {
     _mlSR.initialize();
     _camSR.initialize();
     _faceSR.initialize();
+    _appSr.initialize();
   }
 
   @override

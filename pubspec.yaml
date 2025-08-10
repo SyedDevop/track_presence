@@ -35,29 +35,38 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   flex_color_scheme: ^8.0.1
-  go_router: ^14.2.7
+  go_router: ^16.0.0
   camera: ^0.11.0+2
+  camera_android: ^0.10.10+1
   path_provider: ^2.1.4
   path: ^1.9.0
   image: ^4.2.0
   url_launcher: ^6.3.0
   sqflite: ^2.3.3+1
-  get_it: ^7.7.0
-  google_mlkit_face_detection: ^0.11.0
+  get_it: ^8.0.3
+  google_mlkit_face_detection: ^0.13.1
   tflite_flutter: ^0.11.0
   flutter_svg: ^2.0.10+1
-  http: ^1.2.2
-  intl: ^0.19.0
+  # http: ^1.2.2
+  intl: ^0.20.2
   dropdown_search: ^6.0.1
   readmore: ^3.0.0
-  syncfusion_flutter_datepicker: ^27.2.3
+  syncfusion_flutter_datepicker: ^30.1.39
   local_auth: ^2.3.0
-  geolocator: ^13.0.2
-  google_mobile_ads: ^5.2.0
-  fl_chart: ^0.69.2
+  geolocator: ^14.0.2
+  # google_mobile_ads: ^6.0.0
+  fl_chart: ^1.0.0
   dio: ^5.8.0+1
   device_info_plus: ^11.3.0
   flutter_secure_storage: ^9.2.4
+  permission_handler: ^12.0.1
+  shared_preferences: ^2.5.3
+  # background_location_tracker:
+  #   path: ../flutter-background-location-tracker/
+  # git:
+  #   url: "https://github.com/RekanAnwar/flutter-background-location-tracker.git"
+  # awesome_notifications: ^0.10.1
+  # awesome_notifications_core: ^0.10.1
 
 dev_dependencies:
   flutter_test:
@@ -68,8 +77,8 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^4.0.0
-  flutter_launcher_icons: ^0.13.1
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

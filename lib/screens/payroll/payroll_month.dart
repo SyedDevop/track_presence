@@ -4,7 +4,7 @@ import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/constant/main.dart';
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/payroll_model.dart';
-import 'package:vcare_attendance/services/state.dart';
+import 'package:vcare_attendance/services/app_state.dart';
 import 'package:vcare_attendance/utils/utils.dart';
 import 'package:vcare_attendance/widgets/ui/frost_glass.dart';
 import 'package:vcare_attendance/widgets/widget.dart';
@@ -23,7 +23,7 @@ class _PayrollMonthScreenState extends State<PayrollMonthScreen> {
   String _selectedPeriod = "";
   List<dynamic> formattedPayroll = [];
   PayrollTotal payrollTotal = PayrollTotal.empty();
-  final profile = getIt<AppState>().profile;
+  final _appSr = getIt<AppStore>();
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   int selectedYear = DateTime.now().year;
@@ -42,7 +42,7 @@ class _PayrollMonthScreenState extends State<PayrollMonthScreen> {
   String month = kMonths[DateTime.now().month - 1];
 
   Future<void> fetchData(String month, int year) async {
-    final userId = profile?.userId ?? "";
+    final userId = _appSr.token.id;
     setState(() {
       _loading = true;
     });
@@ -204,8 +204,8 @@ class PayrollPresentCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: FrostedGlass(
-        borderColor: Colors.greenAccent.withOpacity(0.4),
-        backgroundColor: Colors.greenAccent.withOpacity(0.07),
+        borderColor: Colors.greenAccent.withValues(alpha: 0.4),
+        backgroundColor: Colors.greenAccent.withValues(alpha: 0.07),
         padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -409,9 +409,9 @@ class PayrollSpecialCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: FrostedGlass(
-          borderColor: color.withOpacity(0.3),
+          borderColor: color.withValues(alpha: 0.3),
           padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-          backgroundColor: color.withOpacity(0.08),
+          backgroundColor: color.withValues(alpha: 0.08),
           child: Column(
             children: [
               Row(
@@ -493,8 +493,8 @@ class PayrollTotalCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FrostedGlass(
-      backgroundColor: Colors.blue.withOpacity(0.1),
-      borderColor: Colors.blueAccent.withOpacity(0.5),
+      backgroundColor: Colors.blue.withValues(alpha: 0.1),
+      borderColor: Colors.blueAccent.withValues(alpha: 0.5),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(

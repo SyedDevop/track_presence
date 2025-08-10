@@ -1,7 +1,8 @@
+// import 'package:background_location_tracker/background_location_tracker.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:geolocator/geolocator.dart' hide ActivityType;
 import 'package:go_router/go_router.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+// import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'package:vcare_attendance/api/api.dart';
 import 'package:vcare_attendance/constant/department.dart';
@@ -10,8 +11,8 @@ import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/models/time.dart';
 import 'package:vcare_attendance/router/router_name.dart';
 import 'package:vcare_attendance/services/app_state.dart';
-import 'package:vcare_attendance/services/state.dart' as local;
 import 'package:vcare_attendance/snackbar/snackbar.dart';
+import 'package:vcare_attendance/utils/handle_location.dart';
 import 'package:vcare_attendance/utils/utils.dart';
 
 import 'package:vcare_attendance/widgets/widget.dart';
@@ -30,10 +31,11 @@ class _MyHomePageState extends State<MyHomePage> {
   final _shiftApi = Api.shift;
 
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
-  final local.AppState _asSr = getIt<local.AppState>();
-  final _astSr = getIt<AppStore>();
+  final _appSr = getIt<AppStore>();
+  // final _trackSr = getIt<TrackingService>();
 
   bool _initializing = false;
+
   ShiftTime? shiftTime;
   String strSiftTime = "---:--- / ---:---";
   String strSiftdate = "--:--:---- / --:--:----";
@@ -49,14 +51,14 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _getTimes() async {
+    await handleLocationPermission(context);
     try {
       setState(() => _initializing = true);
-      await _astSr.setTokenFromStorage();
-      final userId = _astSr.token.id;
+      await _appSr.initialize();
+      final userId = _appSr.token.id;
       final gotsShiftTime = await _shiftApi.getShifttime(userId);
       final gotClockedTime = await _attendanceApi.getColockedtime(userId);
       final gotOt = await _attendanceApi.getOvertime(userId);
-      await _asSr.initProfile(userId);
 
       setState(() {
         shiftTime = gotsShiftTime;
@@ -77,6 +79,8 @@ class _MyHomePageState extends State<MyHomePage> {
     } finally {
       setState(() => _initializing = false);
     }
+
+    // await BackgroundLocationTrackerManager.stopTracking();
     return;
   }
 
@@ -112,8 +116,8 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() => _initializing = true);
     try {
       final currPoss = await _determinePosition();
-      final dep = _asSr.employee?.companyDetails?.department;
-      final id = _asSr.employee?.personalDetails?.empId;
+      final dep = _appSr.token.department;
+      final id = _appSr.token.id;
 
       // 1) Exempt users always allowed
       if (_isExempt(dep, id)) {
@@ -146,8 +150,8 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  BannerAd? _bannerAd;
-  final bool _isAdLoaded = false;
+  // BannerAd? _bannerAd;
+  // final bool _isAdLoaded = false;
   // final adUnitId = 'ca-app-pub-2791763544217577/3961842060';
   //
   // void loadAd() async {
@@ -180,15 +184,15 @@ class _MyHomePageState extends State<MyHomePage> {
       drawer: const AppDrawer(),
       body: Column(
         children: [
-          if (_bannerAd != null && _isAdLoaded)
-            Align(
-              alignment: Alignment.topCenter,
-              child: SizedBox(
-                width: double.infinity,
-                height: _bannerAd!.size.height.toDouble(),
-                child: AdWidget(ad: _bannerAd!),
-              ),
-            ),
+          // if (_bannerAd != null && _isAdLoaded)
+          //   Align(
+          //     alignment: Alignment.topCenter,
+          //     child: SizedBox(
+          //       width: double.infinity,
+          //       height: _bannerAd!.size.height.toDouble(),
+          //       child: AdWidget(ad: _bannerAd!),
+          //     ),
+          //   ),
           Expanded(
             child: Stack(
               children: [
@@ -254,7 +258,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 if (_initializing)
                   Container(
-                    color: Colors.black.withOpacity(0.75),
+                    color: Colors.black.withValues(alpha: 0.75),
                     child: const Center(
                       child: CircularProgressIndicator(),
                     ),
@@ -275,52 +279,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
 /// Determine the current position of the device.
 ///
-/// When the location services are not enabled or permissions
-/// are denied the `Future` will return an error.
 Future<Position> _determinePosition() async {
-  bool serviceEnabled;
-  LocationPermission permission;
-
-  // Test if location services are enabled.
-  serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  if (!serviceEnabled) {
-    serviceEnabled = await Geolocator.openLocationSettings();
-    if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
-      return Future.error('Location services are disabled.');
-    }
-  }
-
-  permission = await Geolocator.checkPermission();
-  if (permission == LocationPermission.denied) {
-    permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied) {
-      // Permissions are denied, next time you could try
-      // requesting permissions again (this is also where
-      // Android's shouldShowRequestPermissionRationale
-      // returned true. According to Android guidelines
-      // your App should show an explanatory UI now.
-      return Future.error('Location permissions are denied');
-    }
-  }
-
-  if (permission == LocationPermission.deniedForever) {
-    // Permissions are denied forever, handle appropriately.
-    return Future.error(
-        'Location permissions are permanently denied, we cannot request permissions.');
-  }
-
   const LocationSettings locationSettings = LocationSettings(
     accuracy: LocationAccuracy.best,
   );
-
-  // When we reach here, permissions are granted and we can
-  // continue accessing the position of the device.
   return await Geolocator.getCurrentPosition(
-    locationSettings: locationSettings,
-  );
+      locationSettings: locationSettings);
 }
 
 class StatBar extends StatelessWidget {
@@ -383,7 +347,7 @@ class StatBlock extends StatelessWidget {
             ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10.0),
-              color: Theme.of(context).dialogBackgroundColor,
+              color: Theme.of(context).dialogTheme.backgroundColor,
             ),
             child: Text(statValue),
           ),
@@ -452,7 +416,7 @@ class TimeInfo extends StatelessWidget {
         padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: Theme.of(context).dialogBackgroundColor,
+          color: Theme.of(context).dialogTheme.backgroundColor,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -560,7 +524,7 @@ class TimeView extends StatelessWidget {
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: Theme.of(context).dialogBackgroundColor,
+        color: Theme.of(context).dialogTheme.backgroundColor,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

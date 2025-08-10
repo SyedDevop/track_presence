@@ -1,15 +1,34 @@
 import 'dart:convert';
 
 class JwtToken {
-  final String raw; // the full JWT string
+  /// The original JWT string
+  final String raw;
+
+  /// User ID (standard JWT claim)
   final String sub;
+
+  /// Internal ID
   final String id;
+
+  /// User type/role
   final String type;
+
+  /// User's display name
   final String name;
+
+  /// User's department
   final String department;
+
+  /// User's job title
   final String designation;
+
+  /// Who issued this token (standard JWT claim)
   final String iss;
+
+  /// When token was created (timestamp)
   final int iat;
+
+  /// When token expires (timestamp)
   final int exp;
 
   JwtToken._({
@@ -113,9 +132,12 @@ class JwtToken {
 
   @override
   String toString() {
-    return 'JwtToken(sub: $sub, id: $id, type: $type, '
-        'name: $name, department: $department, '
-        'designation: $designation, iss: $iss, '
-        'iat: $iat, exp: $exp)';
+    final iat_local = DateTime.fromMillisecondsSinceEpoch(iat * 1000);
+    final exp_local = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
+    return '''JwtToken(sub: $sub, id: $id, type: $type,
+        name: $name, department: $department, designation: $designation,
+        iss: $iss, iat: $iat, exp: $exp
+        iat: ${iat_local.toLocal()}, exp: ${exp_local.toLocal()}
+        )''';
   }
 }

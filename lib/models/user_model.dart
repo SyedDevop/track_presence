@@ -11,7 +11,7 @@ class User {
     required this.modelData,
   });
 
-  toMap() {
+  Map<String, String> toMap() {
     return {
       'user_id': userId,
       'user_name': userName,

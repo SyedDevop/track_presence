@@ -15,6 +15,7 @@ import 'package:vcare_attendance/models/user_model.dart';
 import 'package:vcare_attendance/services/camera_service.dart';
 import 'package:vcare_attendance/services/face_detector_service.dart';
 import 'package:vcare_attendance/services/ml_service.dart';
+import 'package:vcare_attendance/services/track_service.dart';
 
 import 'package:vcare_attendance/widgets/widget.dart';
 
@@ -78,7 +79,7 @@ class _ClockScreenState extends State<ClockScreen> {
     _frameFaces();
   }
 
-  _frameFaces() async {
+  Future<void> _frameFaces() async {
     _camSR.cameraController!.startImageStream((CameraImage image) async {
       if (_camSR.cameraController != null) {
         if (_detectingFaces) return; // prevents unnecessary over processing.
@@ -151,7 +152,7 @@ class _ClockScreenState extends State<ClockScreen> {
     return CameraPreviewBody();
   }
 
-  _onBackPressed() {
+  void _onBackPressed() {
     Navigator.of(context).pop();
   }
 
@@ -182,7 +183,7 @@ class _ClockScreenState extends State<ClockScreen> {
     );
   }
 
-  attendSheet(User user, String authType) {
+  Container attendSheet(User user, String authType) {
     return Container(
       padding: const EdgeInsets.all(20),
       child: AttendanceBottomSheet(
@@ -220,13 +221,12 @@ class AttendanceBottomSheet extends StatefulWidget {
 
 class _AttendanceBottomSheetState extends State<AttendanceBottomSheet> {
   final _attendanceApi = Api.attendance;
-
+  final _trackingSr = getIt<TrackingService>();
   final _reasonController = TextEditingController();
   bool _showReason = false;
   @override
   void dispose() {
     super.dispose();
-
     _reasonController.dispose();
   }
 
@@ -258,6 +258,7 @@ class _AttendanceBottomSheetState extends State<AttendanceBottomSheet> {
           onPressed: () async {
             widget.onStateChange(true);
             try {
+              // final data = await _attendanceApi.postColock(
               await _attendanceApi.postColock(
                 widget.user.userId,
                 'in',
@@ -265,6 +266,8 @@ class _AttendanceBottomSheetState extends State<AttendanceBottomSheet> {
                 widget.location,
                 widget.authType,
               );
+              // if (data == null) return;
+              // await _trackingSr.startTracking(data.type, data.attendanceId);
             } on DioException catch (e) {
               if (mounted) {
                 await showDialog(
@@ -310,6 +313,7 @@ class _AttendanceBottomSheetState extends State<AttendanceBottomSheet> {
                 widget.location,
                 widget.authType,
               );
+              // await _trackingSr.stopTracking();
             } on DioException catch (e) {
               await showDialog(
                 context: context,

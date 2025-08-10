@@ -2,10 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vcare_attendance/db/databse_helper.dart';
 import 'package:vcare_attendance/getit.dart';
 import 'package:vcare_attendance/router/router_name.dart';
-import 'package:vcare_attendance/services/state.dart';
+import 'package:vcare_attendance/services/app_state.dart';
 import 'package:vcare_attendance/utils/token_storage.dart';
 
 class AppDrawer extends StatefulWidget {
@@ -16,11 +15,11 @@ class AppDrawer extends StatefulWidget {
 }
 
 class _AppDrawerState extends State<AppDrawer> {
-  final AppState _asSr = getIt<AppState>();
+  final AppStore _appSr = getIt<AppStore>();
 
   @override
   Widget build(BuildContext context) {
-    String? imgPath = _asSr.localProfile?.imgPath;
+    String? imgPath = _appSr.profileImagePathCached;
     return Drawer(
       child: Column(
         children: [
@@ -76,7 +75,7 @@ class _AppDrawerState extends State<AppDrawer> {
                     context.pop();
                     context.pushNamed(
                       RouteNames.profile,
-                      pathParameters: {"id": _asSr.profile?.userId ?? " "},
+                      pathParameters: {"id": _appSr.token.id},
                       queryParameters: {"img-path": imgPath},
                     );
                   },
@@ -88,7 +87,7 @@ class _AppDrawerState extends State<AppDrawer> {
                     context.pop();
                     context.pushNamed(
                       RouteNames.account,
-                      pathParameters: {"id": _asSr.profile?.userId ?? " "},
+                      pathParameters: {"id": _appSr.token.id},
                       queryParameters: {"img-path": imgPath},
                     );
                   },
@@ -128,8 +127,8 @@ class _AppDrawerState extends State<AppDrawer> {
                 ),
               ),
             ),
-      accountName: Text(_asSr.profile?.name ?? "Name"),
-      accountEmail: Text(_asSr.profile?.userId ?? "Id"),
+      accountName: Text(_appSr.token.name),
+      accountEmail: Text(_appSr.token.id),
       decoration: const BoxDecoration(
         color: Color(0xFFF8F8F8), // Sets the background to white
         image: DecorationImage(
