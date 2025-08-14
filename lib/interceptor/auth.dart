@@ -16,12 +16,17 @@ class AuthInterceptor extends QueuedInterceptor {
   /// If it's in progress, subsequent requests will skip the refresh attempt
   /// until the first one completes.
   bool isRefreshing = false;
+  final List<RequestOptions> _pendingRequests = [];
 
   @override
   void onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
+    if (options.path.contains('login.php') ||
+        options.path.contains('refresh.php')) {
+      return handler.next(options);
+    }
     //TODO: check if the request is a login or refresh Token then don't auth headers
     final token = await _storage.accessToken;
     if (token != null) {
