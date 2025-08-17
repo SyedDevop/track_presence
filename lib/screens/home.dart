@@ -16,6 +16,8 @@ import 'package:vcare_attendance/utils/handle_location.dart';
 import 'package:vcare_attendance/utils/utils.dart';
 
 import 'package:vcare_attendance/widgets/widget.dart';
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+    as bg;
 
 const gap = 15.0;
 
@@ -46,12 +48,34 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    _initPlatformState();
     _getTimes();
     // loadAd();
   }
 
+  Future<Null> _initPlatformState() async {
+    bg.BackgroundGeolocation.onLocation((bg.Location location) {
+      print('[onLocation] $location');
+    });
+
+    bg.BackgroundGeolocation.ready(bg.Config(
+      desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
+      distanceFilter: 0,
+      locationUpdateInterval: Duration(seconds: 10).inMilliseconds,
+      fastestLocationUpdateInterval: Duration(seconds: 10).inMilliseconds,
+      heartbeatInterval: Duration(minutes: 5).inSeconds,
+      enableHeadless: true,
+      stopOnTerminate: false,
+      startOnBoot: true,
+      debug: true,
+      logLevel: bg.Config.LOG_LEVEL_VERBOSE,
+    ));
+  }
+
   Future<void> _getTimes() async {
     await handleLocationPermission(context);
+    bg.BackgroundGeolocation.start();
+    bg.BackgroundGeolocation.start();
     try {
       setState(() => _initializing = true);
       await _appSr.initialize();
