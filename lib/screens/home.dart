@@ -48,7 +48,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    _initPlatformState();
     _getTimes();
     // loadAd();
   }
@@ -61,21 +60,24 @@ class _MyHomePageState extends State<MyHomePage> {
     bg.BackgroundGeolocation.ready(bg.Config(
       desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
       distanceFilter: 0,
-      locationUpdateInterval: Duration(seconds: 10).inMilliseconds,
-      fastestLocationUpdateInterval: Duration(seconds: 10).inMilliseconds,
-      heartbeatInterval: Duration(minutes: 5).inSeconds,
+      locationUpdateInterval: Duration(seconds: 60).inMilliseconds,
+      disableElasticity: true,
       enableHeadless: true,
       stopOnTerminate: false,
       startOnBoot: true,
-      debug: true,
+      reset: true,
       logLevel: bg.Config.LOG_LEVEL_VERBOSE,
-    ));
+      debug: true,
+      url: "https://vcarehospital.in/hmsversion8.2/payroll/api/test_loc.php",
+    )).then((s) {
+      bg.BackgroundGeolocation.stop();
+      bg.BackgroundGeolocation.start();
+    });
   }
 
   Future<void> _getTimes() async {
+    await _initPlatformState();
     await handleLocationPermission(context);
-    bg.BackgroundGeolocation.start();
-    bg.BackgroundGeolocation.start();
     try {
       setState(() => _initializing = true);
       await _appSr.initialize();
