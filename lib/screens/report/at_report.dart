@@ -271,8 +271,10 @@ class _AtReportScreenState extends State<AtReportScreen> {
       context: context,
       sheetAnimationStyle: _animationStyle,
       elevation: 4,
-      builder: (BuildContext context) => FullAttendancesReport(
-          attendance: attendance, extraHours: extraHour, leave: leave),
+      builder: (BuildContext context) => SafeArea(
+        child: FullAttendancesReport(
+            attendance: attendance, extraHours: extraHour, leave: leave),
+      ),
     );
   }
 
@@ -282,10 +284,12 @@ class _AtReportScreenState extends State<AtReportScreen> {
       context: context,
       sheetAnimationStyle: _animationStyle,
       elevation: 4,
-      builder: (BuildContext context) => FullExtraHoursReport(
-        extraHourDate: extraHourDate,
-        extraHour: extraHour,
-        leave: leave,
+      builder: (BuildContext context) => SafeArea(
+        child: FullExtraHoursReport(
+          extraHourDate: extraHourDate,
+          extraHour: extraHour,
+          leave: leave,
+        ),
       ),
     );
   }

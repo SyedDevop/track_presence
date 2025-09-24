@@ -78,23 +78,25 @@ class _PayrollDayScreenState extends State<PayrollDayScreen> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.55,
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
-        child: SfDateRangePicker(
-          selectionMode: DateRangePickerSelectionMode.single,
-          showTodayButton: true,
-          showActionButtons: true,
-          toggleDaySelection: true,
-          maxDate: DateTime.now(),
-          onCancel: () => context.pop(),
-          onSubmit: (Object? value) {
-            if (mounted) context.pop();
-            if (value is DateTime) {
-              final selectedDate = dateFmt.format(value);
-              _fetchData(selectedDate);
-            }
-          },
+      builder: (context) => SafeArea(
+        child: Container(
+          height: MediaQuery.of(context).size.height * 0.55,
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
+          child: SfDateRangePicker(
+            selectionMode: DateRangePickerSelectionMode.single,
+            showTodayButton: true,
+            showActionButtons: true,
+            toggleDaySelection: true,
+            maxDate: DateTime.now(),
+            onCancel: () => context.pop(),
+            onSubmit: (Object? value) {
+              if (mounted) context.pop();
+              if (value is DateTime) {
+                final selectedDate = dateFmt.format(value);
+                _fetchData(selectedDate);
+              }
+            },
+          ),
         ),
       ),
     );

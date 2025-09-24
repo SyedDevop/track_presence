@@ -153,7 +153,7 @@ class _LeaveScreenState extends State<LeaveScreen> {
             borderRadius: BorderRadius.vertical(top: Radius.circular(radius)),
             boxShadow: [
               BoxShadow(
-                color: theme.shadowColor.withOpacity(0.12),
+                color: theme.shadowColor.withAlpha(30),
                 blurRadius: 10,
                 offset: const Offset(0, -4),
               ),
