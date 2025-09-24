@@ -468,6 +468,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen>
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () async {
+                  if (_task == null) return;
+                  if (_task!.latitude == null || _task!.longitude == null)
+                    return;
                   final lat = _task!.latitude!;
                   final long = _task!.longitude!;
                   final googleMap =
