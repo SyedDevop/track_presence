@@ -73,22 +73,25 @@ class _LeaveScreenState extends State<LeaveScreen> {
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(title: const Text("Leaves")),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 1),
-              child: RefreshIndicator(
-                key: _refreshIndicatorKey,
-                onRefresh: _fetchLeaves,
-                child: ListView.builder(
-                  itemCount: leaves.length,
-                  itemBuilder: (context, index) {
-                    final item = leaves[index];
-                    return LeaveCard(leave: item);
-                  },
+      body: SafeArea(
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 1),
+                child: RefreshIndicator(
+                  key: _refreshIndicatorKey,
+                  onRefresh: _fetchLeaves,
+                  child: ListView.builder(
+                    itemCount: leaves.length,
+                    itemBuilder: (context, index) {
+                      final item = leaves[index];
+                      return LeaveCard(leave: item);
+                    },
+                  ),
                 ),
               ),
-            ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await _showDateSheet(context);
@@ -135,88 +138,177 @@ class _LeaveScreenState extends State<LeaveScreen> {
   }
 
   Widget _showFormSheet() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Text(
-            "Apply For Leave",
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
+    final theme = Theme.of(scaffoldKey.currentContext!);
+    final radius = 16.0;
+
+    return Material(
+      // Use Material so ink, elevation & theme colors work correctly.
+      color: Colors.transparent,
+      child: SafeArea(
+        top: false,
+        child: Container(
+          // card-like container with rounded top corners (for bottom sheet)
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(radius)),
+            boxShadow: [
+              BoxShadow(
+                color: theme.shadowColor.withOpacity(0.12),
+                blurRadius: 10,
+                offset: const Offset(0, -4),
+              ),
+            ],
           ),
-          const Divider(),
-          const SizedBox(height: 25),
-          Form(
-            key: _formKey,
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 12,
+            bottom:
+                MediaQuery.of(scaffoldKey.currentContext!).viewInsets.bottom +
+                    20,
+          ),
+          child: SingleChildScrollView(
+            // prevents overflow when keyboard opens
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                TextFormField(
-                  controller: _reasonCT,
-                  keyboardType: TextInputType.text,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: "Reason",
-                    prefixIcon: Icon(Icons.psychology_alt_rounded),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Reason  is required for Leave";
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 25),
-                DropdownSearch<String>(
-                  key: _leaveTypeKey,
-                  autoValidateMode: AutovalidateMode.onUserInteraction,
-                  validator: (String? i) {
-                    if (i == null) {
-                      return 'Leave Type is required';
-                    }
-                    return null;
-                  },
-                  items: (f, cs) => kHolidays,
-                  popupProps: const PopupProps.menu(
-                    fit: FlexFit.loose,
-                    showSelectedItems: true,
-                    showSearchBox: true,
-                    menuProps: MenuProps(
-                      backgroundColor: Color(0xff36454f),
-                      elevation: 4,
-                      borderRadius: BorderRadius.horizontal(
-                          left: Radius.circular(5), right: Radius.circular(5)),
-                    ),
-                  ),
-                  compareFn: (item1, item2) => item1 == item2,
-                  decoratorProps: const DropDownDecoratorProps(
-                    decoration: InputDecoration(
-                      labelText: "Select a Leave Type",
-                      hintText: "leave type...",
+                // draggable handle
+                Center(
+                  child: Container(
+                    width: 42,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: theme.dividerColor,
+                      borderRadius: BorderRadius.circular(4),
                     ),
                   ),
                 ),
+
+                Text(
+                  "Apply For Leave",
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+                Divider(color: theme.dividerColor, height: 1),
+                const SizedBox(height: 18),
+
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _reasonCT,
+                        keyboardType: TextInputType.text,
+                        textInputAction: TextInputAction.next,
+                        decoration: InputDecoration(
+                          labelText: "Reason",
+                          prefixIcon: const Icon(Icons.psychology_alt_rounded),
+                          filled: true,
+                          fillColor: theme.inputDecorationTheme.fillColor ??
+                              theme.colorScheme.surfaceVariant,
+                          contentPadding: const EdgeInsets.symmetric(
+                              vertical: 14, horizontal: 12),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return "Reason is required for leave";
+                          }
+                          return null;
+                        },
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // DropdownSearch: use the provided list directly (not the two-arg form)
+                      DropdownSearch<String>(
+                        key: _leaveTypeKey,
+                        autoValidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (String? i) {
+                          if (i == null || i.trim().isEmpty) {
+                            return 'Leave Type is required';
+                          }
+                          return null;
+                        },
+                        items: (_, __) => kHolidays, // assume List<String>
+                        selectedItem: null,
+                        popupProps: PopupProps.menu(
+                          fit: FlexFit.loose,
+                          showSelectedItems: true,
+                          showSearchBox: true,
+                          menuProps: MenuProps(
+                            // prefer theme instead of hard-coded color
+                            backgroundColor: theme.dialogBackgroundColor,
+                            elevation: 6,
+                            borderRadius: BorderRadius.horizontal(
+                              left: Radius.circular(8),
+                              right: Radius.circular(8),
+                            ),
+                          ),
+                        ),
+                        compareFn: (item1, item2) => item1 == item2,
+                        decoratorProps: DropDownDecoratorProps(
+                          decoration: InputDecoration(
+                            labelText: "Select a Leave Type",
+                            hintText: "leave type...",
+                            filled: true,
+                            fillColor: theme.inputDecorationTheme.fillColor ??
+                                theme.colorScheme.surfaceVariant,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 12, horizontal: 12),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 22),
+
+                // action buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () =>
+                          Navigator.of(scaffoldKey.currentContext!).pop(),
+                      child: const Text('Cancel'),
+                    ),
+                    const SizedBox(width: 10),
+                    FilledButton(
+                      onPressed: _submit,
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12, horizontal: 24),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 4,
+                      ),
+                      child: const Text(
+                        "Submit",
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 50),
               ],
             ),
           ),
-          const SizedBox(height: 50),
-          FilledButton(
-            onPressed: _submit,
-            child: const Padding(
-              padding: EdgeInsets.symmetric(
-                vertical: 10,
-                horizontal: 50,
-              ),
-              child: Text("Submit"),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -229,22 +321,24 @@ class _LeaveScreenState extends State<LeaveScreen> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.55,
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
-        child: SfDateRangePicker(
-          selectionMode: DateRangePickerSelectionMode.range,
-          showTodayButton: true,
-          showActionButtons: true,
-          enableMultiView: true,
-          enablePastDates: false,
-          onCancel: () => context.pop(),
-          onSubmit: (Object? value) {
-            if (mounted) context.pop();
-            if (value is PickerDateRange) {
-              setState(() => range = value);
-            }
-          },
+      builder: (context) => SafeArea(
+        child: Container(
+          height: MediaQuery.of(context).size.height * 0.55,
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
+          child: SfDateRangePicker(
+            selectionMode: DateRangePickerSelectionMode.range,
+            showTodayButton: true,
+            showActionButtons: true,
+            enableMultiView: true,
+            enablePastDates: false,
+            onCancel: () => context.pop(),
+            onSubmit: (Object? value) {
+              if (mounted) context.pop();
+              if (value is PickerDateRange) {
+                setState(() => range = value);
+              }
+            },
+          ),
         ),
       ),
     );
