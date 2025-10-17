@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
-import 'package:vcare_attendance/api/location_api.dart';
 import 'package:vcare_attendance/models/report_model.dart';
 import 'package:vcare_attendance/models/time.dart';
 
@@ -12,30 +11,6 @@ String toDay() {
 
 String toDay2() {
   return DateFormat('yyyy-MM-dd').format(DateTime.now());
-}
-
-class AttendancePostData {
-  int attendanceId;
-  AttendanceType type;
-  AttendancePostData({required this.attendanceId, required this.type});
-
-  static AttendancePostData? fromJson(dynamic json) {
-    final dataSection = json["data"];
-    if (dataSection == null || dataSection?["clock"] != "in") return null;
-    final attendanceId = dataSection?["attendance_id"];
-    final type = (dataSection?["type"] as String) == "regular"
-        ? AttendanceType.attendance
-        : AttendanceType.otAttendance;
-
-    if (attendanceId is! int) {
-      throw Exception(
-          'Invalid response: "attandance_id" missing or not an int');
-    }
-    return AttendancePostData(
-      attendanceId: attendanceId,
-      type: type,
-    );
-  }
 }
 
 class AttendanceApi {
@@ -70,7 +45,7 @@ class AttendanceApi {
     }
   }
 
-  Future<AttendancePostData?> postColock(
+  Future<String> postColock(
     String id,
     String clockType,
     String reason,
@@ -90,7 +65,7 @@ class AttendanceApi {
       options: Options(contentType: "application/json"),
     );
 
-    return AttendancePostData.fromJson(res.data);
+    return res.data["message"] ?? "";
   }
 
   Future<Report?> getReport(

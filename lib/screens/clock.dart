@@ -16,6 +16,7 @@ import 'package:vcare_attendance/services/camera_service.dart';
 import 'package:vcare_attendance/services/face_detector_service.dart';
 import 'package:vcare_attendance/services/ml_service.dart';
 import 'package:vcare_attendance/services/track_service.dart';
+import 'package:vcare_attendance/services/tts_service.dart';
 
 import 'package:vcare_attendance/widgets/widget.dart';
 
@@ -221,8 +222,10 @@ class AttendanceBottomSheet extends StatefulWidget {
 
 class _AttendanceBottomSheetState extends State<AttendanceBottomSheet> {
   final _attendanceApi = Api.attendance;
-  final _trackingSr = getIt<TrackingService>();
+  // final _trackingSr = getIt<TrackingService>();
   final _reasonController = TextEditingController();
+
+  final _tts = getIt<Tts>();
   bool _showReason = false;
   @override
   void dispose() {
@@ -259,24 +262,24 @@ class _AttendanceBottomSheetState extends State<AttendanceBottomSheet> {
             widget.onStateChange(true);
             try {
               // final data = await _attendanceApi.postColock(
-              await _attendanceApi.postColock(
+              final mess = await _attendanceApi.postColock(
                 widget.user.userId,
                 'in',
                 _reasonController.text,
                 widget.location,
                 widget.authType,
               );
+
+              if (mess.isNotEmpty) _tts.speak(mess);
               // if (data == null) return;
               // await _trackingSr.startTracking(data.type, data.attendanceId);
             } on DioException catch (e) {
+              final mess = e.message ?? "";
+              if (mess.isNotEmpty) _tts.speak(mess);
               if (mounted) {
                 await showDialog(
                   context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      content: Text(e.message ?? ""),
-                    );
-                  },
+                  builder: (context) => AlertDialog(content: Text(mess)),
                 );
               }
               if (e.error == kReasonRequired || e.error == kShiftNotFound) {
@@ -306,22 +309,20 @@ class _AttendanceBottomSheetState extends State<AttendanceBottomSheet> {
           onPressed: () async {
             widget.onStateChange(true);
             try {
-              await _attendanceApi.postColock(
+              final mess = await _attendanceApi.postColock(
                 widget.user.userId,
                 'out',
                 _reasonController.text,
                 widget.location,
                 widget.authType,
               );
-              // await _trackingSr.stopTracking();
+              if (mess.isNotEmpty) _tts.speak(mess);
             } on DioException catch (e) {
+              final mess = e.message ?? "";
+              if (mess.isNotEmpty) _tts.speak(mess);
               await showDialog(
                 context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    content: Text(e.message ?? ""),
-                  );
-                },
+                builder: (context) => AlertDialog(content: Text(mess)),
               );
 
               if (e.error == kReasonRequired) {
